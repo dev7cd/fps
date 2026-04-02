@@ -1,0 +1,4 @@
+<map id="gui.Preview3DCanvas.draw_fibers" name="gui.Preview3DCanvas.draw_fibers">
+<area shape="rect" id="node1" title="Loads fiber data from a JSON file and renders them in 3D." alt="" coords="5,5,205,47"/>
+<area shape="rect" id="node2" href="$dc/d81/classgui_1_1Preview3DCanvas.html#ab8fb93d25b19183a6a1bfc63645456b9" title=" " alt="" coords="253,5,421,47"/>
+</map>

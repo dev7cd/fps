@@ -1,0 +1,6 @@
+<map id="SuperEllipticalSection" name="SuperEllipticalSection">
+<area shape="rect" id="node1" title="Represents a Lamé curve (super&#45;ellipse)." alt="" coords="5,256,168,333"/>
+<area shape="rect" id="node4" href="$d3/dcd/classCircularSection.html" title="Specialized SuperEllipticalSection for circles (n=2, a=b=radius)." alt="" coords="27,381,147,459"/>
+<area shape="rect" id="node2" href="$de/d74/classBaseSection.html" title="Abstract base class for all fiber cross&#45;sections." alt="" coords="35,131,138,208"/>
+<area shape="rect" id="node3" title=" " alt="" coords="62,5,111,83"/>
+</map>
