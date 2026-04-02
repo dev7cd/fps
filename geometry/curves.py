@@ -1,31 +1,35 @@
 """
-geometry/curves.py
-Gestion des courbes : Interpolation (Splines) et Génération aléatoire (Walk).
+@file curves.py
+@brief Curve management: Interpolation (Splines) and Random Generation (Walk).
+@details Provides tools for smooth fiber path generation using Catmull-Rom splines 
+and stochastic control point generation with orientation bias.
 """
 
 import numpy as np
 from typing import List, Tuple, Union, Optional
 
 class CatmullRomSpline:
-    """
-    Implémentation vectorisée des splines de Catmull-Rom (Centripète par défaut).
+    """!
+    @class CatmullRomSpline
+    @brief Vectorized implementation of Catmull-Rom splines.
+    @details Supports centripetal, uniform, and chordal parameterization through alpha.
     """
     
     @staticmethod
     def interpolate(control_points: np.ndarray, num_points: int = 100, alpha: float = 0.5) -> np.ndarray:
-        """
-        Génère une courbe lisse passant par les points de contrôle.
-        
-        Args:
-            control_points: Array (N, 3)
-            num_points: Nombre total de points interpolés désirés.
-            alpha: 0.0=Uniforme, 0.5=Centripète (recommandé), 1.0=Chordal
+        """!
+        @brief Generates a smooth curve passing through control points.
+        @param control_points Array of shape (N, 3) containing the skeleton points.
+        @param num_points Total number of interpolated points desired for the final curve.
+        @param alpha Parameterization factor: 0.0=Uniform, 0.5=Centripetal (recommended), 1.0=Chordal.
+        @return A (num_points, 3) array representing the smooth curve.
         """
         if len(control_points) < 4:
             # Pas assez de points, interpolation linéaire simple
             return CatmullRomSpline._linear_resample(control_points, num_points)
 
-        # Ajout de points fantômes aux extrémités pour fermer ou étendre la spline
+        # --- 1. Ghost points ---
+        # Add ghost points at extremities for a natural open curve
         # Ici on duplique/projette pour une courbe ouverte naturelle
         p0 = 2 * control_points[0] - control_points[1]
         pn = 2 * control_points[-1] - control_points[-2]
@@ -79,7 +83,12 @@ class CatmullRomSpline:
 
     @staticmethod
     def _linear_resample(points: np.ndarray, num_samples: int) -> np.ndarray:
-        """Rééchantillonne une polyligne pour avoir des points équidistants."""
+        """!
+        @brief Resamples a polyline to ensure equidistant points.
+        @param points Input polyline points (N, 3).
+        @param num_samples Desired number of points.
+        @return Resampled polyline (num_samples, 3).
+        """
         if len(points) < 2: return points
         
         # Calcul des distances cumulées
@@ -109,8 +118,16 @@ def generate_random_control_points(
     orientation_bias: Union[str, List[float]] = 'free',
     bias_strength: float = 0.0
 ) -> np.ndarray:
-    """
-    Génère une suite de points (marche aléatoire) dans l'espace continu.
+    """!
+    @brief Generates a sequence of points (random walk) in continuous space.
+    @param n_points Number of control points to generate.
+    @param step_mean Mean distance between consecutive points.
+    @param step_std Standard deviation of the step length.
+    @param box_dims Dimensions [Lx, Ly, Lz] of the generation domain.
+    @param rng Numpy random generator instance.
+    @param orientation_bias Directional constraint ('x', 'y', 'z', 'free' or a 3D vector).
+    @param bias_strength Weight of the bias (0.0 to 1.0).
+    @return Array of shape (n_points, 3).
     """
     Lx, Ly, Lz = box_dims
     

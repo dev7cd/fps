@@ -6,16 +6,28 @@ from generation.periodicity import PeriodicManager
 logger = logging.getLogger(__name__)
 
 class GmshExporter:
+    """
+    @class GmshExporter
+    @brief Classe responsable de la génération de fichiers .step et .msh.
+    """
+
     def __init__(self, config):
         """
-        Initialise l'exportateur avec la configuration du RVE.
-        config.box_dims: dimensions (Lx, Ly, Lz)
+        @brief Initialise l'exportateur avec la configuration du RVE.
+        @param config Objet de configuration contenant box_dims et les paramètres de maillage.
         """
         self.config = config
 
     def generate_mesh(self, fibers, voids, output_path):
         """
-        Génère la géométrie CAO (.step) et le maillage (.msh) de manière robuste.
+        @brief Génère la géométrie CAO (.step) et le maillage (.msh) de manière robuste.
+        
+        Réalise les étapes suivantes :
+        1. Création du cube matrice.
+        2. Création des fibres (balayage/pipe) et pores (sphères).
+        3. Fragmentation booléenne pour assurer la conformité des interfaces.
+        4. Tri des fragments (clipping) et définition des groupes physiques.
+        5. Maillage volumique avec champs de taille adaptatifs.
         """
         # Initialisation propre
         try:
@@ -197,6 +209,13 @@ class GmshExporter:
         gmsh.finalize()
 
     def _create_section_face(self, fiber, occ, shift):
+        """
+        @brief Crée une face 2D représentant la section de la fibre.
+        @param fiber Instance de la fibre.
+        @param occ Raccourci vers gmsh.model.occ.
+        @param shift Vecteur de translation (pour les ghosts).
+        @return Tag de la face créée.
+        """
         p0 = fiber.centerline[0] + shift
         if fiber.section_type == 'circular':
             # Primitive disque : très stable
@@ -219,8 +238,11 @@ class GmshExporter:
 
     def _setup_size_fields(self, dims, min_size, max_size):
         """
-        Configure des champs de taille adaptatifs Distance + Threshold
+        @brief Configure des champs de taille adaptatifs Distance + Threshold
         autour des interfaces fibre/matrice.
+        @param dims Dimensions de la boîte.
+        @param min_size Taille de maille minimale (aux interfaces).
+        @param max_size Taille de maille maximale (loin des fibres).
         """
         # Récupérer les surfaces des inclusions
         inclusion_surfaces = []
@@ -257,8 +279,9 @@ class GmshExporter:
 
     def _apply_periodic_constraints(self, dims):
         """
-        Applique les contraintes de maillage périodique sur les 3 paires de faces.
+        @brief Applique les contraintes de maillage périodique sur les 3 paires de faces.
         Face pairs : (X=0, X=Lx), (Y=0, Y=Ly), (Z=0, Z=Lz)
+        @param dims Dimensions (Lx, Ly, Lz) du domaine.
         """
         Lx, Ly, Lz = dims
         surfaces = gmsh.model.getEntities(2)

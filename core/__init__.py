@@ -1,11 +1,13 @@
 """
-core/
-Module central définissant les structures de données fondamentales du système.
-Contient :
-- La configuration globale (FiberPackingConfig)
-- Les objets physiques (Fiber, Void)
-- Les structures de données géométriques (CutData)
-- Les structures d'accélération spatiale (SpatialGrid)
+@dir core/
+@brief Module central définissant les structures de données fondamentales du système.
+
+Ce module regroupe les composants essentiels pour la représentation du RVE :
+ - @ref FiberPackingConfig : Gestion de la configuration et des paramètres.
+ - @ref Fiber : Représentation géométrique et physique des fibres.
+ - @ref Void : Gestion des défauts de porosité.
+ - @ref SpatialGrid : Structure d'accélération pour la détection de collisions.
+ - Structures de données géométriques (CutData).
 """
 
 from .config import FiberPackingConfig

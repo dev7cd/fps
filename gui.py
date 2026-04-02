@@ -1,20 +1,21 @@
-"""
-gui.py
-Interface graphique PyQt6 pour Fiber Packing System v6.1.
-Lance la generation de VER via QProcess (sous-processus non-bloquant).
-"""
+## @file gui.py
+#  @brief Graphical User Interface for the Fiber Packing System.
+#  @details Built with PyQt6, this interface allows users to configure RVE parameters,
+#  visualize the generation process in real-time via a console, and preview the 
+#  resulting fiber microstructure in 3D.
+
 
 import sys
 import os
-from PyQt6.QtWidgets import (
+from PyQt6.QtWidgets import ( # type: ignore
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGroupBox, QLabel, QDoubleSpinBox, QSpinBox, QComboBox,
     QCheckBox, QPushButton, QPlainTextEdit, QLineEdit,
     QScrollArea, QSplitter, QProgressBar, QSlider, QFormLayout,
     QFileDialog, QMessageBox
 )
-from PyQt6.QtCore import Qt, QProcess, QTimer
-from PyQt6.QtGui import QFont, QColor, QTextCharFormat, QIcon
+from PyQt6.QtCore import Qt, QProcess, QTimer # type: ignore
+from PyQt6.QtGui import QFont, QColor, QTextCharFormat, QIcon # type: ignore
 
 import matplotlib
 matplotlib.use('QtAgg')
@@ -28,10 +29,18 @@ import numpy as np
 # ---------------------------------------------------------------------------
 
 class CollapsibleSection(QGroupBox):
-    """QGroupBox avec titre cliquable pour plier/deplier le contenu."""
+    ## @class CollapsibleSection
+    #  @brief A custom QGroupBox that can be toggled to show or hide its content.
 
     def __init__(self, title, description="", parent=None):
+        """!
+        @brief Initializes the collapsible section.
+        @param title The title displayed on the group box.
+        @param description Tooltip description for the section.
+        @param parent Parent widget.
+        """
         super().__init__(title, parent)
+        ## @var setCheckable
         self.setCheckable(True)
         self.setChecked(True)
         self.toggled.connect(self._on_toggle)
@@ -49,20 +58,30 @@ class CollapsibleSection(QGroupBox):
         self.setLayout(box)
 
     def form(self) -> QFormLayout:
+        """!
+        @brief Returns the internal form layout for adding rows.
+        @return QFormLayout instance.
+        """
         return self._layout
 
     def _on_toggle(self, checked):
+        """!
+        @brief Handles the toggling of the section visibility.
+        """
         self._content.setVisible(checked)
 
 
 # ---------------------------------------------------------------------------
 #  Vue 3D Matplotlib
 # ---------------------------------------------------------------------------
-
 class Preview3DCanvas(FigureCanvasQTAgg):
-    """Canvas matplotlib pour afficher la boite RVE et les fibres."""
+    ## @class Preview3DCanvas
+    #  @brief Matplotlib canvas integrated into PyQt for 3D RVE visualization.
 
     def __init__(self, parent=None):
+        """!
+        @brief Initializes the 3D canvas with a dark theme.
+        """
         self.fig = Figure(figsize=(5, 4), dpi=100, facecolor='#2b2b2b')
         super().__init__(self.fig)
         self.ax = self.fig.add_subplot(111, projection='3d', facecolor='#2b2b2b')
@@ -70,6 +89,9 @@ class Preview3DCanvas(FigureCanvasQTAgg):
         self.draw_box(1, 1, 1)
 
     def _style_axes(self):
+        """!
+        @brief Applies scientific styling to the 3D axes.
+        """
         for axis in [self.ax.xaxis, self.ax.yaxis, self.ax.zaxis]:
             axis.label.set_color('white')
             axis.set_tick_params(colors='white')
@@ -78,7 +100,12 @@ class Preview3DCanvas(FigureCanvasQTAgg):
         self.ax.set_zlabel('Z')
 
     def draw_box(self, lx, ly, lz):
-        """Dessine un wireframe de la boite RVE."""
+        """!
+        @brief Draws the wireframe of the RVE bounding box.
+        @param lx Length in X.
+        @param ly Length in Y.
+        @param lz Length in Z.
+        """
         self.ax.cla()
         self._style_axes()
 
@@ -101,7 +128,11 @@ class Preview3DCanvas(FigureCanvasQTAgg):
         self.draw()
 
     def draw_fibers(self, json_path, box_dims):
-        """Charge le fichier parametric JSON et dessine les fibres."""
+        """!
+        @brief Loads fiber data from a JSON file and renders them in 3D.
+        @param json_path Path to the parametric JSON record.
+        @param box_dims Tuple of (Lx, Ly, Lz).
+        """
         import json
         self.ax.cla()
         self._style_axes()
@@ -147,7 +178,13 @@ class Preview3DCanvas(FigureCanvasQTAgg):
 # ---------------------------------------------------------------------------
 
 class MainWindow(QMainWindow):
+    ## @class MainWindow
+    #  @brief Main application window for the Fiber Packing System GUI.
+    
     def __init__(self):
+        """!
+        @brief Initializes the main window, UI components, and styles.
+        """
         super().__init__()
         self.setWindowTitle("Fiber Packing System v6.1")
         self.setMinimumSize(1100, 750)
@@ -161,6 +198,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_ui(self):
+        """!
+        @brief Orchestrates the construction of the sidebar and the main view.
+        """
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QHBoxLayout(central)
@@ -247,6 +287,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_domain(self, parent_layout):
+        """!
+        @brief Builds the UI section for domain dimensions and target volume fraction.
+        """
         sec = CollapsibleSection(
             "1. Domaine et Cibles",
             "Definit la taille de l'echantillon numerique et le taux de remplissage en fibres."
@@ -300,6 +343,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_fibers(self, parent_layout):
+        """!
+        @brief Builds the UI section for fiber geometry and cross-section parameters.
+        """
         sec = CollapsibleSection(
             "2. Geometrie des Fibres",
             "Definit la taille et la forme de la section transversale de chaque fibre."
@@ -330,6 +376,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_orientation(self, parent_layout):
+        """!
+        @brief Builds the UI section for orientation bias and trajectory constraints.
+        """
         sec = CollapsibleSection(
             "3. Orientation des Fibres",
             "Controle la direction preferentielle des fibres dans le volume."
@@ -392,6 +441,9 @@ class MainWindow(QMainWindow):
         parent_layout.addWidget(sec)
 
     def _on_bias_changed(self, index):
+        """!
+        @brief Updates the description label when the orientation bias mode changes.
+        """
         descriptions = {
             0: "Les fibres partent dans toutes les directions sans preference.",
             1: "Les fibres s'alignent selon un axe principal (par defaut X).",
@@ -404,6 +456,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_optimizer(self, parent_layout):
+        """!
+        @brief Builds the UI section for Phase 2 (Dynamic Densification).
+        """
         sec = CollapsibleSection(
             "4. Densification (Phase 2)",
             "Apres le placement initial, cette etape tasse les fibres\npour augmenter le taux de remplissage."
@@ -441,6 +496,9 @@ class MainWindow(QMainWindow):
         parent_layout.addWidget(sec)
 
     def _on_optimize_toggled(self, checked):
+        """!
+        @brief Enables or disables optimizer inputs based on the checkbox state.
+        """
         for w in self._opt_widgets:
             w.setEnabled(checked)
 
@@ -449,6 +507,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_porosity(self, parent_layout):
+        """!
+        @brief Builds the UI section for void/porosity generation.
+        """
         sec = CollapsibleSection(
             "5. Porosite (defauts)",
             "Ajoute des bulles d'air spheriques dans la matrice\npour simuler les defauts de fabrication."
@@ -477,6 +538,9 @@ class MainWindow(QMainWindow):
         parent_layout.addWidget(sec)
 
     def _on_porosity_toggled(self, checked):
+        """!
+        @brief Enables or disables porosity inputs based on the checkbox state.
+        """
         for w in self._poro_widgets:
             w.setEnabled(checked)
 
@@ -485,6 +549,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_section_export(self, parent_layout):
+        """!
+        @brief Builds the UI section for export formats and mesh resolution.
+        """
         sec = CollapsibleSection(
             "6. Exports et Resolution",
             "Configure les fichiers de sortie et la finesse de la discretisation."
@@ -526,6 +593,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _double_spin(self, vmin, vmax, default, decimals, tooltip=""):
+        """!
+        @brief Helper to create a configured QDoubleSpinBox.
+        """
         spin = QDoubleSpinBox()
         spin.setRange(vmin, vmax)
         spin.setValue(default)
@@ -540,7 +610,10 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _build_command(self):
-        """Construit la liste d'arguments pour main.py a partir des widgets."""
+        """!
+        @brief Maps GUI widget values to CLI arguments for the backend orchestrator.
+        @return List of strings representing the command to execute.
+        """
         args = [sys.executable, "main.py"]
 
         # Domaine
@@ -606,6 +679,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _on_generate(self):
+        """!
+        @brief Starts the RVE generation process using QProcess.
+        """
         self.console.clear()
         args = self._build_command()
 
@@ -624,22 +700,34 @@ class MainWindow(QMainWindow):
         self.process.start(args[0], args[1:])
 
     def _on_stop(self):
+        """!
+        @brief Terminates the running generation process.
+        """
         if self.process and self.process.state() != QProcess.ProcessState.NotRunning:
             self.process.kill()
             self.console.appendPlainText("\n--- Generation interrompue par l'utilisateur ---")
 
     def _on_stdout(self):
+        """!
+        @brief Reads standard output from the process and updates the console.
+        """
         data = self.process.readAllStandardOutput().data().decode('utf-8', errors='replace')
         for line in data.splitlines():
             self.console.appendPlainText(line)
             self._parse_progress(line)
 
     def _on_stderr(self):
+        """!
+        @brief Reads standard error from the process and updates the console.
+        """
         data = self.process.readAllStandardError().data().decode('utf-8', errors='replace')
         for line in data.splitlines():
             self.console.appendPlainText(line)
 
     def _on_finished(self, exit_code, exit_status):
+        """!
+        @brief Handles process completion, updating UI state and refreshing the 3D view.
+        """
         self.btn_generate.setEnabled(True)
         self.btn_stop.setEnabled(False)
         self.progress.setVisible(False)
@@ -652,7 +740,9 @@ class MainWindow(QMainWindow):
             self.console.appendPlainText(f"\n=== Erreur (code {exit_code}) ===")
 
     def _parse_progress(self, line):
-        """Met a jour le texte de la barre de progression selon la phase detectee."""
+        """!
+        @brief Parses the console output to update the progress bar text.
+        """
         line_lower = line.lower()
         if "phase 1" in line_lower:
             self.progress.setFormat("Phase 1 : Placement des fibres...")
@@ -668,7 +758,9 @@ class MainWindow(QMainWindow):
             self.progress.setFormat("Termine !")
 
     def _on_refresh_3d(self):
-        """Charge le fichier JSON parametric et affiche les fibres."""
+        """!
+        @brief Refreshes the 3D preview by loading the latest generated JSON record.
+        """
         prefix = self.edit_output.text()
         json_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -686,6 +778,9 @@ class MainWindow(QMainWindow):
     # -----------------------------------------------------------------------
 
     def _apply_style(self):
+        """!
+        @brief Applies a global dark-themed stylesheet to the application.
+        """
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #1e1e1e;
@@ -801,6 +896,9 @@ class MainWindow(QMainWindow):
 # ---------------------------------------------------------------------------
 
 def main():
+    """!
+    @brief Entry point for the GUI application.
+    """
     app = QApplication(sys.argv)
     app.setApplicationName("Fiber Packing System v6")
     window = MainWindow()

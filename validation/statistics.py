@@ -1,8 +1,10 @@
-"""
-validation/statistics.py
-Descripteurs statistiques spatiaux pour la validation de microstructures UD.
-Travaille sur projections 2D des centroïdes (standard pour composites à fibres continues).
-"""
+## @file statistics.py
+#  @brief Spatial statistical descriptors for UD microstructure validation.
+#
+#  This module provides tools to analyze the spatial distribution of fibers
+#  using 2D projections of their centroids, which is standard for continuous
+#  fiber composites. It includes NND, Ripley's K, Pair Correlation, and Voronoi
+#  analysis.
 
 import numpy as np
 import logging
@@ -13,14 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 def _extract_2d_centroids(fibers: List, projection: str = 'xy') -> np.ndarray:
-    """
-    Extrait les centroïdes 2D des fibres par projection sur un plan.
-
-    Args:
-        fibers: Liste d'objets Fiber
-        projection: Plan de projection ('xy', 'xz', 'yz')
-    Returns:
-        Array (N, 2) des centroïdes projetés
+    """!
+    Extracts 2D centroids of fibers by projecting them onto a plane.
+    
+    @param fibers List of Fiber objects.
+    @param projection Projection plane ('xy', 'xz', 'yz').
+    @return Array (N, 2) of projected centroids.
     """
     axis_map = {'xy': (0, 1), 'xz': (0, 2), 'yz': (1, 2)}
     ax1, ax2 = axis_map[projection]
@@ -34,15 +34,13 @@ def _extract_2d_centroids(fibers: List, projection: str = 'xy') -> np.ndarray:
 
 
 def nearest_neighbor_distance(fibers: List, box_dims, projection: str = 'xy') -> Dict:
-    """
-    Distribution des distances au plus proche voisin (NND).
-
-    Args:
-        fibers: Liste de fibres
-        box_dims: Dimensions du domaine (Lx, Ly, Lz)
-        projection: Plan de projection 2D
-    Returns:
-        Dict avec nnd_mean, nnd_std, nnd_values
+    """!
+    Calculates the Nearest Neighbor Distance (NND) distribution.
+    
+    @param fibers List of fibers.
+    @param box_dims Domain dimensions (Lx, Ly, Lz).
+    @param projection 2D projection plane.
+    @return Dictionary containing nnd_mean, nnd_std, and nnd_values.
     """
     centroids = _extract_2d_centroids(fibers, projection)
     n = len(centroids)
@@ -81,19 +79,17 @@ def nearest_neighbor_distance(fibers: List, box_dims, projection: str = 'xy') ->
 
 def ripley_k_function(fibers: List, box_dims, h_values: Optional[np.ndarray] = None,
                       projection: str = 'xy') -> Dict:
-    """
-    Fonction K de Ripley avec correction toroïdale (bords périodiques).
+    """!
+    Computes Ripley's K-function with toroidal correction (periodic boundaries).
+    
     K(h) = A/n² × Σ_i Σ_{j≠i} 1(d_ij ≤ h)
-
-    Pour un processus CSR (Complete Spatial Randomness) : K(h) = π·h²
-
-    Args:
-        fibers: Liste de fibres
-        box_dims: Dimensions du domaine
-        h_values: Valeurs de distance à évaluer (auto si None)
-        projection: Plan de projection 2D
-    Returns:
-        Dict avec h_values, K_h, K_poisson, L_h (Besag's L-function)
+    For a CSR (Complete Spatial Randomness) process: K(h) = π·h²
+    
+    @param fibers List of fibers.
+    @param box_dims Domain dimensions.
+    @param h_values Distance values to evaluate (auto-generated if None).
+    @param projection 2D projection plane.
+    @return Dictionary with h_values, K_h, K_poisson, and Besag's L-function (L_h).
     """
     centroids = _extract_2d_centroids(fibers, projection)
     n = len(centroids)
@@ -138,20 +134,18 @@ def ripley_k_function(fibers: List, box_dims, h_values: Optional[np.ndarray] = N
 
 def pair_correlation_function(fibers: List, box_dims, r_values: Optional[np.ndarray] = None,
                               projection: str = 'xy') -> Dict:
-    """
-    Fonction de corrélation de paires g(r) (fonction de distribution radiale).
+    """!
+    Computes the Pair Correlation Function g(r) (Radial Distribution Function).
+    
     g(r) ≈ K'(r) / (2πr) estimée par comptage annulaire.
-
     g(r) = 1 pour un processus CSR.
     g(r) > 1 indique du clustering, g(r) < 1 indique de la régularité.
-
-    Args:
-        fibers: Liste de fibres
-        box_dims: Dimensions du domaine
-        r_values: Centres des anneaux (auto si None)
-        projection: Plan de projection 2D
-    Returns:
-        Dict avec r_values, g_r
+    
+    @param fibers List of fibers.
+    @param box_dims Domain dimensions.
+    @param r_values Ring centers (auto-generated if None).
+    @param projection 2D projection plane.
+    @return Dictionary with r_values and g_r.
     """
     centroids = _extract_2d_centroids(fibers, projection)
     n = len(centroids)
@@ -200,18 +194,15 @@ def pair_correlation_function(fibers: List, box_dims, r_values: Optional[np.ndar
 
 
 def voronoi_statistics(fibers: List, box_dims, projection: str = 'xy') -> Dict:
-    """
-    Statistiques des cellules de Voronoi (distribution des aires).
-    Utilise la réplication 3×3 pour éviter les effets de bord.
-
+    """!
+    Computes Voronoi cell statistics (area distribution).
+    Uses 3x3 replication to handle periodic boundaries.
     CV (coefficient de variation) : ~0 = très régulier, ~0.53 = Poisson (CSR).
-
-    Args:
-        fibers: Liste de fibres
-        box_dims: Dimensions du domaine
-        projection: Plan de projection 2D
-    Returns:
-        Dict avec areas_mean, areas_std, areas_cv, areas_values
+    
+    @param fibers List of fibers.
+    @param box_dims Domain dimensions.
+    @param projection 2D projection plane.
+    @return Dictionary with areas_mean, areas_std, areas_cv, and areas_values.
     """
     centroids = _extract_2d_centroids(fibers, projection)
     n = len(centroids)
@@ -276,7 +267,11 @@ def voronoi_statistics(fibers: List, box_dims, projection: str = 'xy') -> Dict:
 
 
 def _polygon_area(vertices: np.ndarray) -> float:
-    """Aire d'un polygone 2D via la formule du shoelace."""
+    """!
+    Calculates the area of a 2D polygon using the shoelace formula.
+    @param vertices Array of polygon vertices.
+    @return Area of the polygon.
+    """
     n = len(vertices)
     if n < 3:
         return 0.0

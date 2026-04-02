@@ -9,11 +9,19 @@ from typing import List, Tuple, Optional
 from core.fiber import Fiber
 
 class PeriodicManager:
+    """
+    @class PeriodicManager
+    @brief Gère la logique de périodicité spatiale pour les fibres.
+    """
     @staticmethod
     def wrap_fiber(fiber, box_dims):
         """
-        Assure que le centre de gravité de la fibre est dans le domaine [0, dims].
-        Ajuste les points de contrôle par translation périodique.
+        @brief Replace le centre de gravité de la fibre à l'intérieur du domaine.
+        
+        @param fiber L'objet Fiber à vérifier/déplacer.
+        @param box_dims Dimensions [Lx, Ly, Lz] du domaine.
+        @return True si la fibre a été translatée, False sinon.
+        @details Ajuste les points de contrôle par translation périodique si nécessaire.
         """
         centroid = np.mean(fiber.control_points, axis=0)
         shift = np.zeros(3)
@@ -30,7 +38,13 @@ class PeriodicManager:
 
     @staticmethod
     def generate_ghosts(fiber, box_dims):
-        """Génère les clones nécessaires si la fibre touche une paroi."""
+        """
+        @brief Calcule les vecteurs de translation pour les images fantômes (ghosts).
+        
+        @param fiber La fibre source.
+        @param box_dims Dimensions du domaine.
+        @return Liste de vecteurs numpy (translations) pour créer les clones périodiques.
+        """
         Lx, Ly, Lz = box_dims
         rad = fiber.radius
         min_p, max_p = fiber.bbox

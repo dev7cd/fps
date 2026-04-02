@@ -1,3 +1,11 @@
+## @file main.py
+#  @brief Main orchestrator for the Fiber Packing System (FPS).
+#  @details Coordinates the multi-phase generation process: 
+#  1. Constructive placement (CSAW), 2. Dynamic optimization, 
+#  3. Topological validation, 4. Porosity generation, 
+#  and 5. Multi-format exports (GMSH, Voxel, CSV, JSON).
+
+
 import sys
 import os
 import json
@@ -31,9 +39,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger("RVE_Orchestrator")
 
-def save_parametric_record_O1(config, fibers, stats_dict, filename):
-    """
-    (O1) Enregistre la géométrie ET les résultats d'analyse certifiés.
+def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str):
+    """!
+    @brief Saves the RVE geometry and certified analysis results to a JSON file.
+    @details This "O1" record contains metadata, simulation parameters, 
+    computed microstructural statistics, and the raw control points for every fiber.
+    @param config The configuration object used for the generation.
+    @param fibers List of Fiber objects (roots).
+    @param stats_dict Dictionary containing AD-PCA and spatial statistics.
+    @param filename Output filename without extension.
     """
     import datetime
     
@@ -73,6 +87,11 @@ def save_parametric_record_O1(config, fibers, stats_dict, filename):
         json.dump(record, f, default=np_encoder, indent=4)
 
 def main():
+    """!
+    @brief Main execution loop of the RVE generator.
+    @details Parses CLI arguments, runs the generation phases, performs 
+    statistical audits, and triggers all requested exporters.
+    """
     t_start = time.time()
     
     # --- ÉTAPE 0 : Configuration ---

@@ -1,8 +1,8 @@
-"""
-validation/topology.py
-Validateur topologique unifié avec gestion de la périodicité.
-Fusionne l'audit de clearance (Numba segment-segment + MIC) et la distribution des gaps (cKDTree).
-"""
+## @file topology.py
+#  @brief Unified topological validator with periodicity management.
+#
+#  Merges clearance auditing (Numba segment-segment + MIC) and 
+#  gap distribution analysis (cKDTree).
 
 import numpy as np
 import logging
@@ -15,20 +15,31 @@ logger = logging.getLogger(__name__)
 
 
 class TopologyValidator:
+    """!
+    @brief Class for validating the topological integrity of fiber microstructures.
+    
+    Provides methods to check for intersections and analyze the distribution 
+    of distances between fibers.
+    """
     def __init__(self, box_dims):
-        """
-        box_dims : Tuple/Array (Lx, Ly, Lz) pour gérer la distance périodique.
+        """!
+        @brief Initializes the validator with domain dimensions.
+        @param box_dims Tuple or Array (Lx, Ly, Lz) for periodic distance handling.
         """
         self.dims = np.array(box_dims, dtype=float)
 
     def check_clearance(self, fibers: List) -> float:
-        """
-        Calcule le 'clearance' (espace vide) minimal entre toutes les paires de fibres.
-        Utilise la distance segment-à-segment exacte avec Minimum Image Convention.
-        Un résultat > 0 signifie aucune intersection.
+        """!
+        @brief Calculates the exact minimum clearance (empty space) between all fiber pairs.
+        
+        Uses exact segment-to-segment distance with Minimum Image Convention (MIC).
+        A result > 0 indicates no intersections.
+        
+        @param fibers List of Fiber objects to audit.
+        @return Minimum gap value (negative if fibers intersect).
         """
         min_gap = float('inf')
-
+        
         n_fibers = len(fibers)
         logger.info(f"Audit topologique sur {n_fibers} fibres (segment-à-segment)...")
 
@@ -58,9 +69,14 @@ class TopologyValidator:
         return min_gap
 
     def compute_gap_distribution(self, fibers: List, sample_points: int = 20) -> Dict:
-        """
-        Estime la distribution des distances minimales inter-fibres (Clearance).
-        Approximation statistique rapide via KDTree sur nuage de points.
+        """!
+        @brief Estimates the distribution of inter-fiber distances (Clearance).
+        
+        Fast statistical approximation using a cKDTree on the fiber centerlines.
+        
+        @param fibers List of Fiber objects.
+        @param sample_points Number of points to sample (currently uses step slicing).
+        @return Dictionary containing min_gap, mean_gap, and histogram data.
         """
         all_pts = []
         all_radii = []

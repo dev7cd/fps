@@ -11,23 +11,32 @@ logger = logging.getLogger(__name__)
 
 
 class NastranExporter:
+    """
+    @class NastranExporter
+    @brief Classe gérant l'exportation et la conversion des maillages vers le format Nastran (.bdf).
+    """
+
     def __init__(self, config):
+        """
+        @brief Initialise l'exportateur Nastran.
+        @param config Objet de configuration contenant les paramètres globaux.
+        """
         self.config = config
 
     def convert_msh_to_bdf(self, msh_path: str, bdf_path: str,
                            material_map: Optional[Dict] = None):
         """
-        Convertit un maillage GMSH (.msh) en format Nastran Bulk Data (.bdf).
+        @brief Convertit un maillage GMSH (.msh) en format Nastran Bulk Data (.bdf).
         Les groupes physiques GMSH sont mappés vers des propriétés PSOLID.
 
-        Args:
-            msh_path: Chemin du fichier .msh source
-            bdf_path: Chemin du fichier .bdf destination
-            material_map: Optionnel - Dict {physical_group_tag: {"name": str, "E": float, "nu": float, "rho": float}}
+        @param msh_path Chemin du fichier .msh source.
+        @param bdf_path Chemin du fichier .bdf destination.
+        @param material_map Optionnel - Dictionnaire mappant les tags de groupes physiques 
+                            vers des propriétés {name, E, nu, rho}.
                           Si fourni, des cartes MAT1 sont ajoutées au .bdf
         """
         try:
-            import meshio
+            import meshio # type: ignore
         except ImportError:
             logger.error("meshio n'est pas installé. Installer avec : pip install meshio")
             return
@@ -54,12 +63,12 @@ class NastranExporter:
 
     def _append_material_cards(self, bdf_path: str, material_map: Dict):
         """
-        Ajoute des cartes MAT1 au fichier BDF pour chaque matériau.
+        @brief Ajoute des cartes MAT1 au fichier BDF pour chaque matériau.
         Format MAT1 : MAT1, MID, E, G, NU, RHO
 
-        Args:
-            bdf_path: Chemin du fichier .bdf
-            material_map: Dict {MID: {"name": str, "E": float, "nu": float, "rho": float}}
+        @param bdf_path Chemin du fichier .bdf.
+        @param material_map Dictionnaire {MID: {"name": str, "E": float, "nu": float, "rho": float}}.
+        @exception Exception Log l'erreur en cas d'échec d'écriture.
         """
         try:
             with open(bdf_path, 'a') as f:

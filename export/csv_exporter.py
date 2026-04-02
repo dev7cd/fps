@@ -1,7 +1,7 @@
 """
-export/csv_exporter.py
-Export des fibres au format texte/CSV spécifique (set_tubes.csv).
-Format: "tube" "disc" R R DirX DirY DirZ Pt1X Pt1Y Pt1Z Pt2X Pt2Y Pt2Z ...
+@file csv_exporter.py
+@brief Export des fibres au format texte/CSV spécifique (set_tubes.csv).
+@details Format: "tube" "disc" R R DirX DirY DirZ Pt1X Pt1Y Pt1Z Pt2X Pt2Y Pt2Z ...
 """
 
 import logging
@@ -12,10 +12,22 @@ from core.fiber import Fiber
 logger = logging.getLogger(__name__)
 
 class CSVFiberExporter:
+    """
+    @class CSVFiberExporter
+    @brief Classe utilitaire pour l'exportation des fibres vers un format CSV compatible avec les lecteurs de tubes.
+    """
+
     @staticmethod
     def export(fibers: List[Fiber], filename: str):
         """
-        Génère un fichier .csv contenant les données des fibres.
+        @brief Génère un fichier .csv contenant les données géométriques des fibres.
+        
+        Le format d'exportation suit une structure spécifique :
+        Type, Section, Rayon1, Rayon2, DirX, DirY, DirZ, [Points de contrôle...]
+
+        @param fibers Liste d'objets Fiber à exporter.
+        @param filename Chemin du fichier de destination (ajoute .csv si manquant).
+        @exception Exception Log l'erreur en cas d'échec d'écriture sur le disque.
         """
         # S'assurer de l'extension
         if not filename.endswith(".csv"):

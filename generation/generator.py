@@ -1,6 +1,6 @@
 """
 generation/generator.py
-Générateur "CSAW" Optimisé v6.2
+Générateur "CSAW" Optimisé v6.1
 Correctif Critique : Récupération correcte des vecteurs de biais depuis la config v6.
 """
 
@@ -14,7 +14,14 @@ from generation.periodicity import PeriodicManager
 logger = logging.getLogger(__name__)
 
 class FiberGenerator:
+    """
+    @class FiberGenerator
+    @brief Optimized fiber generator using the CSAW (Constrained Self-Avoiding Walk) algorithm.
+    """
     def __init__(self, config, detector):
+        """
+        @brief Initializes the generator with configuration and collision detector.
+        """
         self.config = config
         self.detector = detector
         self.rng = np.random.default_rng(config.seed)
@@ -40,7 +47,12 @@ class FiberGenerator:
             logger.debug("Aucun biais détecté (Isotrope).")
 
     def generate_fiber(self, fiber_id: int) -> Optional[Fiber]:
-        """Méthode principale : Snake Algorithm avec Backtracking."""
+        """
+        @brief Main method: Snake Algorithm with Backtracking.
+        @param fiber_id Unique identifier for the new fiber.
+        @return A Fiber object if successful, None otherwise.
+        @details Uses a stochastic walk with curvature constraints and collision checks.
+        """
         radius = self.config.fiber_radius
         
         p0 = self._find_start_point(radius)
@@ -81,7 +93,11 @@ class FiberGenerator:
         return Fiber(fiber_id, np.array(control_points), radius, vars(self.config))
 
     def _initialize_bias(self, bias_input):
-        """Conversion robuste des entrées Config -> Liste de Numpy Arrays."""
+        """
+        @brief Robust conversion of Config inputs to a list of Numpy Arrays.
+        @param bias_input Raw input from configuration (string, list, or array).
+        @return List of normalized direction vectors or None.
+        """
         if bias_input is None or bias_input == 'free':
             return None
             
@@ -125,7 +141,11 @@ class FiberGenerator:
         return None
 
     def _get_target_direction(self, current_dir):
-        """Calcule le vecteur attracteur."""
+        """
+        @brief Calculates the attractor vector based on orientation bias.
+        @param current_dir The current movement vector.
+        @return Normalized target direction vector.
+        """
         if not self.bias_vectors:
             return current_dir
 
@@ -148,8 +168,11 @@ class FiberGenerator:
 
     def _propose_next_point(self, p_cur, current_dir):
         """
-        Logique de sampling v5-like : 
-        On calcule la direction idéale (mix inertie/biais), puis on ajoute le bruit.
+        @brief Proposes the next control point using inertia, bias, and noise.
+        @param p_cur Current last control point.
+        @param current_dir Current direction of the fiber.
+        @return Tuple of (next_point, next_direction).
+        @details Implements Rodrigues' rotation formula for clamping curvature.
         """
         target_dir = self._get_target_direction(current_dir)
         max_angle = self.config.generation_parameters.get('max_curvature_angle', np.pi/6)
@@ -186,13 +209,21 @@ class FiberGenerator:
         return p_cur + best_dir * self.config.step_length_mean, best_dir
 
     def _find_start_point(self, radius, max_attempts=1000):
+        """
+        @brief Finds a random collision-free starting point in the domain.
+        @param radius Radius of the fiber.
+        @param max_attempts Maximum number of random trials.
+        """
         for _ in range(max_attempts):
             p = self.rng.uniform([0,0,0], self.config.box_dims)
             if self.detector.is_point_free(p, radius): return p
         return None
 
     def _initial_direction(self):
-        """Force un bon démarrage si biais très fort."""
+        """
+        @brief Generates an initial direction vector.
+        @details Forces alignment with bias if bias_strength is high.
+        """
         if self.bias_strength > 0.8 and self.bias_vectors:
             # On part déjà un peu dans la bonne direction (+ bruit)
             # Sinon on perd du temps à tourner dès le 1er segment
@@ -203,6 +234,12 @@ class FiberGenerator:
         return v / np.linalg.norm(v)
 
     def _check_self_collision(self, p_next, control_points, radius):
+        """
+        @brief Checks if the new point collides with the fiber's own body.
+        @param p_next Proposed point.
+        @param control_points Existing points in the fiber.
+        @param radius Fiber radius.
+        """
         if len(control_points) < 5: return False
         pts = np.array(control_points[:-3])
         dists_sq = np.sum((pts - p_next)**2, axis=1)
@@ -212,17 +249,13 @@ class FiberGenerator:
 
     def attempt_rsda_placement(self, fiber_id: int, fibers: List) -> Optional[Fiber]:
         """
-        RSDA (Randomized Sequential Dynamic Adsorption).
-        Quand le placement standard échoue, perturbe les fibres voisines pour créer de l'espace.
-
-        1. Génère un candidat normalement
-        2. Si collision, identifie les voisins en collision
-        3. Perturbe les voisins (petits déplacements aléatoires)
-        4. Re-valide tout (candidat + voisins perturbés)
-        5. Rollback si échec
-
-        Returns:
-            Fiber si placement réussi, None sinon
+        @brief RSDA (Randomized Sequential Dynamic Adsorption) placement.
+        @param fiber_id ID for the new fiber.
+        @param fibers List of existing fibers in the domain.
+        @details When standard placement fails, this method perturbs neighboring 
+        fibers to create space. It includes a rollback mechanism if a valid 
+        configuration isn't found.
+        @return Fiber if placement succeeded after perturbation, None otherwise.
         """
         if not getattr(self.config, 'enable_rsda', False):
             return None

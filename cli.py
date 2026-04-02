@@ -1,13 +1,21 @@
-"""
-cli.py
-Interface CLI Complète - Expose tous les paramètres de config.py
-"""
-
 import argparse
 import numpy as np
 from core.config import FiberPackingConfig
 
+## @file cli.py
+#  @brief Command Line Interface (CLI) for the Fiber Packing System.
+#  @details Parses user arguments and maps them to the FiberPackingConfig object 
+#  to control RVE generation, optimization, and export.
+
 def parse_args():
+    """!
+    @brief Parses command line arguments and initializes the configuration.
+    @details Organizes arguments into logical groups (Domain, Geometry, Trajectory, 
+    Optimization, Porosity, and System) and performs necessary unit conversions 
+    (e.g., degrees to radians for curvature).
+    @return A tuple containing (config, args) where config is a FiberPackingConfig 
+    instance and args is the raw argparse Namespace.
+    """
     parser = argparse.ArgumentParser(
         description="Générateur RVE Fibres Hautes Performances (CSAW + Compression)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter

@@ -13,19 +13,27 @@ from core.fiber import Fiber
 logger = logging.getLogger(__name__)
 
 class PorosityGenerator:
-    """
-    Génère des inclusions de vide (sphériques) dans le VER.
-    Version optimisée avec gestion efficace des collisions.
+    """!
+    @class PorosityGenerator
+    @brief Generates spherical void inclusions within the RVE.
+    @details Implements an optimized RSA (Random Sequential Adsorption) algorithm 
+    with periodic boundary conditions and collision detection against fibers.
     """
     
     def __init__(self, config: FiberPackingConfig):
+        """!
+        @brief Initializes the porosity generator.
+        @param config Configuration object containing domain and porosity parameters.
+        """
         self.config = config
         self.rng = np.random.default_rng(config.seed)
         self.box_dims = np.array(config.box_dims)
         
     def generate_voids(self, existing_fibers: List[Fiber]) -> List[Void]:
-        """
-        Algorithme RSA optimisé pour les sphères.
+        """!
+        @brief Main generation loop using an optimized RSA algorithm.
+        @param existing_fibers List of fibers already present in the domain.
+        @return A list of generated Void objects.
         """
         if not self.config.generate_porosity:
             return []
@@ -122,8 +130,12 @@ class PorosityGenerator:
         return voids
 
     def _create_periodic_images_fast(self, center: np.ndarray, radius: float, uid: int) -> List[Void]:
-        """
-        Crée le vide principal et ses répliques périodiques - version optimisée.
+        """!
+        @brief Creates the primary void and its periodic replicas (ghosts).
+        @param center Center coordinates of the primary void.
+        @param radius Radius of the void.
+        @param uid Unique identifier for the void group.
+        @return List of Void objects (primary + periodic images).
         """
         Lx, Ly, Lz = self.box_dims
         images = []
@@ -171,8 +183,11 @@ class PorosityGenerator:
         return images
 
     def _check_void_void_collision_fast(self, candidates: List[Void], existing_voids: List[Void]) -> bool:
-        """
-        Vérifie si les candidats chevauchent des vides existants - version vectorisée.
+        """!
+        @brief Vectorized check for collisions between new candidates and existing voids.
+        @param candidates List of new void images to check.
+        @param existing_voids List of voids already accepted in the domain.
+        @return True if no collision is detected, False otherwise.
         """
         if not existing_voids:
             return True
@@ -197,8 +212,11 @@ class PorosityGenerator:
         return not np.any(dists_sq < thresholds)
 
     def _check_void_fiber_collision_fast(self, candidates: List[Void], fiber_data: List[dict]) -> bool:
-        """
-        Vérifie si les candidats chevauchent des fibres - version optimisée.
+        """!
+        @brief Optimized check for collisions between voids and fibers.
+        @param candidates List of void images to check.
+        @param fiber_data Pre-processed fiber geometric data (centerlines and BBoxes).
+        @return True if no collision is detected, False otherwise.
         """
         for void in candidates:
             void_r = void.radius
@@ -236,11 +254,22 @@ class PorosityGenerator:
     # --- Méthodes de compatibilité (gardées pour interface) ---
     
     def _check_void_void_collision(self, candidates: List[Void], existing_voids: List[Void]) -> bool:
-        """Version originale pour compatibilité."""
+        """!
+        @brief Compatibility wrapper for void-void collision check.
+        @param candidates New void candidates.
+        @param existing_voids Existing voids.
+        @return Boolean result of the check.
+        """
         return self._check_void_void_collision_fast(candidates, existing_voids)
     
     def _check_void_fiber_collision(self, candidates: List[Void], fibers: List[Fiber]) -> bool:
-        """Version originale pour compatibilité."""
+        """!
+        @brief Compatibility wrapper for void-fiber collision check.
+        @details Converts Fiber objects to optimized dict format before calling the fast checker.
+        @param candidates New void candidates.
+        @param fibers List of Fiber objects.
+        @return Boolean result of the check.
+        """
         # Convertit les fibres en format optimisé
         fiber_data = []
         for fib in fibers:
@@ -259,14 +288,25 @@ class PorosityGenerator:
     # --- Méthodes géométriques de base ---
     
     def _sq_dist_point_polyline(self, point: np.ndarray, polyline: np.ndarray) -> float:
-        """Version optimisée."""
+        """!
+        @brief Calculates the minimum squared distance between a point and a polyline.
+        @param point 3D coordinates of the point.
+        @param polyline Array of points forming the polyline.
+        @return Minimum squared distance.
+        """
         # Calcul vectorisé
         diff = polyline - point
         dists_sq = np.sum(diff * diff, axis=1)
         return np.min(dists_sq)
     
     def _sq_dist_point_segment(self, p: np.ndarray, a: np.ndarray, b: np.ndarray) -> float:
-        """Version vectorisée."""
+        """!
+        @brief Calculates the squared distance between a point and a line segment.
+        @param p The point.
+        @param a Start point of the segment.
+        @param b End point of the segment.
+        @return Squared distance.
+        """
         ab = b - a
         ap = p - a
         

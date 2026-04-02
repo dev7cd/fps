@@ -1,6 +1,7 @@
 """
 generation/optimizer_dynamic.py
-
+Optimiseur dynamique pour la densification du VER par agitation et compression.
+Implémente des méthodes de type Monte-Carlo pour augmenter la fraction volumique.
 """
 
 import numpy as np
@@ -16,13 +17,26 @@ logger = logging.getLogger(__name__)
 
 
 class DynamicOptimizer:
+    """
+    @class DynamicOptimizer
+    @brief Gère la densification post-génération des fibres.
+    
+    Cette classe permet d'augmenter la fraction volumique (Vf) en déplaçant 
+    itérativement les fibres existantes pour créer de l'espace pour de nouvelles injections.
+    """
     def __init__(self, config, detector):
+        """
+        @brief Initialise l'optimiseur avec la configuration et le détecteur de collisions.
+        """
         self.config = config
         self.detector = detector
         self.rng = np.random.default_rng(config.seed)
 
     def optimize_and_fill(self, fibers: List):
-        """Cycle de densification sans dilatation (Compression et Shaking)."""
+        """
+        @brief Cycle principal de densification (Compression et Shaking).
+        @param fibers Liste des fibres initiales à densifier.
+        @return Liste des fibres mise à jour et complétée."""
         target_vf = self.config.target_volume_fraction
         # Utilisation de la méthode de volume réel pour plus de précision
         current_vf = self._calculate_vf(fibers)
@@ -55,7 +69,10 @@ class DynamicOptimizer:
         return fibers
 
     def _resolve_all_collisions(self, fibers):
-        """Cherche et repousse les paires en conflit."""
+        """
+        @brief Identifie et tente de résoudre les collisions par micro-déplacements.
+        @param fibers Liste des fibres à traiter.
+        """
         for _ in range(3): # Tentatives de résolution
             collisions = self._detect_collision_pairs(fibers)
             if not collisions: 
@@ -66,7 +83,10 @@ class DynamicOptimizer:
                 self._nudge_fibers(f1, f2, fibers)
 
     def _detect_collision_pairs(self, fibers) -> List[Tuple]:
-        """Identifie les paires root-root ou root-ghost en collision."""
+        """
+        @brief Détecte les paires de fibres (ou ghosts) en intersection.
+        @return Liste de tuples (fibre_1, fibre_2_ou_ghost).
+        """
         colliding_pairs = []
         seen_collisions = set() # Pour ne pas traiter (A,B) et (B,A)
 
@@ -85,7 +105,12 @@ class DynamicOptimizer:
         return colliding_pairs
 
     def _nudge_fibers(self, f1, target, all_fibers):
-        """Pousse la fibre f1 loin de 'target' (qui peut être un ghost)."""
+        """
+        @brief Applique une force de répulsion à f1 par rapport à une cible.
+        @param f1 La fibre à déplacer.
+        @param target La fibre ou le ghost provoquant la collision.
+        @param all_fibers Contexte global des fibres.
+        """
         c1 = np.mean(f1.centerline, axis=0)
         c2 = np.mean(target.centerline, axis=0) # Fonctionne que ce soit root ou ghost
         
@@ -107,7 +132,10 @@ class DynamicOptimizer:
             f1.refresh_geometry()
 
     def _has_any_collision(self, fiber):
-        """Vérifie si une fibre seule est en collision dans la grille actuelle."""
+        """
+        @brief Vérifie si une fibre donnée est en collision avec le reste du domaine.
+        @return True si une collision est détectée.
+        """
         neighbors = self.detector.grid.query_neighbors(fiber.bbox, exclude_id=fiber.id)
         for nb in neighbors:
             if self.detector.check_collision_fine(fiber, nb):
@@ -115,11 +143,18 @@ class DynamicOptimizer:
         return False
 
     def _calculate_vf(self, fibers):
+        """
+        @brief Calcule la fraction volumique réelle actuelle.
+        """
         if not fibers: return 0.0
         total_vol = sum(f.get_real_volume() for f in fibers)
         return total_vol / np.prod(self.config.box_dims)
 
     def _apply_global_jitter(self, fibers):
+        """
+        @brief Applique un léger déplacement aléatoire à toutes les fibres (agitation thermique).
+        @param fibers Liste des fibres à agiter.
+        """
         for f in fibers:
             old_pts = f.control_points.copy()
             shift = self.rng.uniform(-0.01, 0.01, 3) * f.radius
@@ -130,6 +165,11 @@ class DynamicOptimizer:
                 f.refresh_geometry()
 
     def _apply_centripetal_compression(self, fibers, intensity):
+        """
+        @brief Déplace les fibres vers le centre du domaine pour libérer de l'espace aux parois.
+        @param fibers Liste des fibres.
+        @param intensity Force de la compression (0.0 à 1.0).
+        """
         center = np.array(self.config.box_dims) / 2
         for f in fibers:
             centroid = np.mean(f.control_points, axis=0)
@@ -142,6 +182,11 @@ class DynamicOptimizer:
                 f.refresh_geometry()
 
     def _inject_additional_fibers(self, fibers):
+        """
+        @brief Tente d'insérer de nouvelles fibres dans les espaces libérés.
+        @param fibers Liste actuelle des fibres.
+        @return Liste des nouvelles fibres acceptées.
+        """
         from generation.generator import FiberGenerator
         # Note : detector contient déjà les anciennes fibres indexées
         gen = FiberGenerator(self.config, self.detector)

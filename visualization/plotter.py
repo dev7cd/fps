@@ -1,11 +1,3 @@
-"""
-visualization/plotter.py
-Outils de visualisation scientifiques.
-- Rendu 3D (Wireframe)
-- Figures de Pôles (AD-PCA Orientation)
-- Histogrammes statistiques
-"""
-
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
@@ -21,7 +13,16 @@ except:
 
 logger = logging.getLogger(__name__)
 
+## @class Visualizer
+#  @brief Scientific visualization tools for fiber microstructures.
+#  @details Provides methods for 3D RVE rendering, orientation tensor analysis, 
+#  and statistical plotting.
 class Visualizer:
+    
+    ## @brief Simple 3D geometric visualization of fiber skeletons.
+    #  @param fibers List of Fiber objects to plot.
+    #  @param box_dims Tuple (Lx, Ly, Lz) representing domain dimensions.
+    #  @param filename Optional path to save the generated image.
     @staticmethod
     def plot_rve(fibers: List, box_dims, filename: Optional[str] = None):
         """Visualisation 3D géométrique simple (Squelettes)."""
@@ -68,6 +69,10 @@ class Visualizer:
             logger.info(f"Rendu 3D sauvé : {filename}")
         plt.close(fig)
 
+    ## @brief Generates a scientific analysis report with orientation plots.
+    #  @details Visualizes AD-PCA orientation tensors as heatmaps and 3D ellipsoids.
+    #  @param stats_results Dictionary containing AD-PCA results and Herman's factors.
+    #  @param output_prefix String prefix for the output filenames.
     @staticmethod
     def plot_analysis_report(stats_results: Dict, output_prefix: str):
         """
@@ -143,8 +148,10 @@ class Visualizer:
         plt.savefig(f"{output_prefix}_ellipsoid.png")
         plt.close()
 
+## @brief Functional wrapper for Visualizer.plot_rve.
 def plot_rve(fibers, dims, filename=None):
     Visualizer.plot_rve(fibers, dims, filename)
 
+## @brief Functional wrapper for Visualizer.plot_analysis_report.
 def plot_analysis(stats, prefix):
     Visualizer.plot_analysis_report(stats, prefix)

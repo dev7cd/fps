@@ -1,16 +1,22 @@
-"""
-geometry/frames.py
-Calcul des repères locaux le long d'une courbe 3D.
-Implémente le Transport Parallèle (Bishop Frame) pour minimiser la torsion.
+"""!
+@file frames.py
+@brief Local frame computation along 3D curves.
+@details Implements Parallel Transport (Bishop Frame) to minimize torsion and 
+provides utilities for tangent vector calculation.
 """
 
 import numpy as np
 from typing import Tuple
 
 def compute_tangents(points: np.ndarray) -> np.ndarray:
-    """Calcule les vecteurs tangents normalisés (différences finies centrées)."""
+    """!
+    @brief Computes normalized tangent vectors using centered finite differences.
+    @param points Array of shape (N, 3) representing the curve points.
+    @return Array of shape (N, 3) containing normalized tangent vectors.
+    @exception ValueError If the input contains fewer than 2 points.
+    """
     if len(points) < 2:
-        raise ValueError("Besoin d'au moins 2 points")
+        raise ValueError("At least 2 points are required to compute tangents.")
         
     # Gradient (dérivée numérique)
     tangents = np.gradient(points, axis=0)
@@ -23,11 +29,13 @@ def compute_tangents(points: np.ndarray) -> np.ndarray:
     return tangents / norms[:, np.newaxis]
 
 def compute_bishop_frame(points: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Calcule le repère de Bishop (Tangente, Normale, Binormale).
-    
-    Returns:
-        T, N, B : Arrays de forme (N_points, 3)
+    """!
+    @brief Computes the Bishop frame (Tangent, Normal, Binormal) along a curve.
+    @details Uses the Parallel Transport method to propagate the normal vector 
+    along the curve, which avoids the "twisting" artifacts of Frenet-Serret 
+    frames at points of zero curvature.
+    @param points Array of shape (N, 3) representing the curve points.
+    @return A tuple (T, N, B) where each is an array of shape (N, 3).
     """
     n_points = len(points)
     T = compute_tangents(points)

@@ -1,13 +1,15 @@
 """
-export/voxelizer.py
-Génération de maillage voxelisé (FFT) et export PGM (Portable Gray Map).
-Tags standard : Matrice=0, Fibres=1, Pores=2
-Optimisé avec Numba (Scan BBox + Early Exit).
+@file voxelizer.py
+@brief Génération de maillage voxelisé (FFT) et export PGM (Portable Gray Map).
+@details Tags standard : Matrice=0, Fibres=128, Pores=255.
+L'algorithme utilise une approche de rastérisation par Bounding Box (BBox) 
+accélérée par Numba pour tester l'appartenance des voxels aux cylindres (fibres) 
+ou aux sphères (pores).
 """
 
 import numpy as np
 import logging
-from numba import njit
+from numba import njit # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -17,22 +19,30 @@ TAG_VOID = 255
 
 
 class Voxelizer:
+    """
+    @class Voxelizer
+    @brief Classe responsable de la conversion de la géométrie continue en une grille de voxels discrète.
+    """
+
     def __init__(self, config):
+        """
+        @brief Initialise le voxélisateur.
+        @param config Objet de configuration contenant les dimensions de la boîte (box_dims).
+        """
         self.config = config
 
     def create_grid(self, fibers, voids, res: int):
         """
-        Génère une grille 3D voxelisée tags pour simulation FFT.
+        @brief Génère une grille 3D voxelisée avec des tags pour simulation FFT ou analyse d'image.
+        
+        Réalise la rastérisation des fibres (incluant les ghosts périodiques) et des pores.
+        La priorité de taggage est : Pores > Fibres > Matrice.
 
-        Tags : matrice=0, fibres=1, pores=2
+        @param fibers Liste des objets Fiber (racines).
+        @param voids Liste des objets Void (porosités).
+        @param res Résolution de la grille (nombre de voxels par axe, ex: 256 pour 256^3).
 
-        Args:
-            fibers: Liste des fibres (racines uniquement, les ghosts sont gérés en interne)
-            voids: Liste des porosités
-            res: Résolution (ex: 256 pour 256^3)
-
-        Returns:
-            grid: Numpy array 3D (uint8)
+        @return grid Numpy array 3D de type uint8 contenant les tags.
         """
         dims = np.array(self.config.box_dims)
 
@@ -101,7 +111,11 @@ class Voxelizer:
 
     def save_pgm(self, grid, output_prefix):
         """
-        Sauvegarde en slices PGM (Portable Gray Map, format P2 ASCII).
+        @brief Sauvegarde la grille 3D sous forme de série de coupes 2D au format PGM (Portable Gray Map).
+        
+        Le format utilisé est P2 (ASCII). Les fichiers sont nommés slice0000.pgm, slice0001.pgm, etc.
+        @param grid La grille 3D (numpy array) à exporter.
+        @param output_prefix Préfixe pour le nom des fichiers (non utilisé actuellement dans le formatage du nom).
         """
         nx, ny, nz = grid.shape
         max_val = int(np.max(grid))
@@ -127,8 +141,15 @@ class Voxelizer:
 @njit(cache=True, fastmath=True)
 def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
     """
-    Rastérisation précise d'une fibre.
-    Teste chaque voxel de la BBox contre tous les segments de la fibre.
+    @brief Kernel Numba pour la rastérisation d'une fibre segmentée.
+    @details Calcule la distance minimale entre le centre de chaque voxel et les segments de la fibre.
+    
+    @param grid Référence vers la grille 3D.
+    @param centerline Points de la ligne moyenne de la fibre.
+    @param r_sq Carré du rayon de la fibre.
+    @param imin, imax, jmin, jmax, kmin, kmax Bornes de la BBox en indices voxels.
+    @param dx, dy, dz Dimensions physiques d'un voxel.
+    @param tag Valeur du tag à appliquer.
     """
     n_pts = len(centerline)
 
@@ -186,6 +207,16 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
 
 @njit(cache=True, fastmath=True)
 def _raster_sphere_numba(grid, center, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
+    """
+    @brief Kernel Numba pour la rastérisation d'une sphère (pore).
+    
+    @param grid Référence vers la grille 3D.
+    @param center Coordonnées (x, y, z) du centre de la sphère.
+    @param r_sq Carré du rayon de la sphère.
+    @param imin, imax, jmin, jmax, kmin, kmax Bornes de la BBox en indices voxels.
+    @param dx, dy, dz Dimensions physiques d'un voxel.
+    @param tag Valeur du tag à appliquer.
+    """
     for i in range(imin, imax):
         vx = (i + 0.5) * dx - center[0]
         for j in range(jmin, jmax):
