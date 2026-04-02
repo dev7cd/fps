@@ -1,0 +1,148 @@
+# Doxyfile for Fiber Packing System (FPS) Documentation
+# Generated automatically by Gemini Code Assist
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Fiber Packing System"
+PROJECT_NUMBER         = "v6.1"
+PROJECT_BRIEF          = "3D Microstructure Generator for Fiber Composites"
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       = docs
+CREATE_SUBDIRS         = YES
+ALLOW_UNICODE_NAMES    = YES
+OPTIMIZE_OUTPUT_FOR_FORTRAN = NO
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_FOR_JAVA = YES # Recommended for Python to help with parsing docstrings
+OPTIMIZE_FOR_DOXYGEN   = NO
+BUILTIN_STL_SUPPORT    = NO
+CPP_WORDS_FILE         =
+SIZE_T_IS_UINT         = NO
+QUIET                  = YES # Suppress warnings/info unless explicit
+WARNINGS               = YES # Enable warnings
+WARN_IF_UNDOCUMENTED   = YES # Warn about undocumented members
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_FORMAT            = "$file:$line: $text"
+WARN_LOGFILE           = doxygen_warnings.log
+
+#---------------------------------------------------------------------------
+# Input related configuration options
+#---------------------------------------------------------------------------
+INPUT                  = . # Current directory (project root)
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.py
+RECURSIVE              = YES # Scan subdirectories
+EXCLUDE                =
+EXCLUDE_SYMLINKS       = NO
+EXCLUDE_PATTERNS       = */__init__.py # Exclude default __init__.py files
+EXCLUDE_USER_DEFINED   =
+EXCLUDE_LITERAL_BLOCKS = YES
+ENABLE_SECTIONS        = YES
+EXAMPLE_PATH           =
+EXAMPLE_PATTERNS       = *.py
+EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             =
+INPUT_FILTER           =
+FILTER_PATTERNS        =
+FILTER_SOURCE_FILES    = NO
+
+#---------------------------------------------------------------------------
+# Source Browser related configuration options
+#---------------------------------------------------------------------------
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = NO
+REFERENCES_RELATION    = NO
+VERBATIM_HEADERS       = YES # Show includes in documentation
+
+#---------------------------------------------------------------------------
+# Preprocessor related configuration options
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+EXPAND_ONLY_PREDEF     = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           =
+INCLUDE_FILE_PATTERNS  =
+PREDEFINED             =
+EXPAND_AS_DEFINED      =
+SKIP_FUNCTION_MACROS   = YES
+
+#---------------------------------------------------------------------------
+# Markdown related configuration options
+#---------------------------------------------------------------------------
+MARKDOWN_SUPPORT       = YES
+
+#---------------------------------------------------------------------------
+# HTML related configuration options
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            =
+HTML_FOOTER            =
+HTML_STYLESHEET        =
+HTML_EXTRA_STYLESHEET  =
+HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_SAT    = 100
+HTML_COLORSTYLE_GAMMA  = 80
+HTML_TIMESTAMP         = YES
+HTML_DYNAMIC_SECTIONS  = NO
+HTML_INDEX_NUM_ENTRIES = 100
+GENERATE_TREEVIEW      = YES
+
+#---------------------------------------------------------------------------
+# Man page related configuration options
+#---------------------------------------------------------------------------
+GENERATE_MAN           = NO
+
+#---------------------------------------------------------------------------
+# LaTex related configuration options
+#---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
+
+#---------------------------------------------------------------------------
+# Doxygen internal cross-referencing options
+#---------------------------------------------------------------------------
+GENERATE_TAGFILE       =
+
+#---------------------------------------------------------------------------
+# Graph and diagram options
+#---------------------------------------------------------------------------
+HAVE_DOT               = YES # Enable Graphviz dot tool for diagrams
+DOT_MULTI_TARGETS      = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+CLASS_GRAPH            = YES
+INCLUDE_GRAPH          = YES
+COLLABORATION_GRAPH    = YES
+UML_LOOK               = YES
+
+
+#---------------------------------------------------------------------------
+# Python specific configuration options (Adjust for your specific docstring style)
+#---------------------------------------------------------------------------
+# Use JAVADOC_AUTOBRIEF to treat the first sentence of a docstring as a brief description.
+JAVADOC_AUTOBRIEF      = YES
+
+# These aliases help Doxygen interpret specific Python docstring elements
+# Your project uses '!', which is not standard for Doxygen. We'll alias it.
+# Doxygen normally expects "\brief" or "@brief".
+# ALIASES += "!@brief=\brief" # If the ! was literal, this would help. Doxygen usually ignores punctuation before tags.
+# ALIASES += "!@param=\param"
+# ALIASES += "!@return=\return"
+# However, it appears Doxygen (especially with OPTIMIZE_FOR_JAVA) is often smart enough to ignore the '!' and treat it as a standard Doxygen tag.
+# Let's rely on that for now. If you get warnings or missing documentation, uncomment the aliases above.
+
+
+ENABLE_PATH_SEPARATORS = YES # For Python module structure in documentation
+# In Python, sometimes a class or function does not have a docstring
+# but its members are documented. Setting this to NO might be useful
+# to avoid "undocumented file" warnings for simple modules.
+HIDE_UNDOCUMENTED_MEMBERS = NO
+HIDE_UNDOCUMENTED_CLASSES = NO
+HIDE_UNDOCUMENTED_FILES = NO
+
+# If you have specific Python decorators that confuse Doxygen, you can mock them.
+# For example: PREDEFINED += "@my_decorator="

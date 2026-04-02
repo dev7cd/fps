@@ -1,0 +1,4 @@
+<map id="gui.Preview3DCanvas.draw_box" name="gui.Preview3DCanvas.draw_box">
+<area shape="rect" id="node1" title="Draws the wireframe of the RVE bounding box." alt="" coords="5,13,236,39"/>
+<area shape="rect" id="node2" href="$dc/d81/classgui_1_1Preview3DCanvas.html#ab8fb93d25b19183a6a1bfc63645456b9" title=" " alt="" coords="284,5,452,47"/>
+</map>

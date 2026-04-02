@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,55,32"/>
+<area shape="rect" id="node2" href="$de/d74/classBaseSection.html" title="Abstract base class for all fiber cross&#45;sections." alt="" coords="103,5,205,32"/>
+<area shape="rect" id="node3" href="$d4/d31/classSuperEllipticalSection.html" title="Represents a Lamé curve (super&#45;ellipse)." alt="" coords="253,5,416,32"/>
+<area shape="rect" id="node4" href="$d3/dcd/classCircularSection.html" title="Specialized SuperEllipticalSection for circles (n=2, a=b=radius)." alt="" coords="464,5,584,32"/>
+</map>
