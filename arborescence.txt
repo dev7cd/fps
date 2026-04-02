@@ -1,0 +1,43 @@
+fiber_packing_system_v6/
+├── core/
+│   ├── __init__.py
+│   ├── config.py              # Configuration centralisée (dataclass, tous les paramètres)
+│   ├── fiber.py               # Objet Fiber (points de contrôle, centerline, Bishop frames)
+│   ├── void.py                # Objet Void (porosité sphérique)
+│   └── grid_structure.py      # Grille spatiale hash (broad-phase collision, reverse-mapping)
+├── geometry/
+│   ├── __init__.py
+│   ├── curves.py              # Spline Catmull-Rom centripète + rééchantillonnage
+│   ├── frames.py              # Repère de Bishop (transport parallèle, Rodrigues)
+│   └── sections.py            # Sections droites (circulaire, superelliptique, factory)
+├── generation/
+│   ├── __init__.py
+│   ├── generator.py           # Algorithme CSAW (Snake + Backtracking) + RSDA
+│   ├── periodicity.py         # PeriodicManager (wrap, ghosts 26 voisins)
+│   ├── optimizer_dynamic.py   # Phase 2 : jitter + compression + collision resolution + injection
+│   └── porosity_gen.py        # RSA vectorisé pour pores sphériques périodiques
+├── collision/
+│   ├── __init__.py
+│   ├── detector.py            # CollisionDetector (API : group_valid, segment_free, periodic)
+│   └── detector_math.py       # Kernels Numba : distance segment-à-segment (Eberly), MIC
+├── validation/
+│   ├── __init__.py
+│   ├── topology.py            # TopologyValidator unifié (clearance segment-segment + gap distribution)
+│   └── statistics.py          # Descripteurs spatiaux (NND, Ripley K, g(r), Voronoi)
+├── visualization/
+│   ├── __init__.py
+│   ├── descriptors.py         # AD-PCA (tenseurs d'orientation), MicroDescriptor (stats géométriques)
+│   ├── analyzer.py            # RVE_Analyzer (audit de viabilité)
+│   └── plotter.py             # Visualisation 3D wireframe + rapports d'analyse
+├── export/
+│   ├── __init__.py
+│   ├── gmsh_exporter.py       # CAO (.step) + FEM (.msh), maillage périodique + adaptatif
+│   ├── voxelizer.py           # Grille FFT voxelisée (matrice=0, fibre=1, pore=2) + PGM
+│   ├── csv_exporter.py        # Export CSV (points de contrôle + direction)
+│   └── nastran_exporter.py    # Conversion .msh -> .bdf (Nastran via meshio)
+├── utils/
+│   ├── __init__.py
+│   └── logger.py              # Configuration centralisée du logging
+├── main.py                    # Orchestrateur 5 phases (CSAW -> Optim -> Audit -> Pores -> Export)
+├── cli.py                     # Interface CLI (argparse, 6 groupes de paramètres)
+└── gui.py                     # Interface graphique PyQt6 (paramètres, vue 3D, console)
