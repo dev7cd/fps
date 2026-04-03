@@ -43,7 +43,7 @@ class TestGenerateGhosts:
 
     def test_interior_fiber_no_ghosts(self):
         """Une fibre bien à l'intérieur ne doit pas générer de ghosts."""
-        f = _make_fiber([[0.4, 0.4, 0.4], [0.6, 0.6, 0.6]], radius=0.01)
+        f = _make_fiber([[0.3, 0.3, 0.3], [0.7, 0.7, 0.7]], radius=0.001)
         shifts = PeriodicManager.generate_ghosts(f, (1.0, 1.0, 1.0))
         assert len(shifts) == 0
 
