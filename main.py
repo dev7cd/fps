@@ -264,6 +264,7 @@ def main():
     logger.info("Génération FFT...")
     vox = Voxelizer(config)
     grid = vox.create_grid(fibers, voids, res=config.voxel_resolution)
+    np.save(f"{config.output_prefix}_voxelmap.npy", grid)
     vox.save_pgm(grid, config.output_prefix)
 
     if config.export_mesh:
