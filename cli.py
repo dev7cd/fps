@@ -40,17 +40,17 @@ def parse_args():
 
     # --- 3. TRAJECTOIRE (PHASE 1 - CSAW) ---
     g_traj = parser.add_argument_group('3. Trajectoire & Orientation')
-    g_traj.add_argument("--min_pts", type=int, default=15, help="Min points de contrôle")
-    g_traj.add_argument("--max_pts", type=int, default=20, help="Max points de contrôle")
-    g_traj.add_argument("--step", type=float, default=0.07, help="Longueur moyenne d'un segment")
+    g_traj.add_argument("--min_pts", type=int, default=29, help="Min points de contrôle")
+    g_traj.add_argument("--max_pts", type=int, default=30, help="Max points de contrôle")
+    g_traj.add_argument("--step", type=float, default=0.053, help="Longueur moyenne d'un segment")
     g_traj.add_argument("--max_attempts", type=int, default=500, help="Tentatives max (RSA)")
     
     # Biais d'orientation
-    g_traj.add_argument("--bias_type", type=str, default="planar", choices=["free", "uniaxial", "planar"])
+    g_traj.add_argument("--bias_type", type=str, default="uniaxial", choices=["free", "uniaxial", "planar"])
     g_traj.add_argument("--bias_vec1", type=float, nargs=3, default=[1.0, 0.0, 0.0], help="Vecteur directeur 1")
     g_traj.add_argument("--bias_vec2", type=float, nargs=3, default=[0.0, 1.0, 0.0], help="Vecteur directeur 2 (si planaire)")
-    g_traj.add_argument("--strength", type=float, default=0.0, help="Force du biais (0.0=Random, 1.0=Strict)")
-    g_traj.add_argument("--curvature", type=float, default=60.0, help="Angle de courbure max entre segments (en Degrés)")
+    g_traj.add_argument("--strength", type=float, default=0.22, help="Force du biais (0.0=Random, 1.0=Strict)")
+    g_traj.add_argument("--curvature", type=float, default=70.0, help="Angle de courbure max entre segments (en Degrés)")
     g_traj.add_argument("--rsda", action='store_true', help="Activer RSDA (réarrangement dynamique en Phase 1)")
     g_traj.add_argument("--rsda_perturb", type=float, default=0.05, help="Intensité perturbation RSDA (ratio du rayon)")
 
