@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour collision/detector_math.py.
 Vérifie les fonctions numba de distance segment-segment et de détection de collision.
@@ -12,6 +13,7 @@ from collision.detector_math import (
 )
 
 
+    """! @brief Test class for functionality. """
 class TestSegmentSegmentDistSq:
     """Tests de la distance² minimale entre deux segments 3D."""
 
@@ -82,6 +84,7 @@ class TestSegmentSegmentDistSq:
         assert d == pytest.approx(0.0, abs=1e-10)
 
 
+    """! @brief Test class for functionality. """
 class TestCheckCollisionNumba:
     """Tests de la détection de collision entre polylignes."""
 
@@ -129,6 +132,7 @@ class TestCheckCollisionNumba:
         assert check_collision_numba(pts1, pts2, 1.0, 1.0) is False
 
 
+    """! @brief Test class for functionality. """
 class TestMinDistSegmentsNumba:
     """Tests de la distance minimale entre polylignes."""
 
@@ -151,6 +155,7 @@ class TestMinDistSegmentsNumba:
         assert d == pytest.approx(5.0, abs=1e-6)
 
 
+    """! @brief Test class for functionality. """
 class TestMinDistPeriodicSegmentsNumba:
     """Tests de la distance minimale avec conditions périodiques."""
 

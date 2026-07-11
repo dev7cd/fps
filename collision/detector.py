@@ -10,16 +10,37 @@ from generation.periodicity import PeriodicManager
 from .detector_math import check_collision_numba
 
 class CollisionDetector:
+    """!
+    @class CollisionDetector
+    @brief Gestionnaire des collisions entre fibres et objets du RVE.
+
+    Utilise une grille spatiale (SpatialGrid) pour accélérer les requêtes de voisinage
+    et des noyaux de calcul Numba pour les tests géométriques précis.
+    """
     def __init__(self, config):
-        self.config = config
+        """!
+        @brief Initialise le détecteur avec la configuration donnée.
+        @param config FiberPackingConfig Objet de configuration contenant les paramètres du RVE.
+        """
+        self.config = config ##< Configuration de la simulation
         cell_size = 2 * config.fiber_radius + getattr(config, 'min_clearance', 0.0)
-        self.grid = SpatialGrid(np.array(config.box_dims), cell_size)
+        self.grid = SpatialGrid(np.array(config.box_dims), cell_size) ##< Grille spatiale pour l'accélération des tests
 
     def check_collision_fine(self, f1, f2) -> bool:
-        """Méthode unifiée pour tester deux fibres."""
+        """!
+        @brief Méthode unifiée pour tester la collision entre deux fibres.
+        @param f1 Fiber Première fibre.
+        @param f2 Fiber Deuxième fibre.
+        @return bool True si une collision est détectée, False sinon.
+        """
         return check_collision_numba(f1.centerline, f2.centerline, f1.radius, f2.radius)
 
     def is_group_valid(self, fiber_group: List) -> bool:
+        """!
+        @brief Vérifie si un groupe de fibres est exempt de collisions internes et externes.
+        @param fiber_group List[Fiber] Liste de fibres à valider.
+        @return bool True si le groupe est valide, False sinon.
+        """
         for fiber in fiber_group:
             neighbors = self.grid.query_neighbors(fiber.bbox, fiber.parent_id)
             for nb in neighbors:
@@ -28,6 +49,13 @@ class CollisionDetector:
         return True
 
     def is_segment_free(self, p1: np.ndarray, p2: np.ndarray, radius: float) -> bool:
+        """!
+        @brief Vérifie si un segment cylindrique est libre de collision.
+        @param p1 np.ndarray Point de départ du segment.
+        @param p2 np.ndarray Point d'arrivée du segment.
+        @param radius float Rayon du cylindre.
+        @return bool True si le segment est libre, False sinon.
+        """
         s_min = np.minimum(p1, p2) - radius
         s_max = np.maximum(p1, p2) + radius
         neighbors = self.grid.query_neighbors((s_min, s_max), exclude_id=-1)
@@ -38,7 +66,12 @@ class CollisionDetector:
         return True
 
     def is_point_free(self, point: np.ndarray, radius: float) -> bool:
-        """Vérifie si une sphère de rayon 'radius' peut être placée."""
+        """!
+        @brief Vérifie si une sphère de rayon 'radius' peut être placée sans collision.
+        @param point np.ndarray Centre de la sphère.
+        @param radius float Rayon de la sphère.
+        @return bool True si l'espace est libre, False sinon.
+        """
         s_min = point - radius
         s_max = point + radius
         neighbors = self.grid.query_neighbors((s_min, s_max), exclude_id=-1)
@@ -47,30 +80,38 @@ class CollisionDetector:
             if check_collision_numba(pt_arr, nb.centerline, radius, nb.radius):
                 return False
         return True
-    
+
     def add_fibers_group(self, fiber_group: List):
+        """!
+        @brief Ajoute un groupe de fibres à la grille spatiale.
+        @param fiber_group List[Fiber] Groupe de fibres à ajouter.
+        """
         for f in fiber_group:
             self.grid.add_fiber(f)
 
     def is_fiber_valid_periodic(self, fiber) -> bool:
-        """Utilisée lors du Shaking et de l'Optimisation."""
+        """!
+        @brief Vérifie la validité d'une fibre en tenant compte des conditions périodiques.
+        @param fiber Fiber La fibre à tester.
+        @return bool True si la fibre est valide, False sinon.
+        """
         box_dims = self.config.box_dims
-        
+
         # 1. Test contre voisins directs
         neighbors = self.grid.query_neighbors(fiber.bbox, exclude_id=fiber.parent_id)
         for nb in neighbors:
             if self.check_collision_fine(fiber, nb):
                 return False
-                
+
         # 2. Test des clones (images périodiques)
         # Note : On importe PeriodicManager ici si nécessaire ou au début du fichier
         from generation.periodicity import PeriodicManager
         ghost_shifts = PeriodicManager.generate_ghosts(fiber, box_dims)
-        
+
         for shift in ghost_shifts:
             ghost_points = fiber.centerline + shift
             ghost_bbox = (fiber.bbox[0] + shift, fiber.bbox[1] + shift)
-            
+
             # Recherche de voisins proches de l'image ghost
             neighbors = self.grid.query_neighbors(ghost_bbox, exclude_id=fiber.parent_id)
             for nb in neighbors:

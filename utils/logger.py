@@ -9,14 +9,13 @@ import sys
 from typing import Optional
 
 def setup_logging(level=logging.INFO, log_file: Optional[str] = None):
-    """
+    """!
     @brief Configure le logging global pour l'application.
-    
-    Initialise les handlers pour la sortie standard et optionnellement pour un fichier.
+    @details Initialise les handlers pour la sortie standard et optionnellement pour un fichier.
     Définit également le format des messages et ajuste le niveau des bibliothèques tierces.
-    
-    @param level Le niveau de sévérité du logging (ex: logging.INFO, logging.DEBUG).
-    @param log_file Chemin optionnel vers un fichier de log.
+    @param level int Le niveau de sévérité du logging (ex: logging.INFO, logging.DEBUG).
+    @param log_file Optional[str] Chemin optionnel vers un fichier de log.
+    @return None
     """
     
     # Formateur personnalisé
@@ -49,17 +48,16 @@ def setup_logging(level=logging.INFO, log_file: Optional[str] = None):
     logging.getLogger('PIL').setLevel(logging.WARNING)
 
 class LoggingMixin:
-    """
+    """!
     @class LoggingMixin
     @brief Mixin pour ajouter facilement une instance de logger aux classes.
     """
-    
+
     @property
     def logger(self):
-        """
+        """!
         @brief Récupère ou crée un logger spécifique à la classe.
-        
-        @return Une instance de logging.Logger nommée d'après la classe.
+        @return logging.Logger Une instance de logging.Logger nommée d'après la classe.
         """
         name = '.'.join([__name__, self.__class__.__name__])
         return logging.getLogger(name)

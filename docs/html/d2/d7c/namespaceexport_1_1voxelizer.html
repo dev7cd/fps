@@ -98,18 +98,22 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a68ab03fa7affb1469f2e68d718adb1b3"><td class="memItemLeft" align="right" valign="top"><a id="a68ab03fa7affb1469f2e68d718adb1b3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>logger</b> = logging.getLogger(__name__)</td></tr>
-<tr class="separator:a68ab03fa7affb1469f2e68d718adb1b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36551c184a9fa4ab48bb1f3a97c6d100"><td class="memItemLeft" align="right" valign="top"><a id="a36551c184a9fa4ab48bb1f3a97c6d100"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>TAG_MATRIX</b> = 0</td></tr>
-<tr class="separator:a36551c184a9fa4ab48bb1f3a97c6d100"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7fc470c5cc35859081ad0b9906280c44"><td class="memItemLeft" align="right" valign="top"><a id="a7fc470c5cc35859081ad0b9906280c44"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>TAG_FIBER</b> = 128</td></tr>
-<tr class="separator:a7fc470c5cc35859081ad0b9906280c44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad46a0527c08e7d0772e5d865dadb869d"><td class="memItemLeft" align="right" valign="top"><a id="ad46a0527c08e7d0772e5d865dadb869d"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>TAG_VOID</b> = 255</td></tr>
-<tr class="separator:ad46a0527c08e7d0772e5d865dadb869d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6a571e35169dbcc4f566b218e697115"><td class="memItemLeft" align="right" valign="top"><a id="af6a571e35169dbcc4f566b218e697115"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#af6a571e35169dbcc4f566b218e697115">logger</a> = logging.getLogger(__name__)</td></tr>
+<tr class="memdesc:af6a571e35169dbcc4f566b218e697115"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logger pour le module de voxélisation. <br /></td></tr>
+<tr class="separator:af6a571e35169dbcc4f566b218e697115"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2fa18858287d68020d4c1bc39950cb2"><td class="memItemLeft" align="right" valign="top"><a id="aa2fa18858287d68020d4c1bc39950cb2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#aa2fa18858287d68020d4c1bc39950cb2">TAG_MATRIX</a> = 0</td></tr>
+<tr class="memdesc:aa2fa18858287d68020d4c1bc39950cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour la matrice (fond). <br /></td></tr>
+<tr class="separator:aa2fa18858287d68020d4c1bc39950cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22f8cf2492045450f3bad6554534e0c6"><td class="memItemLeft" align="right" valign="top"><a id="a22f8cf2492045450f3bad6554534e0c6"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#a22f8cf2492045450f3bad6554534e0c6">TAG_FIBER</a> = 128</td></tr>
+<tr class="memdesc:a22f8cf2492045450f3bad6554534e0c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour les fibres. <br /></td></tr>
+<tr class="separator:a22f8cf2492045450f3bad6554534e0c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a953d5567e85257de05db20feaa6b553f"><td class="memItemLeft" align="right" valign="top"><a id="a953d5567e85257de05db20feaa6b553f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#a953d5567e85257de05db20feaa6b553f">TAG_VOID</a> = 255</td></tr>
+<tr class="memdesc:a953d5567e85257de05db20feaa6b553f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour les pores (porosités). <br /></td></tr>
+<tr class="separator:a953d5567e85257de05db20feaa6b553f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">@file voxelizer.py
@@ -124,7 +128,7 @@ ou aux sphères (pores).
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>export</b></li><li class="navelem"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html">voxelizer</a></li>
-    <li class="footer">Generated on Fri Apr 3 2026 01:37:07 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

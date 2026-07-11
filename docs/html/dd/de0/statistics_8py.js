@@ -6,5 +6,5 @@ var statistics_8py =
     [ "pair_correlation_function", "dd/de0/statistics_8py.html#afbf98e2077bde0ced04e22cd022e19d4", null ],
     [ "ripley_k_function", "dd/de0/statistics_8py.html#a8a2098141d34c5e9b63486895cccde0f", null ],
     [ "voronoi_statistics", "dd/de0/statistics_8py.html#aebbb8c69b23ea3815fbb05cadcc1162f", null ],
-    [ "logger", "dd/de0/statistics_8py.html#aea74c27fd626096e3c8a0bd4010907e6", null ]
+    [ "logger", "dd/de0/statistics_8py.html#ac603cdf90ee40f8551a1ecc8c1ff8924", null ]
 ];

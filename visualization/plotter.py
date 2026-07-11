@@ -11,21 +11,27 @@ try:
 except:
     pass
 
+## @var logger
+#  @brief Logger for the plotter module.
 logger = logging.getLogger(__name__)
 
-## @class Visualizer
-#  @brief Scientific visualization tools for fiber microstructures.
-#  @details Provides methods for 3D RVE rendering, orientation tensor analysis, 
-#  and statistical plotting.
+
 class Visualizer:
+    """!
+    @brief Scientific visualization tools for fiber microstructures.
+    @details Provides methods for 3D RVE rendering, orientation tensor analysis, 
+    and statistical plotting.
+    """
     
-    ## @brief Simple 3D geometric visualization of fiber skeletons.
-    #  @param fibers List of Fiber objects to plot.
-    #  @param box_dims Tuple (Lx, Ly, Lz) representing domain dimensions.
-    #  @param filename Optional path to save the generated image.
     @staticmethod
-    def plot_rve(fibers: List, box_dims, filename: Optional[str] = None):
-        """Visualisation 3D géométrique simple (Squelettes)."""
+    def plot_rve(fibers: List, box_dims, filename: Optional[str] = None) -> None:
+        """!
+        @brief Simple 3D geometric visualization of fiber skeletons.
+        @param fibers List List of Fiber objects to plot.
+        @param box_dims tuple (Lx, Ly, Lz) representing domain dimensions.
+        @param filename Optional[str] Optional path to save the generated image.
+        @return None
+        """
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection='3d')
         
@@ -69,16 +75,14 @@ class Visualizer:
             logger.info(f"Rendu 3D sauvé : {filename}")
         plt.close(fig)
 
-    ## @brief Generates a scientific analysis report with orientation plots.
-    #  @details Visualizes AD-PCA orientation tensors as heatmaps and 3D ellipsoids.
-    #  @param stats_results Dictionary containing AD-PCA results and Herman's factors.
-    #  @param output_prefix String prefix for the output filenames.
     @staticmethod
-    def plot_analysis_report(stats_results: Dict, output_prefix: str):
-        """
-        Génère une planche de graphiques pour l'analyse scientifique (AD-PCA).
-        - Distribution des Tortuosités.
-        - Figure de pôles (Orientation Axiale et Planaire).
+    def plot_analysis_report(stats_results: Dict, output_prefix: str) -> None:
+        """!
+        @brief Generates a scientific analysis report with orientation plots.
+        @details Visualizes AD-PCA orientation tensors as heatmaps and 3D ellipsoids.
+        @param stats_results Dict Dictionary containing AD-PCA results and Herman's factors.
+        @param output_prefix str String prefix for the output filenames.
+        @return None
         """
         if not stats_results: return
         
@@ -148,10 +152,23 @@ class Visualizer:
         plt.savefig(f"{output_prefix}_ellipsoid.png")
         plt.close()
 
-## @brief Functional wrapper for Visualizer.plot_rve.
-def plot_rve(fibers, dims, filename=None):
+
+def plot_rve(fibers: List, dims: tuple, filename: Optional[str] = None) -> None:
+    """!
+    @brief Functional wrapper for Visualizer.plot_rve.
+    @param fibers List List of fiber objects.
+    @param dims tuple Domain dimensions (Lx, Ly, Lz).
+    @param filename Optional[str] Optional path to save the generated image.
+    @return None
+    """
     Visualizer.plot_rve(fibers, dims, filename)
 
-## @brief Functional wrapper for Visualizer.plot_analysis_report.
-def plot_analysis(stats, prefix):
+
+def plot_analysis(stats: Dict, prefix: str) -> None:
+    """!
+    @brief Functional wrapper for Visualizer.plot_analysis_report.
+    @param stats Dict Statistics dictionary containing AD-PCA results.
+    @param prefix str String prefix for the output filenames.
+    @return None
+    """
     Visualizer.plot_analysis_report(stats, prefix)

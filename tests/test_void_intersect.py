@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour Void.intersect_fiber (implémentation corrigée).
 """
@@ -7,6 +8,7 @@ from core.void import Void
 from tests.conftest import FakeFiber
 
 
+    """! @brief Test class for functionality. """
 class TestIntersectFiber:
 
     def test_void_on_fiber_path(self):

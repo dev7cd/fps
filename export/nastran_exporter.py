@@ -7,33 +7,36 @@ Utilise meshio pour la conversion MSH -> BDF avec mapping des groupes physiques.
 import logging
 from typing import Optional, Dict
 
+## @var logger
+#  @brief Logger pour le module nastran_exporter.
 logger = logging.getLogger(__name__)
 
 
 class NastranExporter:
-    """
+    """!
     @class NastranExporter
     @brief Classe gérant l'exportation et la conversion des maillages vers le format Nastran (.bdf).
     """
 
     def __init__(self, config):
-        """
+        """!
         @brief Initialise l'exportateur Nastran.
-        @param config Objet de configuration contenant les paramètres globaux.
+        @param config FiberPackingConfig Objet de configuration contenant les paramètres globaux.
         """
-        self.config = config
+        self.config = config  ##< Configuration de la simulation.
 
     def convert_msh_to_bdf(self, msh_path: str, bdf_path: str,
-                           material_map: Optional[Dict] = None):
-        """
+                           material_map: Optional[Dict] = None) -> None:
+        """!
         @brief Convertit un maillage GMSH (.msh) en format Nastran Bulk Data (.bdf).
         Les groupes physiques GMSH sont mappés vers des propriétés PSOLID.
 
-        @param msh_path Chemin du fichier .msh source.
-        @param bdf_path Chemin du fichier .bdf destination.
-        @param material_map Optionnel - Dictionnaire mappant les tags de groupes physiques 
+        @param msh_path str Chemin du fichier .msh source.
+        @param bdf_path str Chemin du fichier .bdf destination.
+        @param material_map Optional[Dict] Optionnel - Dictionnaire mappant les tags de groupes physiques 
                             vers des propriétés {name, E, nu, rho}.
                           Si fourni, des cartes MAT1 sont ajoutées au .bdf
+        @return None
         """
         try:
             import meshio # type: ignore

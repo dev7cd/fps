@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour generation/porosity_gen.py — PorosityGenerator.
 """
@@ -7,6 +8,7 @@ from core.config import FiberPackingConfig
 from generation.porosity_gen import PorosityGenerator
 
 
+    """! @brief Test class for functionality. """
 class TestPorosityGeneratorDisabled:
 
     def test_no_voids_when_disabled(self):
@@ -16,6 +18,7 @@ class TestPorosityGeneratorDisabled:
         assert voids == []
 
 
+    """! @brief Test class for functionality. """
 class TestPorosityGeneratorEnabled:
 
     def _make_config(self, **kwargs):

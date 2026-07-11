@@ -11,10 +11,18 @@ import numpy as np
 import logging
 from numba import njit # type: ignore
 
+## @var logger
+#  @brief Logger pour le module de voxélisation.
 logger = logging.getLogger(__name__)
 
+## @var TAG_MATRIX
+#  @brief Tag pour la matrice (fond).
 TAG_MATRIX = 0
+## @var TAG_FIBER
+#  @brief Tag pour les fibres.
 TAG_FIBER = 128
+## @var TAG_VOID
+#  @brief Tag pour les pores (porosités).
 TAG_VOID = 255
 
 
@@ -25,24 +33,34 @@ class Voxelizer:
     """
 
     def __init__(self, config):
+        """! @brief Placeholder.
+        @param self, config 
+        @return None
+        """
         """
         @brief Initialise le voxélisateur.
         @param config Objet de configuration contenant les dimensions de la boîte (box_dims).
         """
+        ## @var config
+        #  @brief Configuration du problème.
         self.config = config
 
     def create_grid(self, fibers, voids, res: int):
+        """! @brief Placeholder.
+        @param self, fibers, voids, res: int 
+        @return None
+        """
         """
         @brief Génère une grille 3D voxelisée avec des tags pour simulation FFT ou analyse d'image.
         
         Réalise la rastérisation des fibres (incluant les ghosts périodiques) et des pores.
         La priorité de taggage est : Pores > Fibres > Matrice.
 
-        @param fibers Liste des objets Fiber (racines).
-        @param voids Liste des objets Void (porosités).
-        @param res Résolution de la grille (nombre de voxels par axe, ex: 256 pour 256^3).
+        @param fibers list Liste des objets Fiber (racines).
+        @param voids list Liste des objets Void (porosités).
+        @param res int Résolution de la grille (nombre de voxels par axe, ex: 256 pour 256^3).
 
-        @return grid Numpy array 3D de type uint8 contenant les tags.
+        @return np.ndarray grid Numpy array 3D de type uint8 contenant les tags.
         """
         dims = np.array(self.config.box_dims)
 
@@ -110,12 +128,17 @@ class Voxelizer:
         return grid
 
     def save_pgm(self, grid, output_prefix):
+        """! @brief Placeholder.
+        @param self, grid, output_prefix 
+        @return None
+        """
         """
         @brief Sauvegarde la grille 3D sous forme de série de coupes 2D au format PGM (Portable Gray Map).
         
         Le format utilisé est P2 (ASCII). Les fichiers sont nommés slice0000.pgm, slice0001.pgm, etc.
-        @param grid La grille 3D (numpy array) à exporter.
-        @param output_prefix Préfixe pour le nom des fichiers (non utilisé actuellement dans le formatage du nom).
+        @param grid np.ndarray La grille 3D (numpy array) à exporter.
+        @param output_prefix str Préfixe pour le nom des fichiers.
+        @return None
         """
         nx, ny, nz = grid.shape
         max_val = int(np.max(grid))
@@ -140,6 +163,10 @@ class Voxelizer:
 
 @njit(cache=True, fastmath=True)
 def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
+    """! @brief Placeholder.
+        @param grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag 
+        @return None
+    """
     """
     @brief Kernel Numba pour la rastérisation d'une fibre segmentée.
     @details Calcule la distance minimale entre le centre de chaque voxel et les segments de la fibre.
@@ -207,6 +234,10 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
 
 @njit(cache=True, fastmath=True)
 def _raster_sphere_numba(grid, center, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
+    """! @brief Placeholder.
+        @param grid, center, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag 
+        @return None
+    """
     """
     @brief Kernel Numba pour la rastérisation d'une sphère (pore).
     

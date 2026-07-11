@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['query_5fneighbors_194',['query_neighbors',['../d0/dfd/classcore_1_1grid__structure_1_1SpatialGrid.html#a084fda5197ee1c7c31618b34db2d97dc',1,'core::grid_structure::SpatialGrid']]]
+  ['voronoi_5fstatistics_414',['voronoi_statistics',['../dd/de0/statistics_8py.html#aebbb8c69b23ea3815fbb05cadcc1162f',1,'validation::statistics']]]
 ];

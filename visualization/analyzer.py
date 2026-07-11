@@ -11,31 +11,31 @@ from .descriptors import AD_PCA_Analyzer, MicroDescriptor
 class RVE_Analyzer:
     """!
     @brief High-level analyzer for Representative Volume Elements (RVE).
-    
+
     Aggregates data from geometric descriptors, orientation tensors, 
     and clearance audits to provide a comprehensive viability report.
     """
     def __init__(self, fibers, config):
         """!
         @brief Initializes the analyzer.
-        @param fibers List of Fiber objects to analyze.
-        @param config Configuration object containing box dimensions and targets.
+        @param fibers List List of Fiber objects to analyze.
+        @param config FiberPackingConfig Configuration object containing box dimensions and targets.
         """
-        self.fibers = fibers
-        self.config = config
+        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
+        self.config = config  ##< Configuration object.
 
     def perform_viability_audit(self) -> Dict:
         """!
         @brief Generates the final report for validation before simulation.
-        @return Dictionary containing status, volume fraction, orientation factors, and safety gaps.
+        @return Dict Dictionary containing status, volume fraction, orientation factors, and safety gaps.
         """
         logger = MicroDescriptor(self.fibers)
         ad_pca = AD_PCA_Analyzer(self.fibers)
         ad_pca.compute_all()
-        
+
         geo = logger.compute_geometric_stats()
         spectrum = ad_pca.get_spectrum()
-        
+
         # 1. Vérification Admissibilité (The Gap Audit)
         # Indispensable pour s'assurer qu'un maillage adaptatif passera
         min_gap = self._compute_min_clearance()
@@ -61,11 +61,12 @@ class RVE_Analyzer:
             }
         }
 
-    def _compute_min_clearance(self):
+    def _compute_min_clearance(self) -> float:
         """!
         @brief Calculates the real minimum distance between fiber skins.
         @details Interfaces with TopologyValidator to perform segment-to-segment 
         distance checks with periodic boundary conditions.
+        @return float Real minimum distance between fiber skins.
         """
         from validation.topology import TopologyValidator
         validator = TopologyValidator(self.config.box_dims)

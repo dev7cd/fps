@@ -84,15 +84,13 @@ def _segment_segment_dist_sq(Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz, Dx, Dy, Dz):
 
 @njit(cache=True)
 def check_collision_numba(pts1, pts2, r1, r2):
-    """
-    Détection de collision segment-à-segment entre deux polylignes.
-    Signature identique à l'ancienne version pour compatibilité.
-
-    Args:
-        pts1, pts2: Centerlines (N, 3) — chaque paire de points consécutifs forme un segment
-        r1, r2: Rayons des fibres
-    Returns:
-        True si collision (distance min < r1 + r2)
+    """!
+    @brief Détection de collision segment-à-segment entre deux polylignes.
+    @param pts1 np.ndarray Centerlines (N, 3) de la première fibre.
+    @param pts2 np.ndarray Centerlines (M, 3) de la deuxième fibre.
+    @param r1 float Rayon de la première fibre.
+    @param r2 float Rayon de la deuxième fibre.
+    @return bool True si collision (distance min < r1 + r2), False sinon.
     """
     threshold_sq = (r1 + r2) ** 2
     n1 = len(pts1) - 1  # nombre de segments
@@ -119,12 +117,11 @@ def check_collision_numba(pts1, pts2, r1, r2):
 
 @njit(cache=True)
 def min_dist_segments_numba(pts1, pts2):
-    """
-    Distance minimale exacte entre deux polylignes (segment-à-segment).
-    Utilisé par TopologyValidator pour l'audit de clearance.
-
-    Returns:
-        Distance minimale (float, non au carré)
+    """!
+    @brief Distance minimale exacte entre deux polylignes (segment-à-segment).
+    @param pts1 np.ndarray Centerlines (N, 3) de la première polyligne.
+    @param pts2 np.ndarray Centerlines (M, 3) de la deuxième polyligne.
+    @return float Distance minimale (non au carré).
     """
     min_sq = 1e20
     n1 = len(pts1) - 1
@@ -151,16 +148,12 @@ def min_dist_segments_numba(pts1, pts2):
 
 @njit(cache=True)
 def min_dist_periodic_segments_numba(pts1, pts2, dims):
-    """
-    Distance minimale segment-à-segment avec Minimum Image Convention (MIC).
-    Pour chaque paire de segments, applique la correction périodique au midpoint
-    puis calcule la distance exacte segment-segment sur les segments shiftés.
-
-    Args:
-        pts1, pts2: Centerlines (N, 3)
-        dims: Dimensions du domaine [Lx, Ly, Lz]
-    Returns:
-        Distance minimale (float)
+    """!
+    @brief Distance minimale segment-à-segment avec Minimum Image Convention (MIC).
+    @param pts1 np.ndarray Centerlines (N, 3) de la première polyligne.
+    @param pts2 np.ndarray Centerlines (M, 3) de la deuxième polyligne.
+    @param dims np.ndarray Dimensions du domaine [Lx, Ly, Lz].
+    @return float Distance minimale périodique.
     """
     min_sq = 1e20
     Lx = dims[0]; Ly = dims[1]; Lz = dims[2]

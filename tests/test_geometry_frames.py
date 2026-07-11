@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour geometry/frames.py — Bishop frame et tangentes.
 """
@@ -6,6 +7,7 @@ import numpy as np
 from geometry.frames import compute_tangents, compute_bishop_frame
 
 
+    """! @brief Test class for functionality. """
 class TestComputeTangents:
     """Vérifie le calcul des vecteurs tangents."""
 
@@ -32,6 +34,7 @@ class TestComputeTangents:
         assert T.shape == (20, 3)
 
 
+    """! @brief Test class for functionality. """
 class TestBishopFrame:
     """Vérifie les propriétés du repère de Bishop (transport parallèle)."""
 

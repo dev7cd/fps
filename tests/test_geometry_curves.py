@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour geometry/curves.py — CatmullRomSpline.
 """
@@ -6,6 +7,7 @@ import numpy as np
 from geometry.curves import CatmullRomSpline, generate_random_control_points
 
 
+    """! @brief Test class for functionality. """
 class TestCatmullRomInterpolation:
     """Vérifie les propriétés fondamentales de la spline Catmull-Rom."""
 
@@ -51,6 +53,7 @@ class TestCatmullRomInterpolation:
         assert np.all(segments >= 0)
 
 
+    """! @brief Test class for functionality. """
 class TestLinearResample:
     """Vérifie le rééchantillonnage équidistant."""
 
@@ -68,6 +71,7 @@ class TestLinearResample:
         assert resampled_len == pytest.approx(original_len, rel=1e-2)
 
 
+    """! @brief Test class for functionality. """
 class TestGenerateRandomControlPoints:
     """Vérifie la génération de points de contrôle aléatoires."""
 

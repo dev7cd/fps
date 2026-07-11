@@ -166,6 +166,10 @@ def run_single(seed: int, resolution: int, dry_run: bool = False) -> bool:
 # ── Point d'entrée ────────────────────────────────────────────────────────────
 
 def parse_campaign_args():
+        """! @brief Placeholder.
+        @param  
+        @return None
+        """
     p = argparse.ArgumentParser(
         description="Campagne de génération RVE multi-seeds / multi-résolutions",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -190,6 +194,10 @@ def parse_campaign_args():
 
 
 def main():
+        """! @brief Placeholder.
+        @param  
+        @return None
+        """
     args = parse_campaign_args()
 
     seeds       = sorted(set(args.seeds))

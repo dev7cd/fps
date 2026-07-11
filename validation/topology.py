@@ -11,6 +11,8 @@ from scipy.spatial import cKDTree
 
 from collision.detector_math import min_dist_periodic_segments_numba
 
+## @var logger
+#  @brief Logger for the topology module.
 logger = logging.getLogger(__name__)
 
 
@@ -24,19 +26,17 @@ class TopologyValidator:
     def __init__(self, box_dims):
         """!
         @brief Initializes the validator with domain dimensions.
-        @param box_dims Tuple or Array (Lx, Ly, Lz) for periodic distance handling.
+        @param box_dims tuple or np.ndarray (Lx, Ly, Lz) for periodic distance handling.
         """
-        self.dims = np.array(box_dims, dtype=float)
+        self.dims = np.array(box_dims, dtype=float)  ##< Domain dimensions (Lx, Ly, Lz).
 
     def check_clearance(self, fibers: List) -> float:
         """!
         @brief Calculates the exact minimum clearance (empty space) between all fiber pairs.
-        
-        Uses exact segment-to-segment distance with Minimum Image Convention (MIC).
+        @details Uses exact segment-to-segment distance with Minimum Image Convention (MIC).
         A result > 0 indicates no intersections.
-        
-        @param fibers List of Fiber objects to audit.
-        @return Minimum gap value (negative if fibers intersect).
+        @param fibers List List of Fiber objects to audit.
+        @return float Minimum gap value (negative if fibers intersect).
         """
         min_gap = float('inf')
         
@@ -71,12 +71,10 @@ class TopologyValidator:
     def compute_gap_distribution(self, fibers: List, sample_points: int = 20) -> Dict:
         """!
         @brief Estimates the distribution of inter-fiber distances (Clearance).
-        
-        Fast statistical approximation using a cKDTree on the fiber centerlines.
-        
-        @param fibers List of Fiber objects.
-        @param sample_points Number of points to sample (currently uses step slicing).
-        @return Dictionary containing min_gap, mean_gap, and histogram data.
+        @details Fast statistical approximation using a cKDTree on the fiber centerlines.
+        @param fibers List List of Fiber objects.
+        @param sample_points int Number of points to sample (currently uses step slicing).
+        @return Dict Dictionary containing min_gap, mean_gap, and histogram data.
         """
         all_pts = []
         all_radii = []

@@ -1,33 +1,13 @@
 var annotated_dup =
 [
-    [ "collision", null, [
-      [ "detector", "d4/dfd/namespacecollision_1_1detector.html", [
-        [ "CollisionDetector", "d2/df5/classcollision_1_1detector_1_1CollisionDetector.html", "d2/df5/classcollision_1_1detector_1_1CollisionDetector" ]
-      ] ]
-    ] ],
     [ "core", null, [
-      [ "config", "dc/daa/namespacecore_1_1config.html", [
-        [ "FiberPackingConfig", "d5/d30/classcore_1_1config_1_1FiberPackingConfig.html", "d5/d30/classcore_1_1config_1_1FiberPackingConfig" ]
-      ] ],
-      [ "fiber", "d8/d17/namespacecore_1_1fiber.html", [
+      [ "fiber", null, [
         [ "Fiber", "d9/d6e/classcore_1_1fiber_1_1Fiber.html", "d9/d6e/classcore_1_1fiber_1_1Fiber" ]
-      ] ],
-      [ "grid_structure", "d9/d56/namespacecore_1_1grid__structure.html", [
-        [ "SpatialGrid", "d0/dfd/classcore_1_1grid__structure_1_1SpatialGrid.html", "d0/dfd/classcore_1_1grid__structure_1_1SpatialGrid" ]
-      ] ],
-      [ "void", "d1/d37/namespacecore_1_1void.html", [
-        [ "Void", "d3/d2c/classcore_1_1void_1_1Void.html", "d3/d2c/classcore_1_1void_1_1Void" ]
       ] ]
     ] ],
     [ "export", null, [
-      [ "csv_exporter", "d7/d41/namespaceexport_1_1csv__exporter.html", [
+      [ "csv_exporter", null, [
         [ "CSVFiberExporter", "db/d0d/classexport_1_1csv__exporter_1_1CSVFiberExporter.html", null ]
-      ] ],
-      [ "gmsh_exporter", null, [
-        [ "GmshExporter", "d0/dc0/classexport_1_1gmsh__exporter_1_1GmshExporter.html", "d0/dc0/classexport_1_1gmsh__exporter_1_1GmshExporter" ]
-      ] ],
-      [ "nastran_exporter", "d8/d2f/namespaceexport_1_1nastran__exporter.html", [
-        [ "NastranExporter", "d0/da8/classexport_1_1nastran__exporter_1_1NastranExporter.html", "d0/da8/classexport_1_1nastran__exporter_1_1NastranExporter" ]
       ] ],
       [ "voxelizer", "d2/d7c/namespaceexport_1_1voxelizer.html", [
         [ "Voxelizer", "d7/d13/classexport_1_1voxelizer_1_1Voxelizer.html", "d7/d13/classexport_1_1voxelizer_1_1Voxelizer" ]
@@ -44,14 +24,69 @@ var annotated_dup =
         [ "PeriodicManager", "df/d7a/classgeneration_1_1periodicity_1_1PeriodicManager.html", null ]
       ] ]
     ] ],
-    [ "gui", null, [
-      [ "CollapsibleSection", "dc/d23/classgui_1_1CollapsibleSection.html", "dc/d23/classgui_1_1CollapsibleSection" ],
-      [ "Preview3DCanvas", "dc/d81/classgui_1_1Preview3DCanvas.html", "dc/d81/classgui_1_1Preview3DCanvas" ],
-      [ "MainWindow", "d0/d10/classgui_1_1MainWindow.html", "d0/d10/classgui_1_1MainWindow" ]
-    ] ],
-    [ "utils", null, [
-      [ "logger", "df/d05/namespaceutils_1_1logger.html", [
-        [ "LoggingMixin", "d4/da3/classutils_1_1logger_1_1LoggingMixin.html", "d4/da3/classutils_1_1logger_1_1LoggingMixin" ]
+    [ "tests", null, [
+      [ "conftest", "d1/d38/namespacetests_1_1conftest.html", [
+        [ "FakeFiber", "de/d10/classtests_1_1conftest_1_1FakeFiber.html", "de/d10/classtests_1_1conftest_1_1FakeFiber" ]
+      ] ],
+      [ "test_config", "d1/d92/namespacetests_1_1test__config.html", [
+        [ "TestFiberPackingConfigDefaults", "d8/d9e/classtests_1_1test__config_1_1TestFiberPackingConfigDefaults.html", "d8/d9e/classtests_1_1test__config_1_1TestFiberPackingConfigDefaults" ],
+        [ "TestBoxVolume", "d5/d4e/classtests_1_1test__config_1_1TestBoxVolume.html", "d5/d4e/classtests_1_1test__config_1_1TestBoxVolume" ],
+        [ "TestEstimateRadius", "d7/d3f/classtests_1_1test__config_1_1TestEstimateRadius.html", "d7/d3f/classtests_1_1test__config_1_1TestEstimateRadius" ],
+        [ "TestSectionParameters", "da/d8a/classtests_1_1test__config_1_1TestSectionParameters.html", "da/d8a/classtests_1_1test__config_1_1TestSectionParameters" ],
+        [ "TestGenerationParameters", "d2/d9b/classtests_1_1test__config_1_1TestGenerationParameters.html", "d2/d9b/classtests_1_1test__config_1_1TestGenerationParameters" ]
+      ] ],
+      [ "test_detector_math", "d9/d94/namespacetests_1_1test__detector__math.html", [
+        [ "TestSegmentSegmentDistSq", "d1/d58/classtests_1_1test__detector__math_1_1TestSegmentSegmentDistSq.html", "d1/d58/classtests_1_1test__detector__math_1_1TestSegmentSegmentDistSq" ],
+        [ "TestCheckCollisionNumba", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba" ],
+        [ "TestMinDistSegmentsNumba", "d9/dcb/classtests_1_1test__detector__math_1_1TestMinDistSegmentsNumba.html", "d9/dcb/classtests_1_1test__detector__math_1_1TestMinDistSegmentsNumba" ],
+        [ "TestMinDistPeriodicSegmentsNumba", "de/d10/classtests_1_1test__detector__math_1_1TestMinDistPeriodicSegmentsNumba.html", "de/d10/classtests_1_1test__detector__math_1_1TestMinDistPeriodicSegmentsNumba" ]
+      ] ],
+      [ "test_generation_periodicity", "d3/dc5/namespacetests_1_1test__generation__periodicity.html", [
+        [ "TestWrapFiber", "d4/d4e/classtests_1_1test__generation__periodicity_1_1TestWrapFiber.html", "d4/d4e/classtests_1_1test__generation__periodicity_1_1TestWrapFiber" ],
+        [ "TestGenerateGhosts", "d7/dcf/classtests_1_1test__generation__periodicity_1_1TestGenerateGhosts.html", "d7/dcf/classtests_1_1test__generation__periodicity_1_1TestGenerateGhosts" ]
+      ] ],
+      [ "test_generation_porosity", "d8/d4d/namespacetests_1_1test__generation__porosity.html", [
+        [ "TestPorosityGeneratorDisabled", "d0/d01/classtests_1_1test__generation__porosity_1_1TestPorosityGeneratorDisabled.html", "d0/d01/classtests_1_1test__generation__porosity_1_1TestPorosityGeneratorDisabled" ],
+        [ "TestPorosityGeneratorEnabled", "d9/df8/classtests_1_1test__generation__porosity_1_1TestPorosityGeneratorEnabled.html", "d9/df8/classtests_1_1test__generation__porosity_1_1TestPorosityGeneratorEnabled" ]
+      ] ],
+      [ "test_geometry_curves", "da/db6/namespacetests_1_1test__geometry__curves.html", [
+        [ "TestCatmullRomInterpolation", "df/d3b/classtests_1_1test__geometry__curves_1_1TestCatmullRomInterpolation.html", "df/d3b/classtests_1_1test__geometry__curves_1_1TestCatmullRomInterpolation" ],
+        [ "TestLinearResample", "d9/d09/classtests_1_1test__geometry__curves_1_1TestLinearResample.html", "d9/d09/classtests_1_1test__geometry__curves_1_1TestLinearResample" ],
+        [ "TestGenerateRandomControlPoints", "d9/d08/classtests_1_1test__geometry__curves_1_1TestGenerateRandomControlPoints.html", "d9/d08/classtests_1_1test__geometry__curves_1_1TestGenerateRandomControlPoints" ]
+      ] ],
+      [ "test_geometry_frames", "d5/d00/namespacetests_1_1test__geometry__frames.html", [
+        [ "TestComputeTangents", "dd/dc9/classtests_1_1test__geometry__frames_1_1TestComputeTangents.html", "dd/dc9/classtests_1_1test__geometry__frames_1_1TestComputeTangents" ],
+        [ "TestBishopFrame", "df/d0a/classtests_1_1test__geometry__frames_1_1TestBishopFrame.html", "df/d0a/classtests_1_1test__geometry__frames_1_1TestBishopFrame" ]
+      ] ],
+      [ "test_geometry_sections", "dc/d56/namespacetests_1_1test__geometry__sections.html", [
+        [ "TestCircularSection", "de/dc3/classtests_1_1test__geometry__sections_1_1TestCircularSection.html", "de/dc3/classtests_1_1test__geometry__sections_1_1TestCircularSection" ],
+        [ "TestSuperEllipticalSection", "db/d73/classtests_1_1test__geometry__sections_1_1TestSuperEllipticalSection.html", "db/d73/classtests_1_1test__geometry__sections_1_1TestSuperEllipticalSection" ],
+        [ "TestCreateSectionFactory", "d5/d7c/classtests_1_1test__geometry__sections_1_1TestCreateSectionFactory.html", "d5/d7c/classtests_1_1test__geometry__sections_1_1TestCreateSectionFactory" ]
+      ] ],
+      [ "test_grid_structure", "d4/dff/namespacetests_1_1test__grid__structure.html", [
+        [ "TestSpatialGridInit", "db/dec/classtests_1_1test__grid__structure_1_1TestSpatialGridInit.html", "db/dec/classtests_1_1test__grid__structure_1_1TestSpatialGridInit" ],
+        [ "TestGetCellCoords", "dd/d7d/classtests_1_1test__grid__structure_1_1TestGetCellCoords.html", "dd/d7d/classtests_1_1test__grid__structure_1_1TestGetCellCoords" ],
+        [ "TestAddFiber", "df/dbe/classtests_1_1test__grid__structure_1_1TestAddFiber.html", "df/dbe/classtests_1_1test__grid__structure_1_1TestAddFiber" ],
+        [ "TestRemoveFiber", "d6/d1d/classtests_1_1test__grid__structure_1_1TestRemoveFiber.html", "d6/d1d/classtests_1_1test__grid__structure_1_1TestRemoveFiber" ],
+        [ "TestQueryNeighbors", "da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html", "da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors" ]
+      ] ],
+      [ "test_validation_statistics", "db/dc2/namespacetests_1_1test__validation__statistics.html", [
+        [ "TestExtract2DCentroids", "dd/d38/classtests_1_1test__validation__statistics_1_1TestExtract2DCentroids.html", "dd/d38/classtests_1_1test__validation__statistics_1_1TestExtract2DCentroids" ],
+        [ "TestNearestNeighborDistance", "d3/dfe/classtests_1_1test__validation__statistics_1_1TestNearestNeighborDistance.html", "d3/dfe/classtests_1_1test__validation__statistics_1_1TestNearestNeighborDistance" ],
+        [ "TestRipleyKFunction", "d4/da4/classtests_1_1test__validation__statistics_1_1TestRipleyKFunction.html", "d4/da4/classtests_1_1test__validation__statistics_1_1TestRipleyKFunction" ],
+        [ "TestPairCorrelationFunction", "d7/d5b/classtests_1_1test__validation__statistics_1_1TestPairCorrelationFunction.html", "d7/d5b/classtests_1_1test__validation__statistics_1_1TestPairCorrelationFunction" ],
+        [ "TestVoronoiStatistics", "d5/d52/classtests_1_1test__validation__statistics_1_1TestVoronoiStatistics.html", "d5/d52/classtests_1_1test__validation__statistics_1_1TestVoronoiStatistics" ]
+      ] ],
+      [ "test_validation_topology", "da/d46/namespacetests_1_1test__validation__topology.html", [
+        [ "TestCheckClearance", "da/df3/classtests_1_1test__validation__topology_1_1TestCheckClearance.html", "da/df3/classtests_1_1test__validation__topology_1_1TestCheckClearance" ],
+        [ "TestGapDistribution", "d6/dff/classtests_1_1test__validation__topology_1_1TestGapDistribution.html", "d6/dff/classtests_1_1test__validation__topology_1_1TestGapDistribution" ]
+      ] ],
+      [ "test_void", "d5/d18/namespacetests_1_1test__void.html", [
+        [ "TestVoidCreation", "d5/d8d/classtests_1_1test__void_1_1TestVoidCreation.html", "d5/d8d/classtests_1_1test__void_1_1TestVoidCreation" ],
+        [ "TestContainsPoint", "d9/dd1/classtests_1_1test__void_1_1TestContainsPoint.html", "d9/dd1/classtests_1_1test__void_1_1TestContainsPoint" ]
+      ] ],
+      [ "test_void_intersect", "d8/ded/namespacetests_1_1test__void__intersect.html", [
+        [ "TestIntersectFiber", "dc/df6/classtests_1_1test__void__intersect_1_1TestIntersectFiber.html", "dc/df6/classtests_1_1test__void__intersect_1_1TestIntersectFiber" ]
       ] ]
     ] ],
     [ "validation", null, [
@@ -75,8 +110,15 @@ var annotated_dup =
     [ "CatmullRomSpline", "dc/d89/classCatmullRomSpline.html", null ],
     [ "CircularSection", "d3/dcd/classCircularSection.html", null ],
     [ "CollapsibleSection", "dd/db1/classCollapsibleSection.html", null ],
+    [ "CollisionDetector", "d2/d5d/classCollisionDetector.html", null ],
+    [ "FiberPackingConfig", "db/df9/classFiberPackingConfig.html", null ],
+    [ "GmshExporter", "d1/da0/classGmshExporter.html", null ],
+    [ "LoggingMixin", "dc/d99/classLoggingMixin.html", null ],
     [ "MainWindow", "d6/d1a/classMainWindow.html", null ],
+    [ "NastranExporter", "df/d94/classNastranExporter.html", null ],
     [ "PorosityGenerator", "d0/d35/classPorosityGenerator.html", null ],
     [ "Preview3DCanvas", "d1/d61/classPreview3DCanvas.html", null ],
-    [ "SuperEllipticalSection", "d4/d31/classSuperEllipticalSection.html", null ]
+    [ "SpatialGrid", "df/dd7/classSpatialGrid.html", null ],
+    [ "SuperEllipticalSection", "d4/d31/classSuperEllipticalSection.html", null ],
+    [ "Void", "da/de9/classVoid.html", null ]
 ];
