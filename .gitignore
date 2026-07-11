@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Numba JIT cache
+*.nbc
+*.nbi
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# LaTeX build artifacts (SoftwareX manuscript)
+softwarex/*.aux
+softwarex/*.log
+softwarex/*.out
+softwarex/*.bbl
+softwarex/*.blg
+softwarex/*.synctex.gz
+softwarex/build.log
+
+# Doxygen build log
+doxygen_warnings.log
+
+# Generated RVE outputs
+RVE_*/
+*_parametric.json
+*_roots.csv
+*_full_periodic.csv
+*_voxelmap.npy
+*.step
+*.msh
+*.bdf
+slice*.pgm
+
+# Environments / editors
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+softwarex/*.spl

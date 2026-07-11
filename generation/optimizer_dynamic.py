@@ -13,6 +13,8 @@ from generation.periodicity import PeriodicManager
 from dataclasses import dataclass, asdict
 
 
+## @var logger
+#  @brief Logger pour le module d'optimisation dynamique.
 logger = logging.getLogger(__name__)
 
 
@@ -25,18 +27,34 @@ class DynamicOptimizer:
     itérativement les fibres existantes pour créer de l'espace pour de nouvelles injections.
     """
     def __init__(self, config, detector):
+        """! @brief Placeholder.
+        @param self, config, detector 
+        @return None
+        """
         """
         @brief Initialise l'optimiseur avec la configuration et le détecteur de collisions.
+        @param config FiberPackingConfig Configuration du problème.
+        @param detector CollisionDetector Détecteur de collisions.
         """
+        ## @var config
+        #  @brief Configuration globale.
         self.config = config
+        ## @var detector
+        #  @brief Détecteur de collisions.
         self.detector = detector
+        ## @var rng
+        #  @brief Générateur de nombres aléatoires.
         self.rng = np.random.default_rng(config.seed)
 
     def optimize_and_fill(self, fibers: List):
+        """! @brief Placeholder.
+        @param self, fibers: List 
+        @return None
+        """
         """
         @brief Cycle principal de densification (Compression et Shaking).
-        @param fibers Liste des fibres initiales à densifier.
-        @return Liste des fibres mise à jour et complétée."""
+        @param fibers List Liste des fibres initiales à densifier.
+        @return List Liste des fibres mise à jour et complétée."""
         target_vf = self.config.target_volume_fraction
         # Utilisation de la méthode de volume réel pour plus de précision
         current_vf = self._calculate_vf(fibers)
@@ -69,6 +87,10 @@ class DynamicOptimizer:
         return fibers
 
     def _resolve_all_collisions(self, fibers):
+        """! @brief Placeholder.
+        @param self, fibers 
+        @return None
+        """
         """
         @brief Identifie et tente de résoudre les collisions par micro-déplacements.
         @param fibers Liste des fibres à traiter.
@@ -105,6 +127,10 @@ class DynamicOptimizer:
         return colliding_pairs
 
     def _nudge_fibers(self, f1, target, all_fibers):
+        """! @brief Placeholder.
+        @param self, f1, target, all_fibers 
+        @return None
+        """
         """
         @brief Applique une force de répulsion à f1 par rapport à une cible.
         @param f1 La fibre à déplacer.
@@ -132,6 +158,10 @@ class DynamicOptimizer:
             f1.refresh_geometry()
 
     def _has_any_collision(self, fiber):
+        """! @brief Placeholder.
+        @param self, fiber 
+        @return None
+        """
         """
         @brief Vérifie si une fibre donnée est en collision avec le reste du domaine.
         @return True si une collision est détectée.
@@ -143,6 +173,10 @@ class DynamicOptimizer:
         return False
 
     def _calculate_vf(self, fibers):
+        """! @brief Placeholder.
+        @param self, fibers 
+        @return None
+        """
         """
         @brief Calcule la fraction volumique réelle actuelle.
         """
@@ -151,6 +185,10 @@ class DynamicOptimizer:
         return total_vol / np.prod(self.config.box_dims)
 
     def _apply_global_jitter(self, fibers):
+        """! @brief Placeholder.
+        @param self, fibers 
+        @return None
+        """
         """
         @brief Applique un léger déplacement aléatoire à toutes les fibres (agitation thermique).
         @param fibers Liste des fibres à agiter.
@@ -165,6 +203,10 @@ class DynamicOptimizer:
                 f.refresh_geometry()
 
     def _apply_centripetal_compression(self, fibers, intensity):
+        """! @brief Placeholder.
+        @param self, fibers, intensity 
+        @return None
+        """
         """
         @brief Déplace les fibres vers le centre du domaine pour libérer de l'espace aux parois.
         @param fibers Liste des fibres.
@@ -182,6 +224,10 @@ class DynamicOptimizer:
                 f.refresh_geometry()
 
     def _inject_additional_fibers(self, fibers):
+        """! @brief Placeholder.
+        @param self, fibers 
+        @return None
+        """
         """
         @brief Tente d'insérer de nouvelles fibres dans les espaces libérés.
         @param fibers Liste actuelle des fibres.

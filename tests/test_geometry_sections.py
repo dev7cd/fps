@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour geometry/sections.py — Sections et factory.
 """
@@ -10,6 +11,7 @@ from geometry.sections import (
 )
 
 
+    """! @brief Test class for functionality. """
 class TestCircularSection:
     """Vérifie la section circulaire."""
 
@@ -51,6 +53,7 @@ class TestCircularSection:
         np.testing.assert_allclose(pts[:, 2], 0.0)
 
 
+    """! @brief Test class for functionality. """
 class TestSuperEllipticalSection:
     """Vérifie la section superelliptique."""
 
@@ -84,6 +87,7 @@ class TestSuperEllipticalSection:
         assert pts.shape == (40, 3)
 
 
+    """! @brief Test class for functionality. """
 class TestCreateSectionFactory:
     """Vérifie la factory create_section."""
 

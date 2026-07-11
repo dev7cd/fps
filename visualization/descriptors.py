@@ -10,30 +10,35 @@ import logging
 from typing import List, Dict, Tuple, Any
 from core.fiber import Fiber
 
+## @var logger
+#  @brief Logger for the descriptors module.
 logger = logging.getLogger(__name__)
 
-## @class AD_PCA_Analyzer
-#  @brief Microstructural analyzer using the AD-PCA framework.
-#  @details Implements the EF-RSA method for decomposing curved fiber 
-#  trajectories into axial and planar orientation tensors.
+
 class AD_PCA_Analyzer:
+    """!
+    @brief Microstructural analyzer using the AD-PCA framework.
+    @details Implements the EF-RSA method for decomposing curved fiber 
+    trajectories into axial and planar orientation tensors.
+    """
     def __init__(self, fibers: List[Fiber]):
         """!
         @brief Initializes the AD-PCA analyzer.
-        @param fibers List of Fiber objects to analyze.
+        @param fibers List List of Fiber objects to analyze.
         """
-        self.fibers = fibers
-        self.num_fibers = len(fibers)
+        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
+        self.num_fibers = len(fibers)  ##< Number of fibers.
         
         # Résultats cache
-        self.fiber_metrics = [] # Stocke (tau, B_k, w_k, axes) pour chaque fibre
-        self.A_axial = None
-        self.A_planar = None
+        self.fiber_metrics = []  ##< List storing (tau, B_k, w_k, axes) for each fiber.
+        self.A_axial = None  ##< Axial orientation tensor.
+        self.A_planar = None  ##< Planar orientation tensor.
         
-    def compute_all(self):
+    def compute_all(self) -> None:
         """!
         @brief Executes the full AD-PCA analysis pipeline.
         @details Performs individual fiber PCA followed by global tensor construction.
+        @return None
         """
         if self.num_fibers == 0: return
 
@@ -49,8 +54,8 @@ class AD_PCA_Analyzer:
     def _analyze_single_fiber(self, fib: Fiber) -> Dict:
         """!
         @brief Calculates tortuosity and local PCA for a single fiber.
-        @param fib The Fiber object to analyze.
-        @return Dictionary containing tortuosity (tau), biaxiality (B_k), efficiency (w_k), and principal axes (u, v, w).
+        @param fib Fiber The Fiber object to analyze.
+        @return Dict Dictionary containing tortuosity (tau), biaxiality (B_k), efficiency (w_k), and principal axes (u, v, w).
         """
         pts = fib.centerline # (M, 3) points discrets denses
         if len(pts) < 2: return None
@@ -111,10 +116,11 @@ class AD_PCA_Analyzer:
             'w': w_n_k
         }
 
-    def _compute_global_tensors(self):
+    def _compute_global_tensors(self) -> None:
         """!
         @brief Constructs the global Axial and Planar orientation tensors.
         @details Normalizes the accumulated dyadic products by efficiency and biaxiality weights.
+        @return None
         """
         sum_w = 0.0
         sum_B = 0.0
@@ -145,7 +151,7 @@ class AD_PCA_Analyzer:
     def get_spectrum(self) -> Dict:
         """!
         @brief Computes the Anisotropy Spectrum and Herman's orientation factors.
-        @return Dictionary containing f_axial, f_planar, and the full tensors.
+        @return Dict Dictionary containing f_axial, f_planar, and the full tensors.
         """
         # Eigenvalues of global tensors
         eig_ax, _ = np.linalg.eigh(self.A_axial)
@@ -170,7 +176,7 @@ class AD_PCA_Analyzer:
         """!
         @brief Computes the standard orientation tensor based on the end-to-end chord vector.
         @details Used for benchmarking AD-PCA against traditional linear orientation metrics.
-        @return Dictionary with the chord tensor and its Herman's factor.
+        @return Dict[str, Any] Dictionary with the chord tensor and its Herman's factor.
         """
         chord_accum = np.zeros((3, 3))
         count = 0
@@ -202,21 +208,22 @@ class AD_PCA_Analyzer:
         }
 
 
-## @class MicroDescriptor
-#  @brief Utility class for basic geometric statistics of the fiber population.
 class MicroDescriptor:
+    """!
+    @brief Utility class for basic geometric statistics of the fiber population.
+    """
     def __init__(self, fibers: List[Fiber]):
         """!
         @brief Initializes the descriptor.
-        @param fibers List of Fiber objects.
+        @param fibers List List of Fiber objects.
         """
-        self.fibers = fibers
+        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
 
     def compute_geometric_stats(self) -> Dict[str, Any]:
         """!
         @brief Analyzes basic geometric statistics.
         @details Calculates mean and standard deviation for tortuosity, length, and biaxiality.
-        @return Dictionary of statistical distributions.
+        @return Dict[str, Any] Dictionary of statistical distributions.
         """
         taus = []
         lengths = []

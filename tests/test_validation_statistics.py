@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour validation/statistics.py — Descripteurs spatiaux.
 On utilise des distributions connues (grille régulière, CSR) pour valider.
@@ -41,6 +42,7 @@ def _make_fake_fibers_random(n=100, box_size=1.0, seed=42):
     return fibers
 
 
+    """! @brief Test class for functionality. """
 class TestExtract2DCentroids:
 
     def test_xy_projection(self):
@@ -56,6 +58,7 @@ class TestExtract2DCentroids:
         assert centroids[0, 1] == pytest.approx(4.0)  # mean(3, 5)
 
 
+    """! @brief Test class for functionality. """
 class TestNearestNeighborDistance:
 
     def test_regular_grid_nnd(self):
@@ -76,6 +79,7 @@ class TestNearestNeighborDistance:
         assert result['nnd_mean'] > 0
 
 
+    """! @brief Test class for functionality. """
 class TestRipleyKFunction:
 
     def test_csr_follows_poisson(self):
@@ -96,6 +100,7 @@ class TestRipleyKFunction:
         assert result['K_h'] == []
 
 
+    """! @brief Test class for functionality. """
 class TestPairCorrelationFunction:
 
     def test_csr_g_near_one(self):
@@ -112,6 +117,7 @@ class TestPairCorrelationFunction:
         assert result['g_r'] == []
 
 
+    """! @brief Test class for functionality. """
 class TestVoronoiStatistics:
 
     def test_regular_grid_low_cv(self):

@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour core/grid_structure.py — SpatialGrid.
 """
@@ -6,6 +7,7 @@ import numpy as np
 from core.grid_structure import SpatialGrid
 
 
+    """! @brief Test class for functionality. """
 class TestSpatialGridInit:
     """Vérifie l'initialisation de la grille spatiale."""
 
@@ -24,6 +26,7 @@ class TestSpatialGridInit:
         np.testing.assert_array_equal(grid.box_dims, dims)
 
 
+    """! @brief Test class for functionality. """
 class TestGetCellCoords:
     """Vérifie le calcul des coordonnées de cellule."""
 
@@ -45,6 +48,7 @@ class TestGetCellCoords:
         assert coords == (-1, -1, -1)
 
 
+    """! @brief Test class for functionality. """
 class TestAddFiber:
     """Vérifie l'ajout de fibres dans la grille."""
 
@@ -68,6 +72,7 @@ class TestAddFiber:
         assert len(grid.fiber_cells[simple_fiber_a.parent_id]) > 1
 
 
+    """! @brief Test class for functionality. """
 class TestRemoveFiber:
     """Vérifie la suppression de fibres de la grille."""
 
@@ -103,6 +108,7 @@ class TestRemoveFiber:
         assert simple_fiber_a.parent_id not in grid.fiber_cells
 
 
+    """! @brief Test class for functionality. """
 class TestQueryNeighbors:
     """Vérifie les requêtes de voisinage."""
 

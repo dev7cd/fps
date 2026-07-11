@@ -29,25 +29,30 @@ import numpy as np
 # ---------------------------------------------------------------------------
 
 class CollapsibleSection(QGroupBox):
-    ## @class CollapsibleSection
-    #  @brief A custom QGroupBox that can be toggled to show or hide its content.
+    """!
+    @class CollapsibleSection
+    @brief A custom QGroupBox that can be toggled to show or hide its content.
+    """
 
     def __init__(self, title, description="", parent=None):
         """!
         @brief Initializes the collapsible section.
-        @param title The title displayed on the group box.
-        @param description Tooltip description for the section.
-        @param parent Parent widget.
+        @param title str The title displayed on the group box.
+        @param description str Tooltip description for the section.
+        @param parent QWidget Parent widget.
         """
         super().__init__(title, parent)
-        ## @var setCheckable
         self.setCheckable(True)
         self.setChecked(True)
         self.toggled.connect(self._on_toggle)
         if description:
             self.setToolTip(description)
 
+        ## @var _content
+        #  @brief Widget contenant le contenu de la section.
         self._content = QWidget()
+        ## @var _layout
+        #  @brief Layout de formulaire interne.
         self._layout = QFormLayout(self._content)
         self._layout.setContentsMargins(8, 4, 8, 4)
         self._layout.setSpacing(6)
@@ -75,15 +80,22 @@ class CollapsibleSection(QGroupBox):
 #  Vue 3D Matplotlib
 # ---------------------------------------------------------------------------
 class Preview3DCanvas(FigureCanvasQTAgg):
-    ## @class Preview3DCanvas
-    #  @brief Matplotlib canvas integrated into PyQt for 3D RVE visualization.
+    """!
+    @class Preview3DCanvas
+    @brief Matplotlib canvas integrated into PyQt for 3D RVE visualization.
+    """
 
     def __init__(self, parent=None):
         """!
         @brief Initializes the 3D canvas with a dark theme.
+        @param parent QWidget The parent widget.
         """
+        ## @var fig
+        #  @brief The matplotlib Figure instance.
         self.fig = Figure(figsize=(5, 4), dpi=100, facecolor='#2b2b2b')
         super().__init__(self.fig)
+        ## @var ax
+        #  @brief The 3D axes for plotting.
         self.ax = self.fig.add_subplot(111, projection='3d', facecolor='#2b2b2b')
         self._style_axes()
         self.draw_box(1, 1, 1)
@@ -102,9 +114,10 @@ class Preview3DCanvas(FigureCanvasQTAgg):
     def draw_box(self, lx, ly, lz):
         """!
         @brief Draws the wireframe of the RVE bounding box.
-        @param lx Length in X.
-        @param ly Length in Y.
-        @param lz Length in Z.
+        @param lx float Length in X.
+        @param ly float Length in Y.
+        @param lz float Length in Z.
+        @return None
         """
         self.ax.cla()
         self._style_axes()
@@ -130,8 +143,9 @@ class Preview3DCanvas(FigureCanvasQTAgg):
     def draw_fibers(self, json_path, box_dims):
         """!
         @brief Loads fiber data from a JSON file and renders them in 3D.
-        @param json_path Path to the parametric JSON record.
-        @param box_dims Tuple of (Lx, Ly, Lz).
+        @param json_path str Path to the parametric JSON record.
+        @param box_dims tuple Tuple of (Lx, Ly, Lz).
+        @return None
         """
         import json
         self.ax.cla()
@@ -178,8 +192,10 @@ class Preview3DCanvas(FigureCanvasQTAgg):
 # ---------------------------------------------------------------------------
 
 class MainWindow(QMainWindow):
-    ## @class MainWindow
-    #  @brief Main application window for the Fiber Packing System GUI.
+    """!
+    @class MainWindow
+    @brief Main application window for the Fiber Packing System GUI.
+    """
     
     def __init__(self):
         """!
@@ -188,6 +204,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Fiber Packing System v6.1")
         self.setMinimumSize(1100, 750)
+        ## @var process
+        #  @brief External process for running main.py.
         self.process = None
 
         self._build_ui()
@@ -237,6 +255,8 @@ class MainWindow(QMainWindow):
         right_layout.setSpacing(6)
 
         # Vue 3D
+        ## @var canvas
+        #  @brief Canevas de visualisation 3D.
         self.canvas = Preview3DCanvas()
         right_layout.addWidget(self.canvas, stretch=3)
 
@@ -245,6 +265,8 @@ class MainWindow(QMainWindow):
         console_label.setStyleSheet("font-weight: bold; color: #aaa; margin-top: 4px;")
         right_layout.addWidget(console_label)
 
+        ## @var console
+        #  @brief Zone de texte pour la console.
         self.console = QPlainTextEdit()
         self.console.setReadOnly(True)
         self.console.setFont(QFont("Monospace", 9))
@@ -252,6 +274,8 @@ class MainWindow(QMainWindow):
         right_layout.addWidget(self.console, stretch=2)
 
         # Barre de progression
+        ## @var progress
+        #  @brief Barre de progression.
         self.progress = QProgressBar()
         self.progress.setRange(0, 0)  # indeterminee
         self.progress.setVisible(False)
@@ -261,15 +285,21 @@ class MainWindow(QMainWindow):
 
         # Boutons d'action
         btn_layout = QHBoxLayout()
+        ## @var btn_generate
+        #  @brief Bouton pour lancer la génération.
         self.btn_generate = QPushButton("Generer le VER")
         self.btn_generate.setFixedHeight(40)
         self.btn_generate.clicked.connect(self._on_generate)
 
+        ## @var btn_stop
+        #  @brief Bouton pour arrêter la génération.
         self.btn_stop = QPushButton("Arreter")
         self.btn_stop.setFixedHeight(40)
         self.btn_stop.setEnabled(False)
         self.btn_stop.clicked.connect(self._on_stop)
 
+        ## @var btn_refresh
+        #  @brief Bouton pour rafraîchir la vue 3D.
         self.btn_refresh = QPushButton("Rafraichir la vue 3D")
         self.btn_refresh.setFixedHeight(40)
         self.btn_refresh.clicked.connect(self._on_refresh_3d)
@@ -295,9 +325,15 @@ class MainWindow(QMainWindow):
             "Definit la taille de l'echantillon numerique et le taux de remplissage en fibres."
         )
 
-        self.spin_lx = self._double_spin(0.01, 100.0, 1.0, 3, "Longueur selon l'axe X")
-        self.spin_ly = self._double_spin(0.01, 100.0, 1.0, 3, "Longueur selon l'axe Y")
-        self.spin_lz = self._double_spin(0.01, 100.0, 1.0, 3, "Longueur selon l'axe Z")
+        ## @var spin_lx
+        #  @brief Length in X.
+        self.spin_lx = self._double_spin(0.01, 200.0, 1.0, 4, "Longueur selon l'axe X")
+        ## @var spin_ly
+        #  @brief Length in Y.
+        self.spin_ly = self._double_spin(0.01, 200.0, 1.0, 4, "Longueur selon l'axe Y")
+        ## @var spin_lz
+        #  @brief Length in Z.
+        self.spin_lz = self._double_spin(0.01, 200.0, 1.0, 4, "Longueur selon l'axe Z")
 
         dims_layout = QHBoxLayout()
         for label, spin in [("Lx", self.spin_lx), ("Ly", self.spin_ly), ("Lz", self.spin_lz)]:
@@ -313,8 +349,12 @@ class MainWindow(QMainWindow):
         sec.form().addRow("Dimensions du volume :", dims_widget)
 
         # Vf avec slider synchronise
-        self.spin_vf = self._double_spin(0.01, 0.80, 0.30, 2,
+        ## @var spin_vf
+        #  @brief Target volume fraction.
+        self.spin_vf = self._double_spin(0.001, 0.801, 0.30, 4,
             "Proportion du volume occupee par les fibres.\nExemple : 0.55 = 55% de fibres.")
+        ## @var slider_vf
+        #  @brief Slider for volume fraction.
         self.slider_vf = QSlider(Qt.Orientation.Horizontal)
         self.slider_vf.setRange(1, 80)
         self.slider_vf.setValue(30)
@@ -329,6 +369,8 @@ class MainWindow(QMainWindow):
         vf_layout.addWidget(self.spin_vf, stretch=1)
         sec.form().addRow("Taux de fibres :", vf_widget)
 
+        ## @var spin_seed
+        #  @brief Random seed.
         self.spin_seed = QSpinBox()
         self.spin_seed.setRange(0, 999999)
         self.spin_seed.setValue(42)
@@ -345,26 +387,35 @@ class MainWindow(QMainWindow):
     def _build_section_fibers(self, parent_layout):
         """!
         @brief Builds the UI section for fiber geometry and cross-section parameters.
+        @param parent_layout QVBoxLayout The layout to add this section to.
         """
         sec = CollapsibleSection(
             "2. Geometrie des Fibres",
             "Definit la taille et la forme de la section transversale de chaque fibre."
         )
 
+        ## @var spin_radius
+        #  @brief Fiber radius.
         self.spin_radius = self._double_spin(0.001, 1.0, 0.02, 4,
             "Rayon de l'enveloppe circulaire utilisee pour la detection de collision.")
         sec.form().addRow("Rayon de la fibre :", self.spin_radius)
 
+        ## @var combo_section
+        #  @brief Cross-section type.
         self.combo_section = QComboBox()
         self.combo_section.addItem("Circulaire", "circular")
         self.combo_section.addItem("Superelliptique", "superelliptical")
         self.combo_section.setToolTip("Forme de la section reelle de la fibre.\nCirculaire = rond parfait.\nSuperelliptique = forme ovale a coins ajustables.")
         sec.form().addRow("Type de section :", self.combo_section)
 
+        ## @var spin_clearance
+        #  @brief Minimum clearance.
         self.spin_clearance = self._double_spin(0.0, 1.0, 0.0, 4,
             "Distance minimale imposee entre deux fibres voisines.")
         sec.form().addRow("Espacement minimal :", self.spin_clearance)
 
+        ## @var spin_sec_n
+        #  @brief Superellipse exponent.
         self.spin_sec_n = self._double_spin(1.0, 10.0, 2.5, 1,
             "Exposant de la superellipse.\n2.0 = ellipse, >2 = coins plus carres.")
         sec.form().addRow("Exposant forme :", self.spin_sec_n)
@@ -385,6 +436,8 @@ class MainWindow(QMainWindow):
         )
 
         self.combo_bias = QComboBox()
+        ## @var combo_bias
+        #  @brief Orientation bias mode selector.
         self.combo_bias.addItem("Aleatoire 3D (aucune direction preferee)", "free")
         self.combo_bias.addItem("Unidirectionnel (fibres paralleles)", "uniaxial")
         self.combo_bias.addItem("Dans un plan (fibres orientees dans un plan)", "planar")
@@ -394,6 +447,8 @@ class MainWindow(QMainWindow):
         sec.form().addRow("Mode d'orientation :", self.combo_bias)
 
         self.lbl_bias_desc = QLabel("Les fibres restent dans le plan XY.")
+        ## @var lbl_bias_desc
+        #  @brief Description label for orientation bias.
         self.lbl_bias_desc.setWordWrap(True)
         self.lbl_bias_desc.setStyleSheet("color: #888; font-style: italic; padding: 2px;")
         sec.form().addRow(self.lbl_bias_desc)
@@ -401,7 +456,11 @@ class MainWindow(QMainWindow):
         # Strength slider
         self.spin_strength = self._double_spin(0.0, 1.0, 0.0, 2,
             "0 = orientation completement libre\n1 = alignement strict sur la direction choisie")
+        ## @var spin_strength
+        #  @brief Alignment strength selector.
         self.slider_strength = QSlider(Qt.Orientation.Horizontal)
+        ## @var slider_strength
+        #  @brief Slider for alignment strength.
         self.slider_strength.setRange(0, 100)
         self.slider_strength.setValue(0)
         self.slider_strength.valueChanged.connect(lambda v: self.spin_strength.setValue(v / 100.0))
@@ -416,25 +475,35 @@ class MainWindow(QMainWindow):
 
         self.spin_curvature = self._double_spin(1.0, 180.0, 60.0, 1,
             "Angle maximal autorise entre deux segments consecutifs d'une fibre.\nPlus petit = fibres plus droites. Plus grand = fibres plus sinueuses.")
+        ## @var spin_curvature
+        #  @brief Maximum curvature selector.
         sec.form().addRow("Courbure max (deg) :", self.spin_curvature)
 
         self.spin_min_pts = QSpinBox()
+        ## @var spin_min_pts
+        #  @brief Minimum control points per fiber.
         self.spin_min_pts.setRange(3, 100)
         self.spin_min_pts.setValue(15)
         self.spin_min_pts.setToolTip("Nombre minimal de points de controle par fibre.\nPlus de points = fibres plus longues.")
         sec.form().addRow("Min points/fibre :", self.spin_min_pts)
 
         self.spin_max_pts = QSpinBox()
+        ## @var spin_max_pts
+        #  @brief Maximum control points per fiber.
         self.spin_max_pts.setRange(3, 200)
         self.spin_max_pts.setValue(20)
         self.spin_max_pts.setToolTip("Nombre maximal de points de controle par fibre.")
         sec.form().addRow("Max points/fibre :", self.spin_max_pts)
 
-        self.spin_step = self._double_spin(0.001, 1.0, 0.07, 3,
+        self.spin_step = self._double_spin(0.001, 10.0, 0.07, 3,
             "Longueur de chaque segment de la fibre.")
+        ## @var spin_step
+        #  @brief Fiber segment length selector.
         sec.form().addRow("Longueur segment :", self.spin_step)
 
         self.chk_rsda = QCheckBox("Activer (meilleur remplissage)")
+        ## @var chk_rsda
+        #  @brief Checkbox for RSDA (rearrangement) activation.
         self.chk_rsda.setToolTip("RSDA : permet de deplacer legerement les fibres existantes\npour faire de la place aux nouvelles.\nAide a depasser la limite de remplissage standard (~55%).")
         sec.form().addRow("Rearrangement :", self.chk_rsda)
 
@@ -443,6 +512,7 @@ class MainWindow(QMainWindow):
     def _on_bias_changed(self, index):
         """!
         @brief Updates the description label when the orientation bias mode changes.
+        @param index int The index of the selected bias mode.
         """
         descriptions = {
             0: "Les fibres partent dans toutes les directions sans preference.",
@@ -458,6 +528,7 @@ class MainWindow(QMainWindow):
     def _build_section_optimizer(self, parent_layout):
         """!
         @brief Builds the UI section for Phase 2 (Dynamic Densification).
+        @param parent_layout QVBoxLayout The layout to add this section to.
         """
         sec = CollapsibleSection(
             "4. Densification (Phase 2)",
@@ -465,12 +536,16 @@ class MainWindow(QMainWindow):
         )
 
         self.chk_optimize = QCheckBox("Activer la densification")
+        ## @var chk_optimize
+        #  @brief Checkbox for densification phase activation.
         self.chk_optimize.setChecked(True)
         self.chk_optimize.setToolTip("Active une phase d'optimisation qui secoue et comprime\nles fibres pour remplir davantage le volume.")
         self.chk_optimize.toggled.connect(self._on_optimize_toggled)
         sec.form().addRow(self.chk_optimize)
 
         self.spin_opt_iters = QSpinBox()
+        ## @var spin_opt_iters
+        #  @brief Optimization cycles selector.
         self.spin_opt_iters.setRange(1, 500)
         self.spin_opt_iters.setValue(10)
         self.spin_opt_iters.setToolTip("Nombre de cycles d'optimisation.\nPlus de cycles = meilleur remplissage mais plus long.")
@@ -478,13 +553,19 @@ class MainWindow(QMainWindow):
 
         self.spin_jitter = self._double_spin(0.0, 1.0, 0.05, 3,
             "Amplitude des vibrations aleatoires appliquees aux fibres\npour les reorganiser (fraction du rayon).")
+        ## @var spin_jitter
+        #  @brief Vibration amplitude selector.
         sec.form().addRow("Vibrations :", self.spin_jitter)
 
         self.spin_compression = self._double_spin(0.0, 0.5, 0.01, 3,
             "Intensite de la compression vers le centre du volume\npour rapprocher les fibres.")
+        ## @var spin_compression
+        #  @brief Compression intensity selector.
         sec.form().addRow("Compression :", self.spin_compression)
 
         self.spin_injection = QSpinBox()
+        ## @var spin_injection
+        #  @brief Fiber injection count selector.
         self.spin_injection.setRange(0, 500)
         self.spin_injection.setValue(50)
         self.spin_injection.setToolTip("Nombre de tentatives d'ajout de nouvelles fibres\na chaque cycle d'optimisation.")
@@ -498,6 +579,7 @@ class MainWindow(QMainWindow):
     def _on_optimize_toggled(self, checked):
         """!
         @brief Enables or disables optimizer inputs based on the checkbox state.
+        @param checked bool True if checked, False otherwise.
         """
         for w in self._opt_widgets:
             w.setEnabled(checked)
@@ -509,6 +591,7 @@ class MainWindow(QMainWindow):
     def _build_section_porosity(self, parent_layout):
         """!
         @brief Builds the UI section for void/porosity generation.
+        @param parent_layout QVBoxLayout The layout to add this section to.
         """
         sec = CollapsibleSection(
             "5. Porosite (defauts)",
@@ -516,20 +599,28 @@ class MainWindow(QMainWindow):
         )
 
         self.chk_porosity = QCheckBox("Ajouter des pores")
+        ## @var chk_porosity
+        #  @brief Checkbox for porosity activation.
         self.chk_porosity.setToolTip("Active la generation de bulles d'air\ndans la matrice du composite.")
         self.chk_porosity.toggled.connect(self._on_porosity_toggled)
         sec.form().addRow(self.chk_porosity)
 
         self.spin_void_vf = self._double_spin(0.0, 0.10, 0.01, 3,
             "Proportion du volume occupee par les bulles d'air.\nExemple : 0.01 = 1% de porosite.")
+        ## @var spin_void_vf
+        #  @brief Target porosity volume fraction selector.
         sec.form().addRow("Taux de porosite :", self.spin_void_vf)
 
         self.spin_void_mean = self._double_spin(0.001, 0.5, 0.01, 3,
             "Rayon moyen des bulles d'air.")
+        ## @var spin_void_mean
+        #  @brief Mean pore radius selector.
         sec.form().addRow("Rayon moyen pores :", self.spin_void_mean)
 
         self.spin_void_std = self._double_spin(0.0, 0.1, 0.002, 4,
             "Variabilite du rayon des pores (ecart-type).")
+        ## @var spin_void_std
+        #  @brief Pore radius variability (std dev) selector.
         sec.form().addRow("Variabilite rayon :", self.spin_void_std)
 
         self._poro_widgets = [self.spin_void_vf, self.spin_void_mean, self.spin_void_std]
@@ -540,6 +631,7 @@ class MainWindow(QMainWindow):
     def _on_porosity_toggled(self, checked):
         """!
         @brief Enables or disables porosity inputs based on the checkbox state.
+        @param checked bool True if checked, False otherwise.
         """
         for w in self._poro_widgets:
             w.setEnabled(checked)
@@ -551,6 +643,7 @@ class MainWindow(QMainWindow):
     def _build_section_export(self, parent_layout):
         """!
         @brief Builds the UI section for export formats and mesh resolution.
+        @param parent_layout QVBoxLayout The layout to add this section to.
         """
         sec = CollapsibleSection(
             "6. Exports et Resolution",
@@ -558,10 +651,14 @@ class MainWindow(QMainWindow):
         )
 
         self.edit_output = QLineEdit("RVE_Result")
+        ## @var edit_output
+        #  @brief Output project name edit field.
         self.edit_output.setToolTip("Prefixe utilise pour nommer tous les fichiers de sortie.")
         sec.form().addRow("Nom du projet :", self.edit_output)
 
         self.spin_res_fft = QComboBox()
+        ## @var spin_res_fft
+        #  @brief Voxel resolution selector for FFT.
         for r in [32, 64, 128, 256, 512]:
             self.spin_res_fft.addItem(f"{r}x{r}x{r}", r)
         self.spin_res_fft.setCurrentIndex(2)  # 128
@@ -569,19 +666,27 @@ class MainWindow(QMainWindow):
         sec.form().addRow("Resolution voxels :", self.spin_res_fft)
 
         self.chk_mesh = QCheckBox("Maillage elements finis (GMSH)")
+        ## @var chk_mesh
+        #  @brief Checkbox for FEA mesh generation.
         self.chk_mesh.setChecked(True)
         self.chk_mesh.setToolTip("Genere un maillage tetraedrique conforme\npour la simulation par elements finis.")
         sec.form().addRow(self.chk_mesh)
 
         self.chk_periodic_mesh = QCheckBox("Maillage periodique")
+        ## @var chk_periodic_mesh
+        #  @brief Checkbox for periodic mesh constraints.
         self.chk_periodic_mesh.setToolTip("Force les noeuds sur les faces opposees du volume\na etre identiques (pour conditions aux limites periodiques).")
         sec.form().addRow(self.chk_periodic_mesh)
 
         self.chk_nastran = QCheckBox("Export Nastran (.bdf)")
+        ## @var chk_nastran
+        #  @brief Checkbox for Nastran export.
         self.chk_nastran.setToolTip("Convertit le maillage au format Nastran Bulk Data\npour les solveurs compatibles (Nastran, Optistruct...).")
         sec.form().addRow(self.chk_nastran)
 
         self.chk_stats = QCheckBox("Statistiques spatiales")
+        ## @var chk_stats
+        #  @brief Checkbox for spatial statistics validation.
         self.chk_stats.setChecked(True)
         self.chk_stats.setToolTip("Calcule des descripteurs de validation :\n- Distance au plus proche voisin\n- Fonction K de Ripley\n- Statistiques de Voronoi")
         sec.form().addRow(self.chk_stats)
@@ -595,6 +700,12 @@ class MainWindow(QMainWindow):
     def _double_spin(self, vmin, vmax, default, decimals, tooltip=""):
         """!
         @brief Helper to create a configured QDoubleSpinBox.
+        @param vmin float Minimum value.
+        @param vmax float Maximum value.
+        @param default float Default value.
+        @param decimals int Number of decimals.
+        @param tooltip str Optional tooltip text.
+        @return QDoubleSpinBox instance.
         """
         spin = QDoubleSpinBox()
         spin.setRange(vmin, vmax)
@@ -898,6 +1009,7 @@ class MainWindow(QMainWindow):
 def main():
     """!
     @brief Entry point for the GUI application.
+    @return None
     """
     app = QApplication(sys.argv)
     app.setApplicationName("Fiber Packing System v6")

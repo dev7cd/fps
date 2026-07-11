@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['default_5ffactory_203',['default_factory',['../d5/d30/classcore_1_1config_1_1FiberPackingConfig.html#a8aed714f5fedc59d28ff9339ff61a46d',1,'core::config::FiberPackingConfig']]]
+  ['a_5faxial_416',['A_axial',['../df/dd1/classvisualization_1_1descriptors_1_1AD__PCA__Analyzer.html#a3c055343e1b0c5f354a1cfe8d6838ec7',1,'visualization::descriptors::AD_PCA_Analyzer']]],
+  ['a_5fplanar_417',['A_planar',['../df/dd1/classvisualization_1_1descriptors_1_1AD__PCA__Analyzer.html#a6176b497885b5c1c5355795942feeb55',1,'visualization::descriptors::AD_PCA_Analyzer']]]
 ];

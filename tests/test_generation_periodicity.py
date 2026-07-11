@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour generation/periodicity.py — PeriodicManager.
 """
@@ -19,6 +20,7 @@ def _make_fiber(control_points, radius=0.05):
     return f
 
 
+    """! @brief Test class for functionality. """
 class TestWrapFiber:
 
     def test_fiber_inside_not_moved(self):
@@ -39,6 +41,7 @@ class TestWrapFiber:
         assert np.mean(f.control_points[:, 0]) > 0.0
 
 
+    """! @brief Test class for functionality. """
 class TestGenerateGhosts:
 
     def test_interior_fiber_no_ghosts(self):

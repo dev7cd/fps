@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour validation/topology.py — TopologyValidator.
 """
@@ -15,6 +16,7 @@ def _make_fiber(fid, pts, radius):
     return f
 
 
+    """! @brief Test class for functionality. """
 class TestCheckClearance:
 
     def test_no_intersection_parallel(self):
@@ -41,6 +43,7 @@ class TestCheckClearance:
         assert gap == float('inf')
 
 
+    """! @brief Test class for functionality. """
 class TestGapDistribution:
 
     def test_returns_dict_keys(self):

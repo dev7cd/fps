@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['logger_142',['logger',['../df/d05/namespaceutils_1_1logger.html',1,'utils']]]
+  ['run_5fcampaign_294',['run_campaign',['../d9/d8c/namespacerun__campaign.html',1,'']]]
 ];

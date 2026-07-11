@@ -154,7 +154,7 @@ Public Attributes</h2></td></tr>
 <p>Initializes the validator with domain dimensions. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">box_dims</td><td>Tuple or Array (Lx, Ly, Lz) for periodic distance handling. </td></tr>
+    <tr><td class="paramname">box_dims</td><td>tuple or np.ndarray (Lx, Ly, Lz) for periodic distance handling. </td></tr>
   </table>
   </dd>
 </dl>
@@ -189,14 +189,13 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Calculates the exact minimum clearance (empty space) between all fiber pairs. </p>
-<p>Uses exact segment-to-segment distance with Minimum Image Convention (MIC). A result &gt; 0 indicates no intersections.</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Uses exact segment-to-segment distance with Minimum Image Convention (MIC). A result &gt; 0 indicates no intersections. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of Fiber objects to audit. </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of Fiber objects to audit. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Minimum gap value (negative if fibers intersect). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>float Minimum gap value (negative if fibers intersect). </dd></dl>
 
 </div>
 </div>
@@ -233,15 +232,14 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Estimates the distribution of inter-fiber distances (Clearance). </p>
-<p>Fast statistical approximation using a cKDTree on the fiber centerlines.</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Fast statistical approximation using a cKDTree on the fiber centerlines. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of Fiber objects. </td></tr>
-    <tr><td class="paramname">sample_points</td><td>Number of points to sample (currently uses step slicing). </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of Fiber objects. </td></tr>
+    <tr><td class="paramname">sample_points</td><td>int Number of points to sample (currently uses step slicing). </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Dictionary containing min_gap, mean_gap, and histogram data. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Dict Dictionary containing min_gap, mean_gap, and histogram data. </dd></dl>
 
 </div>
 </div>
@@ -254,7 +252,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>validation</b></li><li class="navelem"><b>topology</b></li><li class="navelem"><a class="el" href="../../d5/dda/classvalidation_1_1topology_1_1TopologyValidator.html">TopologyValidator</a></li>
-    <li class="footer">Generated on Fri Apr 3 2026 01:37:07 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

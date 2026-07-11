@@ -3,23 +3,25 @@ import numpy as np
 import logging
 from generation.periodicity import PeriodicManager
 
+## @var logger
+#  @brief Logger for the gmsh_exporter module.
 logger = logging.getLogger(__name__)
 
 class GmshExporter:
-    """
+    """!
     @class GmshExporter
-    @brief Classe responsable de la génération de fichiers .step et .msh.
+    @brief Classe responsable de la génération de fichiers .step et .msh via GMSH.
     """
 
     def __init__(self, config):
-        """
+        """!
         @brief Initialise l'exportateur avec la configuration du RVE.
-        @param config Objet de configuration contenant box_dims et les paramètres de maillage.
+        @param config FiberPackingConfig Objet de configuration contenant box_dims et les paramètres de maillage.
         """
-        self.config = config
+        self.config = config ##< Configuration de la simulation
 
-    def generate_mesh(self, fibers, voids, output_path):
-        """
+    def generate_mesh(self, fibers, voids, output_path) -> None:
+        """!
         @brief Génère la géométrie CAO (.step) et le maillage (.msh) de manière robuste.
         
         Réalise les étapes suivantes :
@@ -28,6 +30,11 @@ class GmshExporter:
         3. Fragmentation booléenne pour assurer la conformité des interfaces.
         4. Tri des fragments (clipping) et définition des groupes physiques.
         5. Maillage volumique avec champs de taille adaptatifs.
+
+        @param fibers List[Fiber] Liste des fibres à mailler.
+        @param voids List[Void] Liste des pores à mailler.
+        @param output_path str Chemin (sans extension) pour les fichiers de sortie.
+        @return None
         """
         # Initialisation propre
         try:
@@ -209,12 +216,12 @@ class GmshExporter:
         gmsh.finalize()
 
     def _create_section_face(self, fiber, occ, shift):
-        """
+        """!
         @brief Crée une face 2D représentant la section de la fibre.
-        @param fiber Instance de la fibre.
-        @param occ Raccourci vers gmsh.model.occ.
-        @param shift Vecteur de translation (pour les ghosts).
-        @return Tag de la face créée.
+        @param fiber Fiber Instance de la fibre.
+        @param occ Any Raccourci vers gmsh.model.occ.
+        @param shift np.ndarray Vecteur de translation (pour les ghosts).
+        @return int Tag de la face créée.
         """
         p0 = fiber.centerline[0] + shift
         if fiber.section_type == 'circular':
@@ -237,12 +244,12 @@ class GmshExporter:
             return occ.addPlaneSurface([wire])
 
     def _setup_size_fields(self, dims, min_size, max_size):
-        """
+        """!
         @brief Configure des champs de taille adaptatifs Distance + Threshold
         autour des interfaces fibre/matrice.
-        @param dims Dimensions de la boîte.
-        @param min_size Taille de maille minimale (aux interfaces).
-        @param max_size Taille de maille maximale (loin des fibres).
+        @param dims np.ndarray Dimensions de la boîte.
+        @param min_size float Taille de maille minimale (aux interfaces).
+        @param max_size float Taille de maille maximale (loin des fibres).
         """
         # Récupérer les surfaces des inclusions
         inclusion_surfaces = []
@@ -278,10 +285,10 @@ class GmshExporter:
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
     def _apply_periodic_constraints(self, dims):
-        """
+        """!
         @brief Applique les contraintes de maillage périodique sur les 3 paires de faces.
         Face pairs : (X=0, X=Lx), (Y=0, Y=Ly), (Z=0, Z=Lz)
-        @param dims Dimensions (Lx, Ly, Lz) du domaine.
+        @param dims np.ndarray Dimensions (Lx, Ly, Lz) du domaine.
         """
         Lx, Ly, Lz = dims
         surfaces = gmsh.model.getEntities(2)

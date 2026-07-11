@@ -11,6 +11,8 @@ from typing import Optional, List, Tuple
 from core.fiber import Fiber
 from generation.periodicity import PeriodicManager
 
+## @var logger
+#  @brief Logger pour le module de génération.
 logger = logging.getLogger(__name__)
 
 class FiberGenerator:
@@ -19,11 +21,23 @@ class FiberGenerator:
     @brief Optimized fiber generator using the CSAW (Constrained Self-Avoiding Walk) algorithm.
     """
     def __init__(self, config, detector):
+        """! @brief Placeholder.
+        @param self, config, detector 
+        @return None
+        """
         """
         @brief Initializes the generator with configuration and collision detector.
+        @param config FiberPackingConfig Configuration object.
+        @param detector CollisionDetector Detector for checking overlaps.
         """
+        ## @var config
+        #  @brief Configuration globale.
         self.config = config
+        ## @var detector
+        #  @brief Détecteur de collisions.
         self.detector = detector
+        ## @var rng
+        #  @brief Générateur de nombres aléatoires.
         self.rng = np.random.default_rng(config.seed)
         
         # --- CORRECTION CRITIQUE DU CHARGEMENT DU BIAIS ---
@@ -37,7 +51,11 @@ class FiberGenerator:
         if raw_vectors is None:
             raw_vectors = gen_params.get('orientation_bias')
 
+        ## @var bias_vectors
+        #  @brief Liste des vecteurs de direction privilégiés.
         self.bias_vectors = self._initialize_bias(raw_vectors)
+        ## @var bias_strength
+        #  @brief Force de l'attraction vers les vecteurs de biais (0.0 à 1.0).
         self.bias_strength = gen_params.get('bias_strength', 0.0)
         
         # Debug Log pour confirmer le biais
@@ -49,8 +67,8 @@ class FiberGenerator:
     def generate_fiber(self, fiber_id: int) -> Optional[Fiber]:
         """
         @brief Main method: Snake Algorithm with Backtracking.
-        @param fiber_id Unique identifier for the new fiber.
-        @return A Fiber object if successful, None otherwise.
+        @param fiber_id int Unique identifier for the new fiber.
+        @return Optional[Fiber] A Fiber object if successful, None otherwise.
         @details Uses a stochastic walk with curvature constraints and collision checks.
         """
         radius = self.config.fiber_radius
@@ -93,6 +111,10 @@ class FiberGenerator:
         return Fiber(fiber_id, np.array(control_points), radius, vars(self.config))
 
     def _initialize_bias(self, bias_input):
+        """! @brief Placeholder.
+        @param self, bias_input 
+        @return None
+        """
         """
         @brief Robust conversion of Config inputs to a list of Numpy Arrays.
         @param bias_input Raw input from configuration (string, list, or array).
@@ -141,6 +163,10 @@ class FiberGenerator:
         return None
 
     def _get_target_direction(self, current_dir):
+        """! @brief Placeholder.
+        @param self, current_dir 
+        @return None
+        """
         """
         @brief Calculates the attractor vector based on orientation bias.
         @param current_dir The current movement vector.
@@ -167,6 +193,10 @@ class FiberGenerator:
         return combined / n_c if n_c > 1e-9 else current_dir
 
     def _propose_next_point(self, p_cur, current_dir):
+        """! @brief Placeholder.
+        @param self, p_cur, current_dir 
+        @return None
+        """
         """
         @brief Proposes the next control point using inertia, bias, and noise.
         @param p_cur Current last control point.
@@ -209,6 +239,10 @@ class FiberGenerator:
         return p_cur + best_dir * self.config.step_length_mean, best_dir
 
     def _find_start_point(self, radius, max_attempts=1000):
+        """! @brief Placeholder.
+        @param self, radius, max_attempts=1000 
+        @return None
+        """
         """
         @brief Finds a random collision-free starting point in the domain.
         @param radius Radius of the fiber.
@@ -220,6 +254,10 @@ class FiberGenerator:
         return None
 
     def _initial_direction(self):
+        """! @brief Placeholder.
+        @param self 
+        @return None
+        """
         """
         @brief Generates an initial direction vector.
         @details Forces alignment with bias if bias_strength is high.
@@ -234,6 +272,10 @@ class FiberGenerator:
         return v / np.linalg.norm(v)
 
     def _check_self_collision(self, p_next, control_points, radius):
+        """! @brief Placeholder.
+        @param self, p_next, control_points, radius 
+        @return None
+        """
         """
         @brief Checks if the new point collides with the fiber's own body.
         @param p_next Proposed point.
@@ -250,12 +292,12 @@ class FiberGenerator:
     def attempt_rsda_placement(self, fiber_id: int, fibers: List) -> Optional[Fiber]:
         """
         @brief RSDA (Randomized Sequential Dynamic Adsorption) placement.
-        @param fiber_id ID for the new fiber.
-        @param fibers List of existing fibers in the domain.
+        @param fiber_id int ID for the new fiber.
+        @param fibers List List of existing fibers in the domain.
+        @return Optional[Fiber] Fiber if placement succeeded after perturbation, None otherwise.
         @details When standard placement fails, this method perturbs neighboring 
         fibers to create space. It includes a rollback mechanism if a valid 
         configuration isn't found.
-        @return Fiber if placement succeeded after perturbation, None otherwise.
         """
         if not getattr(self.config, 'enable_rsda', False):
             return None

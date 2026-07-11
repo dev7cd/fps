@@ -1,3 +1,4 @@
 <map id="MainWindow" name="MainWindow">
-<area shape="rect" id="node1" title="Main application window for the Fiber Packing System GUI." alt="" coords="5,5,112,83"/>
+<area shape="rect" id="node1" title="Main application window for the Fiber Packing System GUI." alt="" coords="10,131,117,208"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,5,121,83"/>
 </map>

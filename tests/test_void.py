@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour core/void.py — Void.
 Note : Void utilise @dataclass, on teste ses propriétés et la méthode contains_point.
@@ -8,6 +9,7 @@ import numpy as np
 from core.void import Void
 
 
+    """! @brief Test class for functionality. """
 class TestVoidCreation:
     """Vérifie la création d'un objet Void."""
 
@@ -22,6 +24,7 @@ class TestVoidCreation:
         assert v.radius == 0.0
 
 
+    """! @brief Test class for functionality. """
 class TestContainsPoint:
     """Vérifie la détection de points à l'intérieur de la bulle."""
 

@@ -32,11 +32,19 @@ from export.csv_exporter import CSVFiberExporter
 from visualization.descriptors import AD_PCA_Analyzer, MicroDescriptor
 
 # Configuration du logging
+## @var level
+#  @brief Logging level.
+## @var format
+#  @brief Logging format string.
+## @var datefmt
+#  @brief Logging date format string.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s | %(levelname)s | %(message)s',
     datefmt='%H:%M:%S'
 )
+## @var logger
+#  @brief Main logger for the RVE orchestrator.
 logger = logging.getLogger("RVE_Orchestrator")
 
 def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str):
@@ -48,6 +56,7 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
     @param fibers List of Fiber objects (roots).
     @param stats_dict Dictionary containing AD-PCA and spatial statistics.
     @param filename Output filename without extension.
+    @return None
     """
     import datetime
     
@@ -91,6 +100,7 @@ def main():
     @brief Main execution loop of the RVE generator.
     @details Parses CLI arguments, runs the generation phases, performs 
     statistical audits, and triggers all requested exporters.
+    @return None
     """
     t_start = time.time()
     

@@ -93,10 +93,13 @@ $(document).ready(function(){initNavTree('da/dc1/namespacecollision_1_1detector_
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#aab47353bc811589b9a7ed0f86cb8bf6e">check_collision_numba</a> (pts1, pts2, r1, r2)</td></tr>
+<tr class="memdesc:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Détection de collision segment-à-segment entre deux polylignes.  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#aab47353bc811589b9a7ed0f86cb8bf6e">More...</a><br /></td></tr>
 <tr class="separator:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50e44babd15751b645f188e7080aea48"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48">min_dist_segments_numba</a> (pts1, pts2)</td></tr>
+<tr class="memdesc:a50e44babd15751b645f188e7080aea48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance minimale exacte entre deux polylignes (segment-à-segment).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48">More...</a><br /></td></tr>
 <tr class="separator:a50e44babd15751b645f188e7080aea48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeead1f58e391f890659349199ae5dd0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0">min_dist_periodic_segments_numba</a> (pts1, pts2, dims)</td></tr>
+<tr class="memdesc:afeead1f58e391f890659349199ae5dd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance minimale segment-à-segment avec Minimum Image Convention (MIC).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0">More...</a><br /></td></tr>
 <tr class="separator:afeead1f58e391f890659349199ae5dd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -141,15 +144,19 @@ Remplace l'ancienne approche point-à-point par une solution exacte capsule-caps
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Détection de collision segment-à-segment entre deux polylignes.
-Signature identique à l'ancienne version pour compatibilité.
 
-Args:
-    pts1, pts2: Centerlines (N, 3) — chaque paire de points consécutifs forme un segment
-    r1, r2: Rayons des fibres
-Returns:
-    True si collision (distance min &lt; r1 + r2)
-</pre> 
+<p>Détection de collision segment-à-segment entre deux polylignes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première fibre. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième fibre. </td></tr>
+    <tr><td class="paramname">r1</td><td>float Rayon de la première fibre. </td></tr>
+    <tr><td class="paramname">r2</td><td>float Rayon de la deuxième fibre. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>bool True si collision (distance min &lt; r1 + r2), False sinon. </dd></dl>
+
 </div>
 </div>
 <a id="afeead1f58e391f890659349199ae5dd0"></a>
@@ -183,16 +190,18 @@ Returns:
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Distance minimale segment-à-segment avec Minimum Image Convention (MIC).
-Pour chaque paire de segments, applique la correction périodique au midpoint
-puis calcule la distance exacte segment-segment sur les segments shiftés.
 
-Args:
-    pts1, pts2: Centerlines (N, 3)
-    dims: Dimensions du domaine [Lx, Ly, Lz]
-Returns:
-    Distance minimale (float)
-</pre> 
+<p>Distance minimale segment-à-segment avec Minimum Image Convention (MIC). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première polyligne. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième polyligne. </td></tr>
+    <tr><td class="paramname">dims</td><td>np.ndarray Dimensions du domaine [Lx, Ly, Lz]. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>float Distance minimale périodique. </dd></dl>
+
 </div>
 </div>
 <a id="a50e44babd15751b645f188e7080aea48"></a>
@@ -220,12 +229,17 @@ Returns:
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Distance minimale exacte entre deux polylignes (segment-à-segment).
-Utilisé par TopologyValidator pour l'audit de clearance.
 
-Returns:
-    Distance minimale (float, non au carré)
-</pre> 
+<p>Distance minimale exacte entre deux polylignes (segment-à-segment). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première polyligne. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième polyligne. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>float Distance minimale (non au carré). </dd></dl>
+
 </div>
 </div>
 </div><!-- contents -->
@@ -234,7 +248,7 @@ Returns:
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>collision</b></li><li class="navelem"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html">detector_math</a></li>
-    <li class="footer">Generated on Fri Apr 3 2026 01:37:07 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

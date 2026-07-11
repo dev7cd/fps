@@ -25,11 +25,12 @@
 var NAVTREE =
 [
   [ "Fiber Packing System", "index.html", [
-    [ "Namespaces", "namespaces.html", [
-      [ "Namespace List", "namespaces.html", "namespaces_dup" ],
-      [ "Namespace Members", "namespacemembers.html", [
+    [ "Packages", "namespaces.html", [
+      [ "Packages", "namespaces.html", "namespaces_dup" ],
+      [ "Package Functions", "namespacemembers.html", [
         [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ]
+        [ "Functions", "namespacemembers_func.html", null ],
+        [ "Variables", "namespacemembers_vars.html", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -50,8 +51,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"df/d05/namespaceutils_1_1logger.html#a898f518adee8cf90067c64686ee51a89"
+"annotated.html",
+"da/dce/frames_8py.html#ae154d914b7ace2f48f3810fd57b6adaa"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

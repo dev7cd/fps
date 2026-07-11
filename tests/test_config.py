@@ -1,3 +1,4 @@
+"""! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour core/config.py — FiberPackingConfig.
 """
@@ -6,6 +7,7 @@ import numpy as np
 from core.config import FiberPackingConfig
 
 
+    """! @brief Test class for functionality. """
 class TestFiberPackingConfigDefaults:
     """Vérifie les valeurs par défaut de la configuration."""
 
@@ -34,6 +36,7 @@ class TestFiberPackingConfigDefaults:
         assert cfg.generate_porosity is True
 
 
+    """! @brief Test class for functionality. """
 class TestBoxVolume:
     """Vérifie le calcul du volume du domaine RVE."""
 
@@ -50,6 +53,7 @@ class TestBoxVolume:
         assert cfg.box_volume == pytest.approx(0.01)
 
 
+    """! @brief Test class for functionality. """
 class TestEstimateRadius:
     """Vérifie l'estimation automatique du rayon de fibre."""
 
@@ -80,6 +84,7 @@ class TestEstimateRadius:
             assert cfg.fiber_radius > 0, f"Rayon négatif pour Vf={vf}"
 
 
+    """! @brief Test class for functionality. """
 class TestSectionParameters:
     """Vérifie les paramètres de section par défaut."""
 
@@ -98,6 +103,7 @@ class TestSectionParameters:
         assert cfg.section_parameters['exponent'] == 3.0
 
 
+    """! @brief Test class for functionality. """
 class TestGenerationParameters:
     """Vérifie les paramètres de génération CSAW."""
 

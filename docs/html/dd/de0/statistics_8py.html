@@ -111,9 +111,10 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:aea74c27fd626096e3c8a0bd4010907e6"><td class="memItemLeft" align="right" valign="top"><a id="aea74c27fd626096e3c8a0bd4010907e6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>validation.statistics.logger</b> = logging.getLogger(__name__)</td></tr>
-<tr class="separator:aea74c27fd626096e3c8a0bd4010907e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac603cdf90ee40f8551a1ecc8c1ff8924"><td class="memItemLeft" align="right" valign="top"><a id="ac603cdf90ee40f8551a1ecc8c1ff8924"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de0/statistics_8py.html#ac603cdf90ee40f8551a1ecc8c1ff8924">validation.statistics.logger</a> = logging.getLogger(__name__)</td></tr>
+<tr class="memdesc:ac603cdf90ee40f8551a1ecc8c1ff8924"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logger for the statistics module. <br /></td></tr>
+<tr class="separator:ac603cdf90ee40f8551a1ecc8c1ff8924"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Spatial statistical descriptors for UD microstructure validation. </p>
@@ -154,13 +155,13 @@ Variables</h2></td></tr>
 <p>Calculates the Nearest Neighbor Distance (NND) distribution. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of fibers. </td></tr>
-    <tr><td class="paramname">box_dims</td><td>Domain dimensions (Lx, Ly, Lz). </td></tr>
-    <tr><td class="paramname">projection</td><td>2D projection plane. </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
+    <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions (Lx, Ly, Lz). </td></tr>
+    <tr><td class="paramname">projection</td><td>str 2D projection plane. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Dictionary containing nnd_mean, nnd_std, and nnd_values. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Dict Dictionary containing nnd_mean, nnd_std, and nnd_values. </dd></dl>
 
 </div>
 </div>
@@ -203,17 +204,16 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the Pair Correlation Function g(r) (Radial Distribution Function). </p>
-<p>g(r) ≈ K'(r) / (2πr) estimée par comptage annulaire. g(r) = 1 pour un processus CSR. g(r) &gt; 1 indique du clustering, g(r) &lt; 1 indique de la régularité.</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>g(r) ≈ K'(r) / (2πr) estimée par comptage annulaire. g(r) = 1 pour un processus CSR. g(r) &gt; 1 indique du clustering, g(r) &lt; 1 indique de la régularité. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of fibers. </td></tr>
-    <tr><td class="paramname">box_dims</td><td>Domain dimensions. </td></tr>
-    <tr><td class="paramname">r_values</td><td>Ring centers (auto-generated if None). </td></tr>
-    <tr><td class="paramname">projection</td><td>2D projection plane. </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
+    <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
+    <tr><td class="paramname">r_values</td><td>Optional[np.ndarray] Ring centers (auto-generated if None). </td></tr>
+    <tr><td class="paramname">projection</td><td>str 2D projection plane. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Dictionary with r_values and g_r. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Dict Dictionary with r_values and g_r. </dd></dl>
 
 </div>
 </div>
@@ -256,17 +256,16 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes Ripley's K-function with toroidal correction (periodic boundaries). </p>
-<p>K(h) = A/n² × Σ_i Σ_{j≠i} 1(d_ij ≤ h) For a CSR (Complete Spatial Randomness) process: K(h) = π·h²</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>K(h) = A/n² × Σ_i Σ_{j≠i} 1(d_ij ≤ h) For a CSR (Complete Spatial Randomness) process: K(h) = π·h² </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of fibers. </td></tr>
-    <tr><td class="paramname">box_dims</td><td>Domain dimensions. </td></tr>
-    <tr><td class="paramname">h_values</td><td>Distance values to evaluate (auto-generated if None). </td></tr>
-    <tr><td class="paramname">projection</td><td>2D projection plane. </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
+    <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
+    <tr><td class="paramname">h_values</td><td>Optional[np.ndarray] Distance values to evaluate (auto-generated if None). </td></tr>
+    <tr><td class="paramname">projection</td><td>str 2D projection plane. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Dictionary with h_values, K_h, K_poisson, and Besag's L-function (L_h). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Dict Dictionary with h_values, K_h, K_poisson, and Besag's L-function (L_h). </dd></dl>
 
 </div>
 </div>
@@ -303,16 +302,15 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes Voronoi cell statistics (area distribution). </p>
-<p>Uses 3x3 replication to handle periodic boundaries. CV (coefficient de variation) : ~0 = très régulier, ~0.53 = Poisson (CSR).</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Uses 3x3 replication to handle periodic boundaries. CV (coefficient de variation) : ~0 = très régulier, ~0.53 = Poisson (CSR). </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">fibers</td><td>List of fibers. </td></tr>
-    <tr><td class="paramname">box_dims</td><td>Domain dimensions. </td></tr>
-    <tr><td class="paramname">projection</td><td>2D projection plane. </td></tr>
+    <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
+    <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
+    <tr><td class="paramname">projection</td><td>str 2D projection plane. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Dictionary with areas_mean, areas_std, areas_cv, and areas_values. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Dict Dictionary with areas_mean, areas_std, areas_cv, and areas_values. </dd></dl>
 
 </div>
 </div>
@@ -322,7 +320,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_5f7b51b95acf1d521665910b610534f1.html">validation</a></li><li class="navelem"><a class="el" href="../../dd/de0/statistics_8py.html">statistics.py</a></li>
-    <li class="footer">Generated on Fri Apr 3 2026 01:37:07 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

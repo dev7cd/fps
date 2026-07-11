@@ -10,6 +10,8 @@ from core.config import FiberPackingConfig
 from core.void import Void
 from core.fiber import Fiber
 
+## @var logger
+#  @brief Logger pour le module de génération de porosité.
 logger = logging.getLogger(__name__)
 
 class PorosityGenerator:
