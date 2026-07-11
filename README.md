@@ -393,8 +393,12 @@ If you use FPS in your research, please cite the associated article:
 
 Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
-## Authors
+## Author
 
-Devine Ngouloubi, Daniel Choï, Philippe Karamian-Surville
+**Devine Ngouloubi** — sole developer (concept, design and implementation).
 Nicolas Oresme Mathematics Laboratory (LMNO, UMR 6139), Normandy University,
 UNICAEN, CNRS, Caen, France.
+
+The underlying geometric and homogenisation theory was developed jointly with
+Daniel Choï and Philippe Karamian-Surville in the associated *Composite
+Structures* article (see [Citing](#citing)).
