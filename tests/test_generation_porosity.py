@@ -8,7 +8,6 @@ from core.config import FiberPackingConfig
 from generation.porosity_gen import PorosityGenerator
 
 
-    """! @brief Test class for functionality. """
 class TestPorosityGeneratorDisabled:
 
     def test_no_voids_when_disabled(self):
@@ -18,7 +17,6 @@ class TestPorosityGeneratorDisabled:
         assert voids == []
 
 
-    """! @brief Test class for functionality. """
 class TestPorosityGeneratorEnabled:
 
     def _make_config(self, **kwargs):
@@ -45,7 +43,7 @@ class TestPorosityGeneratorEnabled:
         gen = PorosityGenerator(cfg)
         voids = gen.generate_voids([])
         for v in voids:
-            # Le centre peut déborder légèrement (images périodiques),
+            # The centre may slightly overflow (periodic images),
             # mais doit rester dans [-r, L+r]
             for i in range(3):
                 assert v.center[i] >= -v.radius - 0.01
@@ -59,7 +57,7 @@ class TestPorosityGeneratorEnabled:
         for i in range(len(voids)):
             for j in range(i + 1, len(voids)):
                 dist = np.linalg.norm(voids[i].center - voids[j].center)
-                # Deux voids du même groupe (images périodiques) ont le même id
+                # Two voids of the same group (periodic images) share the same id
                 if voids[i].id == voids[j].id:
                     continue
                 assert dist >= voids[i].radius + voids[j].radius - 1e-6, \

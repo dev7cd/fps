@@ -41,7 +41,7 @@ class TopologyValidator:
         min_gap = float('inf')
         
         n_fibers = len(fibers)
-        logger.info(f"Audit topologique sur {n_fibers} fibres (segment-à-segment)...")
+        logger.info(f"Topological audit on {n_fibers} fibers (segment-to-segment)...")
 
         min_gap_pair = (-1, -1)
 
@@ -62,9 +62,9 @@ class TopologyValidator:
                     min_gap_pair = (fibers[i].id, fibers[j].id)
 
         if min_gap < 0:
-            logger.error(f"ECHEC AUDIT : Intersection détectée ({min_gap:.6f}).")
+            logger.error(f"AUDIT FAILED: intersection detected ({min_gap:.6f}).")
         else:
-            logger.info(f"SUCCES AUDIT : Gap minimal = {min_gap:.6f} (Paire {min_gap_pair})")
+            logger.info(f"AUDIT PASSED: minimum gap = {min_gap:.6f} (pair {min_gap_pair})")
 
         return min_gap
 
@@ -81,7 +81,7 @@ class TopologyValidator:
         fiber_ids = []
 
         for idx, f in enumerate(fibers):
-            pts = f.centerline[::2]  # 1 point sur 2
+            pts = f.centerline[::2]  # every other point
             all_pts.extend(pts)
             all_radii.extend([f.radius] * len(pts))
             fiber_ids.extend([idx] * len(pts))

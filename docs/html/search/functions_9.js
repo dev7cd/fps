@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['optimize_5fand_5ffill_344',['optimize_and_fill',['../d7/dfa/classgeneration_1_1optimizer__dynamic_1_1DynamicOptimizer.html#a3811529d070104ef1e50034fb1e8da55',1,'generation::optimizer_dynamic::DynamicOptimizer']]]
+  ['nearest_5fneighbor_5fdistance_336',['nearest_neighbor_distance',['../dd/de0/statistics_8py.html#a37363b1212c04b727e9a1ac9b14169df',1,'validation::statistics']]]
 ];

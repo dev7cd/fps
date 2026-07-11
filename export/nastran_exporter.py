@@ -1,47 +1,47 @@
 """
 export/nastran_exporter.py
-Export du maillage GMSH vers le format Nastran Bulk Data (.bdf).
-Utilise meshio pour la conversion MSH -> BDF avec mapping des groupes physiques.
+Export of the GMSH mesh to the Nastran Bulk Data format (.bdf).
+Uses meshio for the MSH -> BDF conversion with physical-group mapping.
 """
 
 import logging
 from typing import Optional, Dict
 
 ## @var logger
-#  @brief Logger pour le module nastran_exporter.
+#  @brief Logger for the nastran_exporter module.
 logger = logging.getLogger(__name__)
 
 
 class NastranExporter:
     """!
     @class NastranExporter
-    @brief Classe gérant l'exportation et la conversion des maillages vers le format Nastran (.bdf).
+    @brief Class handling the export and conversion of meshes to the Nastran (.bdf) format.
     """
 
     def __init__(self, config):
         """!
-        @brief Initialise l'exportateur Nastran.
-        @param config FiberPackingConfig Objet de configuration contenant les paramètres globaux.
+        @brief Initialises the Nastran exporter.
+        @param config FiberPackingConfig Configuration object holding the global parameters.
         """
-        self.config = config  ##< Configuration de la simulation.
+        self.config = config  ##< Simulation configuration.
 
     def convert_msh_to_bdf(self, msh_path: str, bdf_path: str,
                            material_map: Optional[Dict] = None) -> None:
         """!
-        @brief Convertit un maillage GMSH (.msh) en format Nastran Bulk Data (.bdf).
-        Les groupes physiques GMSH sont mappés vers des propriétés PSOLID.
+        @brief Converts a GMSH mesh (.msh) to the Nastran Bulk Data format (.bdf).
+        The GMSH physical groups are mapped to PSOLID properties.
 
-        @param msh_path str Chemin du fichier .msh source.
-        @param bdf_path str Chemin du fichier .bdf destination.
-        @param material_map Optional[Dict] Optionnel - Dictionnaire mappant les tags de groupes physiques 
-                            vers des propriétés {name, E, nu, rho}.
-                          Si fourni, des cartes MAT1 sont ajoutées au .bdf
+        @param msh_path str Path of the source .msh file.
+        @param bdf_path str Path of the destination .bdf file.
+        @param material_map Optional[Dict] Optional - dictionary mapping physical-group tags
+                            to properties {name, E, nu, rho}.
+                          If provided, MAT1 cards are added to the .bdf.
         @return None
         """
         try:
             import meshio # type: ignore
         except ImportError:
-            logger.error("meshio n'est pas installé. Installer avec : pip install meshio")
+            logger.error("meshio is not installed. Install it with: pip install meshio")
             return
 
         logger.info(f"Conversion {msh_path} -> {bdf_path}")
@@ -49,29 +49,29 @@ class NastranExporter:
         try:
             mesh = meshio.read(msh_path)
         except Exception as e:
-            logger.error(f"Erreur lecture {msh_path}: {e}")
+            logger.error(f"Read error {msh_path}: {e}")
             return
 
         try:
             meshio.write(bdf_path, mesh, file_format="nastran")
         except Exception as e:
-            logger.error(f"Erreur écriture {bdf_path}: {e}")
+            logger.error(f"Write error {bdf_path}: {e}")
             return
 
-        # Ajouter les cartes matériau si fournies
+        # Add the material cards if provided
         if material_map:
             self._append_material_cards(bdf_path, material_map)
 
-        logger.info(f"Export Nastran terminé : {bdf_path}")
+        logger.info(f"Nastran export finished: {bdf_path}")
 
     def _append_material_cards(self, bdf_path: str, material_map: Dict):
-        """
-        @brief Ajoute des cartes MAT1 au fichier BDF pour chaque matériau.
-        Format MAT1 : MAT1, MID, E, G, NU, RHO
+        """!
+        @brief Adds MAT1 cards to the BDF file for each material.
+        MAT1 format: MAT1, MID, E, G, NU, RHO
 
-        @param bdf_path Chemin du fichier .bdf.
-        @param material_map Dictionnaire {MID: {"name": str, "E": float, "nu": float, "rho": float}}.
-        @exception Exception Log l'erreur en cas d'échec d'écriture.
+        @param bdf_path Path of the .bdf file.
+        @param material_map Dictionary {MID: {"name": str, "E": float, "nu": float, "rho": float}}.
+        @exception Exception Logs the error on write failure.
         """
         try:
             with open(bdf_path, 'a') as f:
@@ -86,9 +86,9 @@ class NastranExporter:
                     G = E / (2.0 * (1.0 + nu)) if (1.0 + nu) != 0 else 0.0
 
                     f.write(f"$ {name}\n")
-                    # Format champ libre (virgules)
+                    # Free-field format (commas)
                     f.write(f"MAT1,{mid},{E:.6E},{G:.6E},{nu:.4f},{rho:.6E}\n")
 
-            logger.info(f"Cartes MAT1 ajoutées pour {len(material_map)} matériaux")
+            logger.info(f"MAT1 cards added for {len(material_map)} materials")
         except Exception as e:
-            logger.error(f"Erreur ajout cartes MAT1 : {e}")
+            logger.error(f"Error adding MAT1 cards: {e}")

@@ -4,16 +4,16 @@ var hierarchy =
     [ "CatmullRomSpline", "dc/d89/classCatmullRomSpline.html", null ],
     [ "CollisionDetector", "d2/d5d/classCollisionDetector.html", null ],
     [ "export.csv_exporter.CSVFiberExporter", "db/d0d/classexport_1_1csv__exporter_1_1CSVFiberExporter.html", null ],
-    [ "generation.optimizer_dynamic.DynamicOptimizer", "d7/dfa/classgeneration_1_1optimizer__dynamic_1_1DynamicOptimizer.html", null ],
+    [ "DynamicOptimizer", "d0/d42/classDynamicOptimizer.html", null ],
     [ "tests.conftest.FakeFiber", "de/d10/classtests_1_1conftest_1_1FakeFiber.html", null ],
     [ "core.fiber.Fiber", "d9/d6e/classcore_1_1fiber_1_1Fiber.html", null ],
-    [ "generation.generator.FiberGenerator", "d8/dd5/classgeneration_1_1generator_1_1FiberGenerator.html", null ],
+    [ "FiberGenerator", "d5/d23/classFiberGenerator.html", null ],
     [ "FiberPackingConfig", "db/df9/classFiberPackingConfig.html", null ],
     [ "GmshExporter", "d1/da0/classGmshExporter.html", null ],
     [ "LoggingMixin", "dc/d99/classLoggingMixin.html", null ],
     [ "visualization.descriptors.MicroDescriptor", "d7/d09/classvisualization_1_1descriptors_1_1MicroDescriptor.html", null ],
     [ "NastranExporter", "df/d94/classNastranExporter.html", null ],
-    [ "generation.periodicity.PeriodicManager", "df/d7a/classgeneration_1_1periodicity_1_1PeriodicManager.html", null ],
+    [ "PeriodicManager", "d0/d42/classPeriodicManager.html", null ],
     [ "PorosityGenerator", "d0/d35/classPorosityGenerator.html", null ],
     [ "QGroupBox", null, [
       [ "CollapsibleSection", "dd/db1/classCollapsibleSection.html", null ]
@@ -62,7 +62,7 @@ var hierarchy =
     [ "validation.topology.TopologyValidator", "d5/dda/classvalidation_1_1topology_1_1TopologyValidator.html", null ],
     [ "visualization.plotter.Visualizer", "df/d74/classvisualization_1_1plotter_1_1Visualizer.html", null ],
     [ "Void", "da/de9/classVoid.html", null ],
-    [ "export.voxelizer.Voxelizer", "d7/d13/classexport_1_1voxelizer_1_1Voxelizer.html", null ],
+    [ "Voxelizer", "d1/dd9/classVoxelizer.html", null ],
     [ "ABC", null, [
       [ "BaseSection", "de/d74/classBaseSection.html", [
         [ "SuperEllipticalSection", "d4/d31/classSuperEllipticalSection.html", [

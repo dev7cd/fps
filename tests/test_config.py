@@ -7,9 +7,8 @@ import numpy as np
 from core.config import FiberPackingConfig
 
 
-    """! @brief Test class for functionality. """
 class TestFiberPackingConfigDefaults:
-    """Vérifie les valeurs par défaut de la configuration."""
+    """Checks the default configuration values."""
 
     def test_default_box_dims(self):
         cfg = FiberPackingConfig()
@@ -36,9 +35,8 @@ class TestFiberPackingConfigDefaults:
         assert cfg.generate_porosity is True
 
 
-    """! @brief Test class for functionality. """
 class TestBoxVolume:
-    """Vérifie le calcul du volume du domaine RVE."""
+    """Checks the computation of the RVE domain volume."""
 
     def test_unit_cube(self):
         cfg = FiberPackingConfig(box_dims=(1.0, 1.0, 1.0))
@@ -53,9 +51,8 @@ class TestBoxVolume:
         assert cfg.box_volume == pytest.approx(0.01)
 
 
-    """! @brief Test class for functionality. """
 class TestEstimateRadius:
-    """Vérifie l'estimation automatique du rayon de fibre."""
+    """Checks the automatic estimation of the fiber radius."""
 
     def test_radius_auto_estimated_on_init(self):
         """Si fiber_radius est None, __post_init__ doit l'estimer."""
@@ -64,7 +61,7 @@ class TestEstimateRadius:
         assert cfg.fiber_radius > 0
 
     def test_radius_not_overwritten_if_set(self):
-        """Si fiber_radius est fourni, il ne doit pas être modifié."""
+        """If fiber_radius is provided, it must not be modified."""
         cfg = FiberPackingConfig(fiber_radius=0.05)
         assert cfg.fiber_radius == pytest.approx(0.05)
 
@@ -75,18 +72,17 @@ class TestEstimateRadius:
         assert cfg_large.fiber_radius > cfg_small.fiber_radius
 
     def test_radius_positive_for_various_configs(self):
-        """Le rayon estimé doit toujours être positif."""
+        """The estimated radius must always be positive."""
         for vf in [0.1, 0.3, 0.6]:
             cfg = FiberPackingConfig(
                 target_volume_fraction=vf,
                 fiber_radius=None,
             )
-            assert cfg.fiber_radius > 0, f"Rayon négatif pour Vf={vf}"
+            assert cfg.fiber_radius > 0, f"Negative radius for Vf={vf}"
 
 
-    """! @brief Test class for functionality. """
 class TestSectionParameters:
-    """Vérifie les paramètres de section par défaut."""
+    """Checks the default section parameters."""
 
     def test_default_section_params_keys(self):
         cfg = FiberPackingConfig()
@@ -103,9 +99,8 @@ class TestSectionParameters:
         assert cfg.section_parameters['exponent'] == 3.0
 
 
-    """! @brief Test class for functionality. """
 class TestGenerationParameters:
-    """Vérifie les paramètres de génération CSAW."""
+    """Checks the CSAW generation parameters."""
 
     def test_default_orientation_bias(self):
         cfg = FiberPackingConfig()

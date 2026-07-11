@@ -98,10 +98,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a87bf44d727ef70ed7b2fe6e3d48117ec"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec">run_single</a> (int seed, int resolution, bool dry_run=False)</td></tr>
 <tr class="separator:a87bf44d727ef70ed7b2fe6e3d48117ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9fe9ff7a87190f8fe405c3c9b9f0d981"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d8c/namespacerun__campaign.html#a9fe9ff7a87190f8fe405c3c9b9f0d981">parse_campaign_args</a> ()</td></tr>
-<tr class="memdesc:a9fe9ff7a87190f8fe405c3c9b9f0d981"><td class="mdescLeft">&#160;</td><td class="mdescRight">Placeholder.  <a href="../../d9/d8c/namespacerun__campaign.html#a9fe9ff7a87190f8fe405c3c9b9f0d981">More...</a><br /></td></tr>
+<tr class="memdesc:a9fe9ff7a87190f8fe405c3c9b9f0d981"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the command-line arguments of the campaign runner.  <a href="../../d9/d8c/namespacerun__campaign.html#a9fe9ff7a87190f8fe405c3c9b9f0d981">More...</a><br /></td></tr>
 <tr class="separator:a9fe9ff7a87190f8fe405c3c9b9f0d981"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ba7c52833df3a6cbbb420d6fb7a1a0b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b">main</a> ()</td></tr>
-<tr class="memdesc:a6ba7c52833df3a6cbbb420d6fb7a1a0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Placeholder.  <a href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b">More...</a><br /></td></tr>
+<tr class="memdesc:a6ba7c52833df3a6cbbb420d6fb7a1a0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main entry point: builds and runs the full campaign matrix.  <a href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b">More...</a><br /></td></tr>
 <tr class="separator:a6ba7c52833df3a6cbbb420d6fb7a1a0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -137,45 +137,45 @@ string&#160;</td><td class="memItemRight" valign="bottom"><b>MAIN_SCRIPT</b> = P
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">@file run_campaign.py
-@brief Automatisation de la campagne de génération RVE multi-seeds / multi-résolutions.
+@brief Automation of the multi-seed / multi-resolution RVE generation campaign.
 
 @details
-Génère une matrice de configurations (N_seeds × N_résolutions) en appelant
-main.py via subprocess. Chaque run est isolé dans son propre répertoire de
-sortie, structuré comme suit :
+Generates a matrix of configurations (N_seeds x N_resolutions) by calling
+main.py through subprocess. Each run is isolated in its own output directory,
+structured as follows:
 
     campaign/
-    ├── cfg_42/
-    │   ├── res_064/
-    │   │   └── RVE_cfg42_r064.*
-    │   ├── res_128/
-    │   ├── res_256/
-    │   ├── res_512/
-    │   └── res_700/
-    ├── cfg_43/
-    │   └── ...
-    └── ...
+    +-- cfg_42/
+    |   +-- res_064/
+    |   |   +-- RVE_cfg42_r064.*
+    |   +-- res_128/
+    |   +-- res_256/
+    |   +-- res_512/
+    |   +-- res_700/
+    +-- cfg_43/
+    |   +-- ...
+    +-- ...
 
-Paramètres globaux fixés (identiques pour toutes les configurations) :
-  - Boîte cubique          : Lx = Ly = Lz = 0.612
-  - Fraction volumique     : Vf = 0.18
-  - Rayon fibre            : r  = 0.02
-  - Section                : circulaire
-  - Clearance inter-fibres : 0.01
-  - RSDA                   : activé
-  - Orientation            : uniaxiale suivant (1, 0, 0), force = 0.22
-  - Export GMSH / Nastran  : désactivé
+Fixed global parameters (identical for all configurations):
+  - Cubic box             : Lx = Ly = Lz = 0.612
+  - Volume fraction       : Vf = 0.18
+  - Fiber radius          : r  = 0.02
+  - Section               : circular
+  - Inter-fiber clearance : 0.01
+  - RSDA                  : enabled
+  - Orientation           : uniaxial along (1, 0, 0), strength = 0.22
+  - GMSH / Nastran export : disabled
 
-Variables de campagne :
-  - Seeds  : 42 → 51 inclus (10 configurations géométriques distinctes)
-  - Résolutions FFT : 64, 128, 256, 512, 700
+Campaign variables:
+  - Seeds  : 42 -&gt; 51 inclusive (10 distinct geometric configurations)
+  - FFT resolutions : 64, 128, 256, 512, 700
 
-Usage :
-    python run_campaign.py               # lance tout
-    python run_campaign.py --dry_run     # affiche les commandes sans les exécuter
-    python run_campaign.py --seeds 42 43 --resolutions 64 128  # sous-campagne
+Usage:
+    python run_campaign.py               # run everything
+    python run_campaign.py --dry_run     # print the commands without executing them
+    python run_campaign.py --seeds 42 43 --resolutions 64 128  # sub-campaign
 
-@author  Devine Ngouloubi — LMNO, Université de Caen
+@author  Devine Ngouloubi - LMNO, University of Caen
 </pre> </div><h2 class="groupheader">Function Documentation</h2>
 <a id="ae1f247ee933da6b2f5310bf98b7157c3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae1f247ee933da6b2f5310bf98b7157c3">&#9670;&nbsp;</a></span>build_command()</h2>
@@ -208,19 +208,20 @@ Usage :
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Construit la liste d'arguments pour un appel à main.py.
+<pre class="fragment">Builds the argument list for a call to main.py.
 
-@param seed          Graine aléatoire de la configuration.
-@param resolution    Résolution de la grille FFT (cube de côté `resolution`).
-@param output_prefix Préfixe complet (chemin inclus) des fichiers de sortie.
-@return Liste de chaînes constituant la commande complète.
+@param seed          Random seed of the configuration.
+@param resolution    FFT grid resolution (cube of side `resolution`).
+@param output_prefix Full output prefix (path included) of the output files.
+@return List of strings constituting the full command.
 </pre> <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/d8c/namespacerun__campaign_ae1f247ee933da6b2f5310bf98b7157c3_icgraph.png" border="0" usemap="#ad9/d8c/namespacerun__campaign_ae1f247ee933da6b2f5310bf98b7157c3_icgraph" alt=""/></div>
 <map name="ad9/d8c/namespacerun__campaign_ae1f247ee933da6b2f5310bf98b7157c3_icgraph" id="ad9/d8c/namespacerun__campaign_ae1f247ee933da6b2f5310bf98b7157c3_icgraph">
-<area shape="rect" title=" " alt="" coords="239,5,389,47"/>
-<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec" title=" " alt="" coords="5,13,191,39"/>
+<area shape="rect" title=" " alt="" coords="437,5,588,47"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec" title=" " alt="" coords="204,13,389,39"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b" title="Main entry point: builds and runs the full campaign matrix." alt="" coords="5,13,156,39"/>
 </map>
 </div>
 
@@ -241,14 +242,19 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Placeholder. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">&lt;br&gt;</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
+<p>Main entry point: builds and runs the full campaign matrix. </p>
 <dl class="section return"><dt>Returns</dt><dd>None </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/d8c/namespacerun__campaign_a6ba7c52833df3a6cbbb420d6fb7a1a0b_cgraph.png" border="0" usemap="#ad9/d8c/namespacerun__campaign_a6ba7c52833df3a6cbbb420d6fb7a1a0b_cgraph" alt=""/></div>
+<map name="ad9/d8c/namespacerun__campaign_a6ba7c52833df3a6cbbb420d6fb7a1a0b_cgraph" id="ad9/d8c/namespacerun__campaign_a6ba7c52833df3a6cbbb420d6fb7a1a0b_cgraph">
+<area shape="rect" title="Main entry point: builds and runs the full campaign matrix." alt="" coords="5,42,156,69"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a9fe9ff7a87190f8fe405c3c9b9f0d981" title="Parses the command&#45;line arguments of the campaign runner." alt="" coords="219,5,374,47"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec" title=" " alt="" coords="204,71,389,98"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#ae1f247ee933da6b2f5310bf98b7157c3" title=" " alt="" coords="437,64,588,105"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -267,14 +273,17 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Placeholder. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">&lt;br&gt;</td><td></td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>None </dd></dl>
+<p>Parses the command-line arguments of the campaign runner. </p>
+<dl class="section return"><dt>Returns</dt><dd>The parsed argparse Namespace. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/d8c/namespacerun__campaign_a9fe9ff7a87190f8fe405c3c9b9f0d981_icgraph.png" border="0" usemap="#ad9/d8c/namespacerun__campaign_a9fe9ff7a87190f8fe405c3c9b9f0d981_icgraph" alt=""/></div>
+<map name="ad9/d8c/namespacerun__campaign_a9fe9ff7a87190f8fe405c3c9b9f0d981_icgraph" id="ad9/d8c/namespacerun__campaign_a9fe9ff7a87190f8fe405c3c9b9f0d981_icgraph">
+<area shape="rect" title="Parses the command&#45;line arguments of the campaign runner." alt="" coords="204,5,359,47"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b" title="Main entry point: builds and runs the full campaign matrix." alt="" coords="5,13,156,39"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -309,12 +318,12 @@ Here is the caller graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Exécute (ou simule) la génération d'une configuration unique.
+<pre class="fragment">Runs (or simulates) the generation of a single configuration.
 
-@param seed       Graine de la configuration.
-@param resolution Résolution FFT.
-@param dry_run    Si True, affiche la commande sans l'exécuter.
-@return True si succès (ou dry_run), False en cas d'erreur subprocess.
+@param seed       Seed of the configuration.
+@param resolution FFT resolution.
+@param dry_run    If True, print the command without executing it.
+@return True on success (or dry_run), False on a subprocess error.
 </pre> <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -322,6 +331,15 @@ Here is the call graph for this function:</div>
 <map name="ad9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_cgraph" id="ad9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_cgraph">
 <area shape="rect" title=" " alt="" coords="5,13,191,39"/>
 <area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#ae1f247ee933da6b2f5310bf98b7157c3" title=" " alt="" coords="239,5,389,47"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_icgraph.png" border="0" usemap="#ad9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_icgraph" alt=""/></div>
+<map name="ad9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_icgraph" id="ad9/d8c/namespacerun__campaign_a87bf44d727ef70ed7b2fe6e3d48117ec_icgraph">
+<area shape="rect" title=" " alt="" coords="204,5,389,32"/>
+<area shape="rect" href="../../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b" title="Main entry point: builds and runs the full campaign matrix." alt="" coords="5,5,156,32"/>
 </map>
 </div>
 
@@ -340,8 +358,8 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  [</div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&quot;--rsda&quot;</span>,       <span class="comment"># RSDA activé</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="stringliteral">&quot;--no_mesh&quot;</span>,    <span class="comment"># Pas de maillage GMSH</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;    <span class="stringliteral">&quot;--rsda&quot;</span>,       <span class="comment"># RSDA enabled</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="stringliteral">&quot;--no_mesh&quot;</span>,    <span class="comment"># No GMSH mesh</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;]</div>
 </div><!-- fragment -->
 </div>
@@ -376,7 +394,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/d8c/namespacerun__campaign.html">run_campaign</a></li>
-    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

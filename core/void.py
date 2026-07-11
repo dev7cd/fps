@@ -1,6 +1,6 @@
 """
 core/void.py
-Représentation des défauts de porosité (bulles sphériques ou ellipsoïdales).
+Representation of porosity defects (spherical or ellipsoidal bubbles).
 """
 import numpy as np
 from dataclasses import dataclass
@@ -10,33 +10,33 @@ from .fiber import Fiber
 class Void:
     """!
     @class Void
-    @brief Représente un défaut de porosité (bulle d'air) dans le RVE.
-    
-    Actuellement implémenté comme une sphère, cette classe permet de gérer
-    les collisions avec les fibres et de calculer la fraction de vide.
+    @brief Represents a porosity defect (air bubble) in the RVE.
+
+    Currently implemented as a sphere, this class handles collisions with
+    fibers and the computation of the void fraction.
     """
-    id: int            ##< Identifiant unique du défaut
-    center: np.ndarray ##< Coordonnées (x, y, z) du centre
-    radius: float      ##< Rayon de la bulle (sphérique)
-    
+    id: int            ##< Unique identifier of the defect
+    center: np.ndarray ##< Coordinates (x, y, z) of the centre
+    radius: float      ##< Radius of the bubble (spherical)
+
     def contains_point(self, point: np.ndarray) -> bool:
         """!
-        @brief Vérifie si un point (x,y,z) est situé à l'intérieur de la bulle.
-        @param point np.ndarray Coordonnées du point à tester.
-        @return bool True si le point est à l'intérieur, False sinon.
+        @brief Checks whether a point (x, y, z) lies inside the bubble.
+        @param point np.ndarray Coordinates of the point to test.
+        @return bool True if the point is inside, False otherwise.
         """
         return np.linalg.norm(point - self.center) <= self.radius
 
     def intersect_fiber(self, fiber: 'Fiber') -> bool:
         """!
-        @brief Vérification de collision entre la bulle et une fibre.
-        
-        Calcule la distance minimale entre le centre de la bulle et chaque
-        segment de la centerline de la fibre. Si cette distance est inférieure
-        à la somme des rayons (bulle + fibre), il y a intersection.
-        
-        @param fiber Fiber Instance de la classe Fiber à tester.
-        @return bool True si une intersection est détectée, False sinon.
+        @brief Collision check between the bubble and a fiber.
+
+        Computes the minimum distance between the bubble centre and each
+        segment of the fiber centerline. If this distance is smaller than the
+        sum of the radii (bubble + fiber), there is an intersection.
+
+        @param fiber Fiber Instance of the Fiber class to test.
+        @return bool True if an intersection is detected, False otherwise.
         """
         pts = fiber.centerline
         if pts is None or len(pts) < 2:

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loggingmixin_232',['LoggingMixin',['../dc/d99/classLoggingMixin.html',1,'']]]
+  ['loggingmixin_225',['LoggingMixin',['../dc/d99/classLoggingMixin.html',1,'']]]
 ];

@@ -7,9 +7,8 @@ import numpy as np
 from geometry.curves import CatmullRomSpline, generate_random_control_points
 
 
-    """! @brief Test class for functionality. """
 class TestCatmullRomInterpolation:
-    """Vérifie les propriétés fondamentales de la spline Catmull-Rom."""
+    """Checks the fundamental properties of the Catmull-Rom spline."""
 
     def test_output_shape(self):
         """La sortie doit avoir exactement num_points lignes et 3 colonnes."""
@@ -18,7 +17,7 @@ class TestCatmullRomInterpolation:
         assert result.shape == (50, 3)
 
     def test_passes_near_control_points(self):
-        """La courbe doit passer à proximité des points de contrôle intérieurs."""
+        """The curve must pass close to the interior control points."""
         pts = np.array([[0,0,0],[1,0,0],[2,1,0],[3,1,0],[4,0,0]], dtype=float)
         curve = CatmullRomSpline.interpolate(pts, num_points=500)
         for cp in pts[1:-1]:
@@ -26,36 +25,35 @@ class TestCatmullRomInterpolation:
             assert np.min(dists) < 0.15, f"Courbe trop loin du point {cp}"
 
     def test_endpoints(self):
-        """Les extrémités de la courbe doivent être proches des premier/dernier points."""
+        """The curve endpoints must be close to the first/last points."""
         pts = np.array([[0,0,0],[1,0,0],[2,1,0],[3,0,0]], dtype=float)
         curve = CatmullRomSpline.interpolate(pts, num_points=200)
         assert np.linalg.norm(curve[0] - pts[0]) < 0.2
         assert np.linalg.norm(curve[-1] - pts[-1]) < 0.2
 
     def test_straight_line_stays_straight(self):
-        """Des points colinéaires doivent produire une courbe quasi-rectiligne."""
+        """Collinear points must produce a nearly straight curve."""
         pts = np.array([[0,0,0],[1,0,0],[2,0,0],[3,0,0],[4,0,0]], dtype=float)
         curve = CatmullRomSpline.interpolate(pts, num_points=100)
         assert np.max(np.abs(curve[:, 1])) < 1e-6
         assert np.max(np.abs(curve[:, 2])) < 1e-6
 
     def test_few_points_fallback(self):
-        """Avec moins de 4 points, la méthode doit quand même fonctionner (fallback linéaire)."""
+        """With fewer than 4 points, the method must still work (linear fallback)."""
         pts = np.array([[0,0,0],[1,1,1]], dtype=float)
         curve = CatmullRomSpline.interpolate(pts, num_points=10)
         assert curve.shape == (10, 3)
 
     def test_monotonic_arc_length(self):
-        """L'abscisse curviligne doit être croissante (pas de retour en arrière)."""
+        """The curvilinear abscissa must be increasing (no backtracking)."""
         pts = np.array([[0,0,0],[1,0,0],[2,0.5,0],[3,0,0],[4,0,0]], dtype=float)
         curve = CatmullRomSpline.interpolate(pts, num_points=200)
         segments = np.linalg.norm(np.diff(curve, axis=0), axis=1)
         assert np.all(segments >= 0)
 
 
-    """! @brief Test class for functionality. """
 class TestLinearResample:
-    """Vérifie le rééchantillonnage équidistant."""
+    """Checks the equidistant resampling."""
 
     def test_equidistant_output(self):
         pts = np.array([[0,0,0],[1,0,0],[3,0,0]], dtype=float)
@@ -71,9 +69,8 @@ class TestLinearResample:
         assert resampled_len == pytest.approx(original_len, rel=1e-2)
 
 
-    """! @brief Test class for functionality. """
 class TestGenerateRandomControlPoints:
-    """Vérifie la génération de points de contrôle aléatoires."""
+    """Checks the random control-point generation."""
 
     def test_output_shape(self):
         rng = np.random.default_rng(42)
@@ -88,7 +85,7 @@ class TestGenerateRandomControlPoints:
         assert 0 <= pts[0, 2] <= 4.0
 
     def test_bias_x_alignment(self):
-        """Avec un biais fort en X, les déplacements doivent être majoritairement en X."""
+        """With a strong bias in X, the displacements must be mostly in X."""
         rng = np.random.default_rng(42)
         pts = generate_random_control_points(
             50, 0.1, 0.001, (10.0, 10.0, 10.0), rng,

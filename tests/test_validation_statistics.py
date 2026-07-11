@@ -1,7 +1,7 @@
 """! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour validation/statistics.py — Descripteurs spatiaux.
-On utilise des distributions connues (grille régulière, CSR) pour valider.
+We use known distributions (regular grid, CSR) to validate.
 """
 import pytest
 import numpy as np
@@ -16,7 +16,7 @@ from validation.statistics import (
 
 
 def _make_fake_fibers_grid(nx=5, ny=5, spacing=0.2, box_size=1.0):
-    """Crée des fibres factices sur une grille régulière 2D (plan XY)."""
+    """Creates dummy fibers on a regular 2D grid (XY plane)."""
     fibers = []
     for i in range(nx):
         for j in range(ny):
@@ -30,7 +30,7 @@ def _make_fake_fibers_grid(nx=5, ny=5, spacing=0.2, box_size=1.0):
 
 
 def _make_fake_fibers_random(n=100, box_size=1.0, seed=42):
-    """Crée des fibres factices avec des positions aléatoires (CSR)."""
+    """Creates dummy fibers with random positions (CSR)."""
     rng = np.random.default_rng(seed)
     fibers = []
     for _ in range(n):
@@ -42,7 +42,6 @@ def _make_fake_fibers_random(n=100, box_size=1.0, seed=42):
     return fibers
 
 
-    """! @brief Test class for functionality. """
 class TestExtract2DCentroids:
 
     def test_xy_projection(self):
@@ -58,15 +57,14 @@ class TestExtract2DCentroids:
         assert centroids[0, 1] == pytest.approx(4.0)  # mean(3, 5)
 
 
-    """! @brief Test class for functionality. """
 class TestNearestNeighborDistance:
 
     def test_regular_grid_nnd(self):
-        """Sur une grille régulière, le NND doit être constant et égal au spacing."""
+        """On a regular grid, the NND must be constant and equal to the spacing."""
         fibers = _make_fake_fibers_grid(5, 5, spacing=0.2)
         result = nearest_neighbor_distance(fibers, (1.0, 1.0, 1.0))
         assert result['nnd_mean'] == pytest.approx(0.2, abs=0.02)
-        assert result['nnd_std'] < 0.02  # Très faible dispersion
+        assert result['nnd_std'] < 0.02  # Very low dispersion
 
     def test_single_fiber(self):
         fibers = _make_fake_fibers_grid(1, 1)
@@ -79,11 +77,10 @@ class TestNearestNeighborDistance:
         assert result['nnd_mean'] > 0
 
 
-    """! @brief Test class for functionality. """
 class TestRipleyKFunction:
 
     def test_csr_follows_poisson(self):
-        """Pour un processus CSR, K(h) doit être proche de pi*h²."""
+        """For a CSR process, K(h) must be close to pi*h^2."""
         fibers = _make_fake_fibers_random(200, seed=0)
         result = ripley_k_function(fibers, (1.0, 1.0, 1.0))
         K_h = np.array(result['K_h'])
@@ -100,7 +97,6 @@ class TestRipleyKFunction:
         assert result['K_h'] == []
 
 
-    """! @brief Test class for functionality. """
 class TestPairCorrelationFunction:
 
     def test_csr_g_near_one(self):
@@ -117,11 +113,10 @@ class TestPairCorrelationFunction:
         assert result['g_r'] == []
 
 
-    """! @brief Test class for functionality. """
 class TestVoronoiStatistics:
 
     def test_regular_grid_low_cv(self):
-        """Une grille régulière doit avoir un CV de Voronoi proche de 0."""
+        """A regular grid must have a Voronoi CV close to 0."""
         fibers = _make_fake_fibers_grid(5, 5, spacing=0.2)
         result = voronoi_statistics(fibers, (1.0, 1.0, 1.0))
         assert result['areas_cv'] < 0.15

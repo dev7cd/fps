@@ -84,51 +84,45 @@ $(document).ready(function(){initNavTree('d2/d7c/namespaceexport_1_1voxelizer.ht
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">export.voxelizer Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d13/classexport_1_1voxelizer_1_1Voxelizer.html">Voxelizer</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:af6a571e35169dbcc4f566b218e697115"><td class="memItemLeft" align="right" valign="top"><a id="af6a571e35169dbcc4f566b218e697115"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#af6a571e35169dbcc4f566b218e697115">logger</a> = logging.getLogger(__name__)</td></tr>
-<tr class="memdesc:af6a571e35169dbcc4f566b218e697115"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logger pour le module de voxélisation. <br /></td></tr>
+<tr class="memdesc:af6a571e35169dbcc4f566b218e697115"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logger for the voxelisation module. <br /></td></tr>
 <tr class="separator:af6a571e35169dbcc4f566b218e697115"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2fa18858287d68020d4c1bc39950cb2"><td class="memItemLeft" align="right" valign="top"><a id="aa2fa18858287d68020d4c1bc39950cb2"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#aa2fa18858287d68020d4c1bc39950cb2">TAG_MATRIX</a> = 0</td></tr>
-<tr class="memdesc:aa2fa18858287d68020d4c1bc39950cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour la matrice (fond). <br /></td></tr>
+<tr class="memdesc:aa2fa18858287d68020d4c1bc39950cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag for the matrix (background). <br /></td></tr>
 <tr class="separator:aa2fa18858287d68020d4c1bc39950cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22f8cf2492045450f3bad6554534e0c6"><td class="memItemLeft" align="right" valign="top"><a id="a22f8cf2492045450f3bad6554534e0c6"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#a22f8cf2492045450f3bad6554534e0c6">TAG_FIBER</a> = 128</td></tr>
-<tr class="memdesc:a22f8cf2492045450f3bad6554534e0c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour les fibres. <br /></td></tr>
+<tr class="memdesc:a22f8cf2492045450f3bad6554534e0c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag for the fibers. <br /></td></tr>
 <tr class="separator:a22f8cf2492045450f3bad6554534e0c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a953d5567e85257de05db20feaa6b553f"><td class="memItemLeft" align="right" valign="top"><a id="a953d5567e85257de05db20feaa6b553f"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html#a953d5567e85257de05db20feaa6b553f">TAG_VOID</a> = 255</td></tr>
-<tr class="memdesc:a953d5567e85257de05db20feaa6b553f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag pour les pores (porosités). <br /></td></tr>
+<tr class="memdesc:a953d5567e85257de05db20feaa6b553f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag for the pores (porosity). <br /></td></tr>
 <tr class="separator:a953d5567e85257de05db20feaa6b553f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">@file voxelizer.py
-@brief Génération de maillage voxelisé (FFT) et export PGM (Portable Gray Map).
-@details Tags standard : Matrice=0, Fibres=128, Pores=255.
-L'algorithme utilise une approche de rastérisation par Bounding Box (BBox) 
-accélérée par Numba pour tester l'appartenance des voxels aux cylindres (fibres) 
-ou aux sphères (pores).
+@brief Voxelised mesh generation (FFT) and PGM (Portable Gray Map) export.
+@details Standard tags: matrix=0, fibers=128, pores=255.
+The algorithm uses a bounding-box (BBox) rasterisation approach accelerated
+by Numba to test whether voxels belong to the cylinders (fibers) or the
+spheres (pores).
 </pre> </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>export</b></li><li class="navelem"><a class="el" href="../../d2/d7c/namespaceexport_1_1voxelizer.html">voxelizer</a></li>
-    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

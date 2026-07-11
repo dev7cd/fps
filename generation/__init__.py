@@ -1,6 +1,6 @@
 """
 generation/
-Module responsable de la création procédurale du VER (Fibres et Porosité).
+Module responsible for the procedural creation of the RVE (fibers and porosity).
 """
 from .generator import FiberGenerator
 from .porosity_gen import PorosityGenerator

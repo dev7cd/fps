@@ -8,20 +8,6 @@ var annotated_dup =
     [ "export", null, [
       [ "csv_exporter", null, [
         [ "CSVFiberExporter", "db/d0d/classexport_1_1csv__exporter_1_1CSVFiberExporter.html", null ]
-      ] ],
-      [ "voxelizer", "d2/d7c/namespaceexport_1_1voxelizer.html", [
-        [ "Voxelizer", "d7/d13/classexport_1_1voxelizer_1_1Voxelizer.html", "d7/d13/classexport_1_1voxelizer_1_1Voxelizer" ]
-      ] ]
-    ] ],
-    [ "generation", null, [
-      [ "generator", "dd/d09/namespacegeneration_1_1generator.html", [
-        [ "FiberGenerator", "d8/dd5/classgeneration_1_1generator_1_1FiberGenerator.html", "d8/dd5/classgeneration_1_1generator_1_1FiberGenerator" ]
-      ] ],
-      [ "optimizer_dynamic", "de/d56/namespacegeneration_1_1optimizer__dynamic.html", [
-        [ "DynamicOptimizer", "d7/dfa/classgeneration_1_1optimizer__dynamic_1_1DynamicOptimizer.html", "d7/dfa/classgeneration_1_1optimizer__dynamic_1_1DynamicOptimizer" ]
-      ] ],
-      [ "periodicity", "de/d59/namespacegeneration_1_1periodicity.html", [
-        [ "PeriodicManager", "df/d7a/classgeneration_1_1periodicity_1_1PeriodicManager.html", null ]
       ] ]
     ] ],
     [ "tests", null, [
@@ -111,14 +97,18 @@ var annotated_dup =
     [ "CircularSection", "d3/dcd/classCircularSection.html", null ],
     [ "CollapsibleSection", "dd/db1/classCollapsibleSection.html", null ],
     [ "CollisionDetector", "d2/d5d/classCollisionDetector.html", null ],
+    [ "DynamicOptimizer", "d0/d42/classDynamicOptimizer.html", null ],
+    [ "FiberGenerator", "d5/d23/classFiberGenerator.html", null ],
     [ "FiberPackingConfig", "db/df9/classFiberPackingConfig.html", null ],
     [ "GmshExporter", "d1/da0/classGmshExporter.html", null ],
     [ "LoggingMixin", "dc/d99/classLoggingMixin.html", null ],
     [ "MainWindow", "d6/d1a/classMainWindow.html", null ],
     [ "NastranExporter", "df/d94/classNastranExporter.html", null ],
+    [ "PeriodicManager", "d0/d42/classPeriodicManager.html", null ],
     [ "PorosityGenerator", "d0/d35/classPorosityGenerator.html", null ],
     [ "Preview3DCanvas", "d1/d61/classPreview3DCanvas.html", null ],
     [ "SpatialGrid", "df/dd7/classSpatialGrid.html", null ],
     [ "SuperEllipticalSection", "d4/d31/classSuperEllipticalSection.html", null ],
-    [ "Void", "da/de9/classVoid.html", null ]
+    [ "Void", "da/de9/classVoid.html", null ],
+    [ "Voxelizer", "d1/dd9/classVoxelizer.html", null ]
 ];

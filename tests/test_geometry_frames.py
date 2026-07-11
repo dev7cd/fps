@@ -7,9 +7,8 @@ import numpy as np
 from geometry.frames import compute_tangents, compute_bishop_frame
 
 
-    """! @brief Test class for functionality. """
 class TestComputeTangents:
-    """Vérifie le calcul des vecteurs tangents."""
+    """Checks the computation of the tangent vectors."""
 
     def test_straight_line_x(self):
         pts = np.array([[0,0,0],[1,0,0],[2,0,0],[3,0,0]], dtype=float)
@@ -18,7 +17,7 @@ class TestComputeTangents:
             assert np.allclose(np.abs(t), [1, 0, 0], atol=1e-6)
 
     def test_unit_norm(self):
-        """Tous les vecteurs tangents doivent être unitaires."""
+        """All tangent vectors must be unit vectors."""
         pts = np.array([[0,0,0],[1,1,0],[2,0,1],[3,1,1]], dtype=float)
         T = compute_tangents(pts)
         norms = np.linalg.norm(T, axis=1)
@@ -34,9 +33,8 @@ class TestComputeTangents:
         assert T.shape == (20, 3)
 
 
-    """! @brief Test class for functionality. """
 class TestBishopFrame:
-    """Vérifie les propriétés du repère de Bishop (transport parallèle)."""
+    """Checks the properties of the Bishop frame (parallel transport)."""
 
     def test_output_shapes(self):
         pts = np.array([[i, 0, 0] for i in range(10)], dtype=float)
@@ -46,7 +44,7 @@ class TestBishopFrame:
         assert B.shape == (10, 3)
 
     def test_orthonormality(self):
-        """T, N, B doivent former un repère orthonormé à chaque point."""
+        """T, N, B must form an orthonormal frame at every point."""
         theta = np.linspace(0, 2 * np.pi, 50)
         pts = np.column_stack([np.cos(theta), np.sin(theta), theta * 0.1])
         T, N, B = compute_bishop_frame(pts)

@@ -1,32 +1,32 @@
 """
 @file run_campaign_short.py
-@brief Campagne de génération de VER de fibres COURTES (res FFT <= 128).
+@brief Generation campaign for SHORT-fiber RVEs (FFT res <= 128).
 
 @details
-Deux sous-campagnes enchaînées, partageant la même géométrie de base :
+Two chained sub-campaigns sharing the same base geometry:
 
-    Boîte cubique          : Lx = Ly = Lz = 1.0
-    Rayon fibre            : r  = 0.02   (-> ~2.56 voxels a res 128)
-    Section                : circulaire
-    Points de controle     : min = 19, max = 20   (fibres courtes)
-    Resolution FFT          : 128 (voxel = 0.0078, diametre fibre ~5 voxels)
+    Cubic box            : Lx = Ly = Lz = 1.0
+    Fiber radius         : r  = 0.02   (-> ~2.56 voxels at res 128)
+    Section              : circular
+    Control points       : min = 19, max = 20   (short fibers)
+    FFT resolution       : 128 (voxel = 0.0078, fiber diameter ~5 voxels)
 
-  Les fractions volumiques sont DILUEES (deja en pourcentage) :
+  The volume fractions are DILUTE (already as a fraction):
      0.09% -> 0.0009, 0.179% -> 0.00179, ..., 0.447% -> 0.00447.
-  La boite 1.0^3 est choisie comme compromis resolution/fidelite : a res 128
-  on garde ~2.56 voxels par rayon tout en obtenant des Vf reels proches des
-  cibles (0.10% -> 0.51%) avec 2 a 10 fibres courtes par RVE.
+  The 1.0^3 box is chosen as a resolution/fidelity trade-off: at res 128
+  we keep ~2.56 voxels per radius while obtaining real Vf close to the
+  targets (0.10% -> 0.51%) with 2 to 10 short fibers per RVE.
 
-  -- Partie A : balayage de la fraction volumique --
-     Vf = {0.0009, 0.00179, 0.00269, 0.00358, 0.00447}, step fixe = 0.02.
-     Longueur fibre ~ 19 * 0.02 = 0.38 < 1.0 (boite) -> fibres discontinues.
+  -- Part A: volume-fraction sweep --
+     Vf = {0.0009, 0.00179, 0.00269, 0.00358, 0.00447}, fixed step = 0.02.
+     Fiber length ~ 19 * 0.02 = 0.38 < 1.0 (box) -> discontinuous fibers.
 
-  -- Partie B : balayage de la longueur de segment (step) --
-     Vf fixee a 0.00447 (derniere valeur, 0.447%), pts 19/20,
+  -- Part B: segment-length (step) sweep --
+     Vf fixed at 0.00447 (last value, 0.447%), pts 19/20,
      step in {0.015, 0.020, 0.025}
-     -> longueurs fibres ~ {0.285, 0.380, 0.475}, toutes < 1.0.
+     -> fiber lengths ~ {0.285, 0.380, 0.475}, all < 1.0.
 
-Arborescence de sortie :
+Output tree:
 
     campaign_short/
     |-- A_vf_sweep/
@@ -38,13 +38,13 @@ Arborescence de sortie :
     |   |-- step_0020/
     |   |-- step_0025/
 
-Usage :
-    python run_campaign_short.py            # lance tout
-    python run_campaign_short.py --dry_run  # affiche les commandes sans executer
-    python run_campaign_short.py --part A   # seulement la partie A
-    python run_campaign_short.py --part B   # seulement la partie B
+Usage:
+    python run_campaign_short.py            # run everything
+    python run_campaign_short.py --dry_run  # print the commands without executing
+    python run_campaign_short.py --part A   # part A only
+    python run_campaign_short.py --part B   # part B only
 
-@author  Devine Ngouloubi -- LMNO, Universite de Caen
+@author  Devine Ngouloubi -- LMNO, University of Caen
 """
 
 import argparse
@@ -54,7 +54,7 @@ import time
 import logging
 from pathlib import Path
 
-# -- Geometrie de base commune aux deux sous-campagnes -----------------------
+# -- Base geometry common to both sub-campaigns ------------------------------
 BASE_PARAMS = {
     "--dims":      "1.0 1.0 1.0",
     "--radius":    "0.02",
@@ -64,16 +64,16 @@ BASE_PARAMS = {
     "--max_pts":   "20",
     "--res_fft":   "128",
 }
-BASE_FLAGS = ["--no_mesh"]  # pas de maillage GMSH ; on garde les stats spatiales
+BASE_FLAGS = ["--no_mesh"]  # no GMSH mesh; keep the spatial stats
 
-# Realisations statistiques : une generation par seed et par point.
-SEEDS = list(range(42, 52))  # 42..51 inclus (10 realisations)
+# Statistical realisations: one generation per seed and per point.
+SEEDS = list(range(42, 52))  # 42..51 inclusive (10 realisations)
 
-# Partie A : balayage Vf (step fixe). Valeurs deja en fraction (0.09% -> 0.0009).
+# Part A: Vf sweep (fixed step). Values already as a fraction (0.09% -> 0.0009).
 A_STEP = "0.02"
 A_VF_VALUES = ["0.0009", "0.00179", "0.00269", "0.00358", "0.00447"]
 
-# Partie B : balayage step (Vf fixe = derniere valeur de A = 0.447%)
+# Part B: step sweep (Vf fixed = last value of A = 0.447%)
 B_VF = "0.00447"
 B_STEP_VALUES = ["0.015", "0.020", "0.025"]
 
@@ -89,10 +89,11 @@ logger = logging.getLogger("CampaignShort")
 
 
 def build_command(extra: dict, prefix: str) -> list[str]:
-    """! @brief Construit la commande main.py a partir des params de base + surcharges.
-    @param extra  Dict de surcharges (ex: {'--vf': '0.09', '--step': '0.02'}).
-    @param prefix Prefixe complet (chemin inclus) des fichiers de sortie.
-    @return Liste d'arguments.
+    """!
+    @brief Builds the main.py command from the base params + overrides.
+    @param extra  Dict of overrides (e.g. {'--vf': '0.09', '--step': '0.02'}).
+    @param prefix Full output prefix (path included) of the output files.
+    @return List of arguments.
     """
     params = dict(BASE_PARAMS)
     params.update(extra)
@@ -105,8 +106,9 @@ def build_command(extra: dict, prefix: str) -> list[str]:
 
 
 def run_single(label: str, run_dir: Path, prefix: str, extra: dict, dry_run: bool) -> bool:
-    """! @brief Execute (ou simule) une generation unique.
-    @return True si succes ou dry_run, False sinon.
+    """!
+    @brief Runs (or simulates) a single generation.
+    @return True on success or dry_run, False otherwise.
     """
     run_dir.mkdir(parents=True, exist_ok=True)
     cmd = build_command(extra, prefix)
@@ -125,12 +127,12 @@ def run_single(label: str, run_dir: Path, prefix: str, extra: dict, dry_run: boo
         logger.error(f"FAIL    {label}  (code={e.returncode}, {time.time() - t0:.1f}s)")
         return False
     except FileNotFoundError:
-        logger.critical(f"main.py introuvable : {MAIN_SCRIPT}")
+        logger.critical(f"main.py not found: {MAIN_SCRIPT}")
         sys.exit(1)
 
 
 def jobs_part_a():
-    """! @brief Construit la liste des jobs de la partie A (balayage Vf x seeds)."""
+    """! @brief Builds the list of Part A jobs (Vf sweep x seeds)."""
     jobs = []
     for vf in A_VF_VALUES:
         tag = f"vf_{int(round(float(vf) * 100000)):04d}"  # 0.0009 -> vf_0090 (=0.090%)
@@ -144,7 +146,7 @@ def jobs_part_a():
 
 
 def jobs_part_b():
-    """! @brief Construit la liste des jobs de la partie B (balayage step x seeds)."""
+    """! @brief Builds the list of Part B jobs (step sweep x seeds)."""
     jobs = []
     for step in B_STEP_VALUES:
         tag = f"step_{int(round(float(step) * 1000)):04d}"  # 0.015 -> step_0015
@@ -158,17 +160,17 @@ def jobs_part_b():
 
 
 def parse_campaign_args():
-    """! @brief Analyse les arguments de la campagne."""
-    p = argparse.ArgumentParser(description="Campagne VER fibres courtes (res <= 128)")
+    """! @brief Parses the campaign arguments."""
+    p = argparse.ArgumentParser(description="Short-fiber RVE campaign (res <= 128)")
     p.add_argument("--part", choices=["A", "B", "all"], default="all",
-                   help="Sous-campagne a executer")
+                   help="Sub-campaign to run")
     p.add_argument("--dry_run", action="store_true",
-                   help="Affiche les commandes sans les executer")
+                   help="Print the commands without executing them")
     return p.parse_args()
 
 
 def main():
-    """! @brief Point d'entree de la campagne."""
+    """! @brief Entry point of the campaign."""
     args = parse_campaign_args()
 
     jobs = []
@@ -178,10 +180,10 @@ def main():
         jobs += jobs_part_b()
 
     logger.info("=" * 64)
-    logger.info("  CAMPAGNE VER FIBRES COURTES -- LMNO / Universite de Caen")
-    logger.info(f"  Partie(s)   : {args.part}")
+    logger.info("  SHORT-FIBER RVE CAMPAIGN -- LMNO / University of Caen")
+    logger.info(f"  Part(s)     : {args.part}")
     logger.info(f"  Total runs  : {len(jobs)}")
-    logger.info(f"  Racine      : {CAMPAIGN_ROOT.resolve()}")
+    logger.info(f"  Root        : {CAMPAIGN_ROOT.resolve()}")
     if args.dry_run:
         logger.info("  MODE        : DRY-RUN")
     logger.info("=" * 64)
@@ -196,10 +198,10 @@ def main():
             fail_list.append(label)
 
     logger.info("=" * 64)
-    logger.info(f"  BILAN : {ok} succes / {fail} echec(s)  "
-                f"-- duree {time.time() - t_start:.1f}s")
+    logger.info(f"  SUMMARY: {ok} success / {fail} failure(s)  "
+                f"-- duration {time.time() - t_start:.1f}s")
     for label in fail_list:
-        logger.warning(f"    ECHEC : {label}")
+        logger.warning(f"    FAILED: {label}")
     logger.info("=" * 64)
 
     if not args.dry_run:
@@ -209,8 +211,10 @@ def main():
 
 
 def aggregate(part: str):
-    """! @brief Agrege les realisations (seeds) par point : moyenne et ecart-type
-    du Vf reel (voxels) et du nombre de fibres. Ecrit campaign_short/summary_stats.csv.
+    """!
+    @brief Aggregates the realisations (seeds) per point: mean and standard
+    deviation of the real Vf (voxels) and of the fiber count. Writes
+    campaign_short/summary_stats.csv.
     """
     import csv, glob, json
     import numpy as np
@@ -253,8 +257,8 @@ def aggregate(part: str):
         w.writeheader()
         w.writerows(rows)
 
-    logger.info("  STATISTIQUES PAR POINT (moyenne +/- ecart-type sur seeds)")
-    logger.info(f"  {'point':<12}{'n':>3}{'Vf_reel %':>14}{'fibres':>14}{'L_fib':>9}")
+    logger.info("  STATISTICS PER POINT (mean +/- standard deviation over seeds)")
+    logger.info(f"  {'point':<12}{'n':>3}{'Vf_real %':>14}{'fibers':>14}{'L_fib':>9}")
     for r in rows:
         logger.info(f"  {r['point']:<12}{r['n_seeds']:>3}"
                     f"{r['vf_real_mean_pct']:>8.3f}+/-{r['vf_real_std_pct']:<5.3f}"

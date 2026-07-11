@@ -222,7 +222,7 @@ python main.py \
 | `{prefix}_parametric.json` | metadata, parameters, statistics, fiber geometry |
 | `{prefix}_roots.csv` | control points of the root fibers |
 | `{prefix}_full_periodic.csv` | root fibers + all periodic ghosts |
-| `{prefix}_voxelmap.npy` | 3D uint8 grid (matrix=0, fiber=1, pore=2) |
+| `{prefix}_voxelmap.npy` | 3D uint8 grid (matrix=0, fiber=128, pore=255) |
 | `slice****.pgm` | 2D slices of the voxel grid (PGM P2) |
 | `{prefix}.step` | CAD geometry (OpenCASCADE) |
 | `{prefix}.msh` | finite-element mesh (Gmsh v4) |
@@ -289,8 +289,8 @@ Random Sequential Adsorption (`--porosity`):
   point-to-centerline distance against the fiber tube).
 - Pores are periodic (their own ghost images), consistently with the fibers.
 - The result is a three-phase RVE (matrix / fiber / pore) exported as voxel tags
-  **0 / 1 / 2**, directly usable for FFT and FE homogenisation of porous
-  fiber-reinforced composites.
+  **0 / 128 / 255** (uint8), directly usable for FFT and FE homogenisation of
+  porous fiber-reinforced composites.
 
 ### Statistical descriptors
 
@@ -314,7 +314,7 @@ Anisotropic decomposition via principal component analysis:
 
 3D rasterisation on a regular grid:
 
-- Tags: matrix = 0, fiber = 1, pore = 2.
+- Tags: matrix = 0, fiber = 128, pore = 255 (uint8, chosen for direct PGM greyscale export).
 - Exact point-segment distance per voxel (Numba JIT).
 - Accelerated by local BBox + early exit.
 - PGM (Portable Gray Map) export by Z-slices.

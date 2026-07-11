@@ -1,6 +1,6 @@
 """
 visualization/
-Module de visualisation 3D et d'analyse graphique du RVE.
+3D visualisation and graphical analysis module for the RVE.
 """
 
 from .plotter import Visualizer

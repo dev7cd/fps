@@ -26,26 +26,28 @@ var namespaces_dup =
         [ "logger", "d5/d0f/csv__exporter_8py.html#a500ee81dab0db0d0722b1e08da6222f3", null ]
       ] ],
       [ "gmsh_exporter", null, [
-        [ "_inclusion_tags", "d4/d23/gmsh__exporter_8py.html#a1b51f85b8cbea36da8a141cd27b692cd", null ],
         [ "logger", "d4/d23/gmsh__exporter_8py.html#a3ef0d49975bd94da1ecc2f6740f638da", null ]
       ] ],
       [ "nastran_exporter", "d8/d2f/namespaceexport_1_1nastran__exporter.html", [
         [ "logger", "d8/d2f/namespaceexport_1_1nastran__exporter.html#a45737941cd4985759ca310639a6bc648", null ]
       ] ],
-      [ "voxelizer", "d2/d7c/namespaceexport_1_1voxelizer.html", "d2/d7c/namespaceexport_1_1voxelizer" ]
-    ] ],
-    [ "fix_all_files", null, [
-      [ "content", "d7/d4d/fix__all__files_8py.html#a0b182f659551c2e790038389cc00a35f", null ],
-      [ "files_to_fix", "d7/d4d/fix__all__files_8py.html#a8673f045366cf62a7808457d91d267c0", null ]
-    ] ],
-    [ "fix_docs", null, [
-      [ "add_docstrings", "d5/d3f/fix__docs_8py.html#a28f0e9e3b7cdd49edbcf10d838cf2f20", null ],
-      [ "test_files", "d5/d3f/fix__docs_8py.html#ad08d9165533b5a834fe9db26cbc33bfe", null ]
+      [ "voxelizer", "d2/d7c/namespaceexport_1_1voxelizer.html", [
+        [ "_raster_fiber_numba", "d2/d7c/namespaceexport_1_1voxelizer.html#a9d468a075ad37700cc3f6dfa803712df", null ],
+        [ "_raster_sphere_numba", "d2/d7c/namespaceexport_1_1voxelizer.html#aafe10e64a8bfff0088a2c66a942e66cb", null ],
+        [ "logger", "d2/d7c/namespaceexport_1_1voxelizer.html#af6a571e35169dbcc4f566b218e697115", null ],
+        [ "TAG_FIBER", "d2/d7c/namespaceexport_1_1voxelizer.html#a22f8cf2492045450f3bad6554534e0c6", null ],
+        [ "TAG_MATRIX", "d2/d7c/namespaceexport_1_1voxelizer.html#aa2fa18858287d68020d4c1bc39950cb2", null ],
+        [ "TAG_VOID", "d2/d7c/namespaceexport_1_1voxelizer.html#a953d5567e85257de05db20feaa6b553f", null ]
+      ] ]
     ] ],
     [ "generation", null, [
-      [ "generator", "dd/d09/namespacegeneration_1_1generator.html", "dd/d09/namespacegeneration_1_1generator" ],
-      [ "optimizer_dynamic", "de/d56/namespacegeneration_1_1optimizer__dynamic.html", "de/d56/namespacegeneration_1_1optimizer__dynamic" ],
-      [ "periodicity", "de/d59/namespacegeneration_1_1periodicity.html", "de/d59/namespacegeneration_1_1periodicity" ],
+      [ "generator", "dd/d09/namespacegeneration_1_1generator.html", [
+        [ "logger", "dd/d09/namespacegeneration_1_1generator.html#a9dd32052dab705547fe6f125e22f5319", null ]
+      ] ],
+      [ "optimizer_dynamic", "de/d56/namespacegeneration_1_1optimizer__dynamic.html", [
+        [ "logger", "de/d56/namespacegeneration_1_1optimizer__dynamic.html#a70b814f1ed26266f902cf275bd358b0a", null ]
+      ] ],
+      [ "periodicity", "de/d59/namespacegeneration_1_1periodicity.html", null ],
       [ "porosity_gen", "d9/d3b/namespacegeneration_1_1porosity__gen.html", [
         [ "logger", "d9/d3b/namespacegeneration_1_1porosity__gen.html#ac0c7ee567d88be753f9d0a9c27ae943b", null ]
       ] ]
@@ -89,6 +91,28 @@ var namespaces_dup =
       [ "logger", "d9/d8c/namespacerun__campaign.html#a03d1147e79e2e3e3c3805a6fbe51fad4", null ],
       [ "MAIN_SCRIPT", "d9/d8c/namespacerun__campaign.html#a4a12f23337401b33087829a4b2da7960", null ]
     ] ],
+    [ "run_campaign_short", "d9/d52/namespacerun__campaign__short.html", [
+      [ "aggregate", "d9/d52/namespacerun__campaign__short.html#a675344d1a6ac4003debfbc6096c65613", null ],
+      [ "build_command", "d9/d52/namespacerun__campaign__short.html#a3392a8f549680cc1588feaf42c602cfe", null ],
+      [ "jobs_part_a", "d9/d52/namespacerun__campaign__short.html#aca8ba0032cc89d05de826d1c7a416db8", null ],
+      [ "jobs_part_b", "d9/d52/namespacerun__campaign__short.html#a206fdfd9c66d107de81810a180d0060b", null ],
+      [ "main", "d9/d52/namespacerun__campaign__short.html#a5d805999399ad13bb6a376681e0b68c1", null ],
+      [ "parse_campaign_args", "d9/d52/namespacerun__campaign__short.html#af80551097c4defc0433e71b01cf87c2f", null ],
+      [ "run_single", "d9/d52/namespacerun__campaign__short.html#ab34a7e76168c01b8eb80cf713de8ac85", null ],
+      [ "A_STEP", "d9/d52/namespacerun__campaign__short.html#ad75652ffd4e9edc30e96651c11434ae8", null ],
+      [ "A_VF_VALUES", "d9/d52/namespacerun__campaign__short.html#ae306e4461f0281b95bdbc0265148894e", null ],
+      [ "B_STEP_VALUES", "d9/d52/namespacerun__campaign__short.html#a3f1b418cfa7be0568e9d4d3748508e33", null ],
+      [ "B_VF", "d9/d52/namespacerun__campaign__short.html#a119484885335266b4092a69dabd1d1ba", null ],
+      [ "BASE_FLAGS", "d9/d52/namespacerun__campaign__short.html#a1b4079960cd78d6bc47819485ce8e273", null ],
+      [ "BASE_PARAMS", "d9/d52/namespacerun__campaign__short.html#a775fde94a9366cce4f3599b3049c1945", null ],
+      [ "CAMPAIGN_ROOT", "d9/d52/namespacerun__campaign__short.html#ae461d99a0ef4068c8e576de497c878a2", null ],
+      [ "datefmt", "d9/d52/namespacerun__campaign__short.html#a94e545109540f9fd5bec5dcd34e9f8da", null ],
+      [ "format", "d9/d52/namespacerun__campaign__short.html#ac3b6fc6bfe10d944a07a7bb55e3e4979", null ],
+      [ "level", "d9/d52/namespacerun__campaign__short.html#aec969711046027386424eae29737dc21", null ],
+      [ "logger", "d9/d52/namespacerun__campaign__short.html#a08d1f3b9932b0b4603cfeb233b2145cd", null ],
+      [ "MAIN_SCRIPT", "d9/d52/namespacerun__campaign__short.html#a131da5e131651b03d59738d60b249899", null ],
+      [ "SEEDS", "d9/d52/namespacerun__campaign__short.html#a5d930908de351cb4c453d6b711c1f8a4", null ]
+    ] ],
     [ "tests", null, [
       [ "conftest", "d1/d38/namespacetests_1_1conftest.html", "d1/d38/namespacetests_1_1conftest" ],
       [ "test_config", "d1/d92/namespacetests_1_1test__config.html", "d1/d92/namespacetests_1_1test__config" ],
@@ -103,10 +127,6 @@ var namespaces_dup =
       [ "test_validation_topology", "da/d46/namespacetests_1_1test__validation__topology.html", "da/d46/namespacetests_1_1test__validation__topology" ],
       [ "test_void", "d5/d18/namespacetests_1_1test__void.html", "d5/d18/namespacetests_1_1test__void" ],
       [ "test_void_intersect", "d8/ded/namespacetests_1_1test__void__intersect.html", "d8/ded/namespacetests_1_1test__void__intersect" ]
-    ] ],
-    [ "update_methods", null, [
-      [ "content", "de/d87/update__methods_8py.html#a5ece2647e0074e35dc88466166da3c9f", null ],
-      [ "files_to_update", "de/d87/update__methods_8py.html#af2136f9ac397d0af09cdcd337ce728b3", null ]
     ] ],
     [ "utils", null, [
       [ "logger", "df/d05/namespaceutils_1_1logger.html", [

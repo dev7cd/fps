@@ -26,10 +26,10 @@ class AD_PCA_Analyzer:
         @brief Initializes the AD-PCA analyzer.
         @param fibers List List of Fiber objects to analyze.
         """
-        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
+        self.fibers = fibers  ##< List of Fiber objects.
         self.num_fibers = len(fibers)  ##< Number of fibers.
         
-        # Résultats cache
+        # Cached results
         self.fiber_metrics = []  ##< List storing (tau, B_k, w_k, axes) for each fiber.
         self.A_axial = None  ##< Axial orientation tensor.
         self.A_planar = None  ##< Planar orientation tensor.
@@ -42,13 +42,13 @@ class AD_PCA_Analyzer:
         """
         if self.num_fibers == 0: return
 
-        # 1. Analyse individuelle (Geometric Descriptor & PCA per fiber)
+        # 1. Individual analysis (geometric descriptor & PCA per fiber)
         for fib in self.fibers:
             res = self._analyze_single_fiber(fib)
             if res:
                 self.fiber_metrics.append(res)
-                
-        # 2. Construction des Tenseurs Globaux
+
+        # 2. Construction of the global tensors
         self._compute_global_tensors()
         
     def _analyze_single_fiber(self, fib: Fiber) -> Dict:
@@ -57,12 +57,12 @@ class AD_PCA_Analyzer:
         @param fib Fiber The Fiber object to analyze.
         @return Dict Dictionary containing tortuosity (tau), biaxiality (B_k), efficiency (w_k), and principal axes (u, v, w).
         """
-        pts = fib.centerline # (M, 3) points discrets denses
+        pts = fib.centerline # (M, 3) dense discrete points
         if len(pts) < 2: return None
-        
+
         # --- A. Geometric Descriptors ---
         # 1. Curvilinear Length Lk
-        # Somme des segments
+        # Sum of the segments
         vecs = pts[1:] - pts[:-1]
         L_k = np.sum(np.linalg.norm(vecs, axis=1))
         
@@ -185,7 +185,7 @@ class AD_PCA_Analyzer:
             pts = fib.centerline
             if len(pts) < 2: continue
             
-            # Vecteur Corde (p_end - p_start) normalisé
+            # Normalised chord vector (p_end - p_start)
             vec = pts[-1] - pts[0]
             norm = np.linalg.norm(vec)
             if norm > 1e-9:
@@ -198,7 +198,7 @@ class AD_PCA_Analyzer:
         
         A_chord = chord_accum / count
         
-        # Calcul du facteur d'Hermans
+        # Compute Hermans' factor
         evals, _ = np.linalg.eigh(A_chord)
         f_chord = 1.5 * (np.max(evals) - (1/3))
         
@@ -217,7 +217,7 @@ class MicroDescriptor:
         @brief Initializes the descriptor.
         @param fibers List List of Fiber objects.
         """
-        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
+        self.fibers = fibers  ##< List of Fiber objects.
 
     def compute_geometric_stats(self) -> Dict[str, Any]:
         """!
@@ -231,21 +231,21 @@ class MicroDescriptor:
         
         for f in self.fibers:
             pts = f.centerline
-            # Longueur curviligne
+            # Curvilinear length
             L_k = np.sum(np.linalg.norm(np.diff(pts, axis=0), axis=1))
-            # Longueur bout-à-bout
+            # End-to-end length
             chord = np.linalg.norm(pts[-1] - pts[0])
             
             tau = L_k / chord if chord > 1e-9 else 1.0
             taus.append(tau)
             lengths.append(L_k)
             
-            # Analyse de forme via PCA locale (C_k)
+            # Shape analysis via local PCA (C_k)
             centroid = np.mean(pts, axis=0)
             C_k = np.cov(pts.T)
-            eigvals = np.sort(np.linalg.eigvals(C_k))[::-1] # Décroissant
-            
-            # B_k : Rapport d'aplatissement de la fibre courbe (0 = droite, 1 = hélice/cercle)
+            eigvals = np.sort(np.linalg.eigvals(C_k))[::-1] # Descending
+
+            # B_k: flattening ratio of the curved fiber (0 = straight, 1 = helix/circle)
             bk = eigvals[2] / eigvals[1] if eigvals[1] > 1e-12 else 0.0
             biaxiality.append(bk)
 

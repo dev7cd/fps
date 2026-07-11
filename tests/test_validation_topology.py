@@ -16,11 +16,10 @@ def _make_fiber(fid, pts, radius):
     return f
 
 
-    """! @brief Test class for functionality. """
 class TestCheckClearance:
 
     def test_no_intersection_parallel(self):
-        """Deux fibres parallèles bien séparées : gap > 0."""
+        """Two well-separated parallel fibers: gap > 0."""
         f1 = _make_fiber(1, [[0, 0, 0], [1, 0, 0]], 0.05)
         f2 = _make_fiber(2, [[0, 0.5, 0], [1, 0.5, 0]], 0.05)
         validator = TopologyValidator((2.0, 2.0, 2.0))
@@ -43,7 +42,6 @@ class TestCheckClearance:
         assert gap == float('inf')
 
 
-    """! @brief Test class for functionality. """
 class TestGapDistribution:
 
     def test_returns_dict_keys(self):

@@ -20,7 +20,6 @@ def _make_fiber(control_points, radius=0.05):
     return f
 
 
-    """! @brief Test class for functionality. """
 class TestWrapFiber:
 
     def test_fiber_inside_not_moved(self):
@@ -41,32 +40,31 @@ class TestWrapFiber:
         assert np.mean(f.control_points[:, 0]) > 0.0
 
 
-    """! @brief Test class for functionality. """
 class TestGenerateGhosts:
 
     def test_interior_fiber_no_ghosts(self):
-        """Une fibre bien à l'intérieur ne doit pas générer de ghosts."""
+        """A fiber well inside must not generate ghosts."""
         f = _make_fiber([[0.3, 0.3, 0.3], [0.7, 0.7, 0.7]], radius=0.001)
         shifts = PeriodicManager.generate_ghosts(f, (1.0, 1.0, 1.0))
         assert len(shifts) == 0
 
     def test_fiber_near_face_generates_ghosts(self):
-        """Une fibre proche d'une face doit générer au moins 1 ghost."""
+        """A fiber near a face must generate at least 1 ghost."""
         f = _make_fiber([[0.02, 0.5, 0.5], [0.1, 0.5, 0.5]], radius=0.05)
         shifts = PeriodicManager.generate_ghosts(f, (1.0, 1.0, 1.0))
         assert len(shifts) >= 1
-        # Le ghost doit être décalé de +Lx
+        # The ghost must be shifted by +Lx
         has_positive_x_shift = any(s[0] > 0 for s in shifts)
         assert has_positive_x_shift
 
     def test_fiber_near_corner_generates_multiple_ghosts(self):
-        """Une fibre proche d'un coin doit générer plusieurs ghosts."""
+        """A fiber near a corner must generate several ghosts."""
         f = _make_fiber([[0.02, 0.02, 0.02], [0.05, 0.05, 0.05]], radius=0.05)
         shifts = PeriodicManager.generate_ghosts(f, (1.0, 1.0, 1.0))
-        assert len(shifts) >= 3  # Au moins face + arête
+        assert len(shifts) >= 3  # At least face + edge
 
     def test_ghost_shifts_are_multiples_of_box(self):
-        """Chaque composante d'un shift doit être 0, +L ou -L."""
+        """Each component of a shift must be 0, +L or -L."""
         f = _make_fiber([[0.02, 0.5, 0.98], [0.05, 0.5, 0.99]], radius=0.05)
         shifts = PeriodicManager.generate_ghosts(f, (1.0, 1.0, 1.0))
         for s in shifts:
