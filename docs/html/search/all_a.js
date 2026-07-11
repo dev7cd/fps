@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['main_65',['main',['../d1/d25/gui_8py.html#a3409f38d250585284ef796d73eac7974',1,'gui.main()'],['../dc/dba/main_8py.html#af613cea4cba4fb7de8e40896b3368945',1,'main.main()'],['../d9/d8c/namespacerun__campaign.html#a6ba7c52833df3a6cbbb420d6fb7a1a0b',1,'run_campaign.main()']]],
-  ['main_2epy_66',['main.py',['../dc/dba/main_8py.html',1,'']]],
-  ['mainwindow_67',['MainWindow',['../d6/d1a/classMainWindow.html',1,'']]],
-  ['microdescriptor_68',['MicroDescriptor',['../d7/d09/classvisualization_1_1descriptors_1_1MicroDescriptor.html',1,'visualization::descriptors']]],
-  ['min_5fdist_5fperiodic_5fsegments_5fnumba_69',['min_dist_periodic_segments_numba',['../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0',1,'collision::detector_math']]],
-  ['min_5fdist_5fsegments_5fnumba_70',['min_dist_segments_numba',['../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48',1,'collision::detector_math']]]
+  ['level_58',['level',['../dc/dba/main_8py.html#af62b36e7296706b191a41c1fe18b3b95',1,'main']]],
+  ['logger_59',['logger',['../d5/d0f/csv__exporter_8py.html#a500ee81dab0db0d0722b1e08da6222f3',1,'export.csv_exporter.logger()'],['../d8/d2f/namespaceexport_1_1nastran__exporter.html#a45737941cd4985759ca310639a6bc648',1,'export.nastran_exporter.logger()'],['../d2/d7c/namespaceexport_1_1voxelizer.html#af6a571e35169dbcc4f566b218e697115',1,'export.voxelizer.logger()'],['../dd/d09/namespacegeneration_1_1generator.html#a9dd32052dab705547fe6f125e22f5319',1,'generation.generator.logger()'],['../de/d56/namespacegeneration_1_1optimizer__dynamic.html#a70b814f1ed26266f902cf275bd358b0a',1,'generation.optimizer_dynamic.logger()'],['../d9/d3b/namespacegeneration_1_1porosity__gen.html#ac0c7ee567d88be753f9d0a9c27ae943b',1,'generation.porosity_gen.logger()'],['../dc/dba/main_8py.html#a0219c043111825ea50be79dcbcfe3d75',1,'main.logger()'],['../dd/de0/statistics_8py.html#ac603cdf90ee40f8551a1ecc8c1ff8924',1,'validation.statistics.logger()'],['../d1/d82/topology_8py.html#a1ecbacb92a1c9886e94f36e131efe9d4',1,'validation.topology.logger()'],['../d4/d4d/descriptors_8py.html#acf0b7b1ceaa48407a1e23e9cc3c030b6',1,'visualization.descriptors.logger()']]],
+  ['loggingmixin_60',['LoggingMixin',['../dc/d99/classLoggingMixin.html',1,'']]]
 ];

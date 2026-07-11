@@ -1,17 +1,16 @@
 """! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour core/void.py — Void.
-Note : Void utilise @dataclass, on teste ses propriétés et la méthode contains_point.
-       La méthode intersect_fiber n'est pas encore implémentée (stub).
+Note: Void uses @dataclass; we test its properties and the contains_point method.
+      The intersect_fiber method is not yet implemented (stub).
 """
 import pytest
 import numpy as np
 from core.void import Void
 
 
-    """! @brief Test class for functionality. """
 class TestVoidCreation:
-    """Vérifie la création d'un objet Void."""
+    """Checks the creation of a Void object."""
 
     def test_basic_creation(self):
         v = Void(id=1, center=np.array([0.5, 0.5, 0.5]), radius=0.1)
@@ -24,9 +23,8 @@ class TestVoidCreation:
         assert v.radius == 0.0
 
 
-    """! @brief Test class for functionality. """
 class TestContainsPoint:
-    """Vérifie la détection de points à l'intérieur de la bulle."""
+    """Checks the detection of points inside the bubble."""
 
     def test_center_is_inside(self):
         v = Void(id=1, center=np.array([1.0, 1.0, 1.0]), radius=0.5)

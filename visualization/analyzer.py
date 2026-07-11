@@ -21,7 +21,7 @@ class RVE_Analyzer:
         @param fibers List List of Fiber objects to analyze.
         @param config FiberPackingConfig Configuration object containing box dimensions and targets.
         """
-        self.fibers = fibers  ##< Liste des fibres  ##< List of Fiber objects.
+        self.fibers = fibers  ##< List of Fiber objects.
         self.config = config  ##< Configuration object.
 
     def perform_viability_audit(self) -> Dict:
@@ -36,11 +36,11 @@ class RVE_Analyzer:
         geo = logger.compute_geometric_stats()
         spectrum = ad_pca.get_spectrum()
 
-        # 1. Vérification Admissibilité (The Gap Audit)
-        # Indispensable pour s'assurer qu'un maillage adaptatif passera
+        # 1. Admissibility check (the gap audit)
+        # Essential to ensure that an adaptive mesh will succeed
         min_gap = self._compute_min_clearance()
 
-        # 2. Vf Réel vs Cible
+        # 2. Real Vf vs target
         total_vol = sum(f.get_real_volume() for f in self.fibers)
         vf_achieved = total_vol / self.config.box_volume
 

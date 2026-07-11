@@ -174,7 +174,7 @@ python main.py \
 | `{prefix}_parametric.json` | Metadonnees, parametres, statistiques, geometrie des fibres |
 | `{prefix}_roots.csv` | Points de controle des fibres racines |
 | `{prefix}_full_periodic.csv` | Fibres racines + tous les ghosts periodiques |
-| `{prefix}_voxelmap.npy` | Grille 3D uint8 (matrice=0, fibres=1, pores=2) |
+| `{prefix}_voxelmap.npy` | Grille 3D uint8 (matrice=0, fibres=128, pores=255) |
 | `slice****.pgm` | Coupes 2D de la grille voxelisee (format PGM P2) |
 | `{prefix}.step` | Geometrie CAO (OpenCASCADE) |
 | `{prefix}.msh` | Maillage elements finis (GMSH v4) |
@@ -232,7 +232,7 @@ Decomposition anisotrope par analyse en composantes principales :
 ### Voxelisation
 
 Rasterisation 3D sur grille reguliere :
-- Tags : matrice=0, fibres=1, pores=2
+- Tags : matrice=0, fibres=128, pores=255 (uint8, choisi pour l'export PGM en niveaux de gris)
 - Distance point-segment exacte par voxel (Numba JIT)
 - Acceleration par BBox locale + early exit
 - Export PGM (Portable Gray Map) par coupes Z

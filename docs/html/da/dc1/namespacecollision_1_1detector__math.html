@@ -93,19 +93,19 @@ $(document).ready(function(){initNavTree('da/dc1/namespacecollision_1_1detector_
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#aab47353bc811589b9a7ed0f86cb8bf6e">check_collision_numba</a> (pts1, pts2, r1, r2)</td></tr>
-<tr class="memdesc:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Détection de collision segment-à-segment entre deux polylignes.  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#aab47353bc811589b9a7ed0f86cb8bf6e">More...</a><br /></td></tr>
+<tr class="memdesc:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Segment-to-segment collision detection between two polylines.  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#aab47353bc811589b9a7ed0f86cb8bf6e">More...</a><br /></td></tr>
 <tr class="separator:aab47353bc811589b9a7ed0f86cb8bf6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50e44babd15751b645f188e7080aea48"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48">min_dist_segments_numba</a> (pts1, pts2)</td></tr>
-<tr class="memdesc:a50e44babd15751b645f188e7080aea48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance minimale exacte entre deux polylignes (segment-à-segment).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48">More...</a><br /></td></tr>
+<tr class="memdesc:a50e44babd15751b645f188e7080aea48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exact minimum distance between two polylines (segment-to-segment).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#a50e44babd15751b645f188e7080aea48">More...</a><br /></td></tr>
 <tr class="separator:a50e44babd15751b645f188e7080aea48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeead1f58e391f890659349199ae5dd0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0">min_dist_periodic_segments_numba</a> (pts1, pts2, dims)</td></tr>
-<tr class="memdesc:afeead1f58e391f890659349199ae5dd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distance minimale segment-à-segment avec Minimum Image Convention (MIC).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0">More...</a><br /></td></tr>
+<tr class="memdesc:afeead1f58e391f890659349199ae5dd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum segment-to-segment distance with the Minimum Image Convention (MIC).  <a href="../../da/dc1/namespacecollision_1_1detector__math.html#afeead1f58e391f890659349199ae5dd0">More...</a><br /></td></tr>
 <tr class="separator:afeead1f58e391f890659349199ae5dd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">collision/detector_math.py
-Détection de collision par distance segment-à-segment analytique (Eberly/Geometric Tools).
-Remplace l'ancienne approche point-à-point par une solution exacte capsule-capsule.
+Collision detection via analytic segment-to-segment distance (Eberly/Geometric Tools).
+Replaces the former point-to-point approach with an exact capsule-capsule solution.
 </pre> </div><h2 class="groupheader">Function Documentation</h2>
 <a id="aab47353bc811589b9a7ed0f86cb8bf6e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aab47353bc811589b9a7ed0f86cb8bf6e">&#9670;&nbsp;</a></span>check_collision_numba()</h2>
@@ -145,17 +145,17 @@ Remplace l'ancienne approche point-à-point par une solution exacte capsule-caps
       </table>
 </div><div class="memdoc">
 
-<p>Détection de collision segment-à-segment entre deux polylignes. </p>
+<p>Segment-to-segment collision detection between two polylines. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première fibre. </td></tr>
-    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième fibre. </td></tr>
-    <tr><td class="paramname">r1</td><td>float Rayon de la première fibre. </td></tr>
-    <tr><td class="paramname">r2</td><td>float Rayon de la deuxième fibre. </td></tr>
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerline (N, 3) of the first fiber. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerline (M, 3) of the second fiber. </td></tr>
+    <tr><td class="paramname">r1</td><td>float Radius of the first fiber. </td></tr>
+    <tr><td class="paramname">r2</td><td>float Radius of the second fiber. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>bool True si collision (distance min &lt; r1 + r2), False sinon. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>bool True if collision (min distance &lt; r1 + r2), False otherwise. </dd></dl>
 
 </div>
 </div>
@@ -191,16 +191,16 @@ Remplace l'ancienne approche point-à-point par une solution exacte capsule-caps
       </table>
 </div><div class="memdoc">
 
-<p>Distance minimale segment-à-segment avec Minimum Image Convention (MIC). </p>
+<p>Minimum segment-to-segment distance with the Minimum Image Convention (MIC). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première polyligne. </td></tr>
-    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième polyligne. </td></tr>
-    <tr><td class="paramname">dims</td><td>np.ndarray Dimensions du domaine [Lx, Ly, Lz]. </td></tr>
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerline (N, 3) of the first polyline. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerline (M, 3) of the second polyline. </td></tr>
+    <tr><td class="paramname">dims</td><td>np.ndarray Domain dimensions [Lx, Ly, Lz]. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>float Distance minimale périodique. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>float Minimum periodic distance. </dd></dl>
 
 </div>
 </div>
@@ -230,15 +230,15 @@ Remplace l'ancienne approche point-à-point par une solution exacte capsule-caps
       </table>
 </div><div class="memdoc">
 
-<p>Distance minimale exacte entre deux polylignes (segment-à-segment). </p>
+<p>Exact minimum distance between two polylines (segment-to-segment). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pts1</td><td>np.ndarray Centerlines (N, 3) de la première polyligne. </td></tr>
-    <tr><td class="paramname">pts2</td><td>np.ndarray Centerlines (M, 3) de la deuxième polyligne. </td></tr>
+    <tr><td class="paramname">pts1</td><td>np.ndarray Centerline (N, 3) of the first polyline. </td></tr>
+    <tr><td class="paramname">pts2</td><td>np.ndarray Centerline (M, 3) of the second polyline. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>float Distance minimale (non au carré). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>float Minimum distance (not squared). </dd></dl>
 
 </div>
 </div>
@@ -248,7 +248,7 @@ Remplace l'ancienne approche point-à-point par une solution exacte capsule-caps
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>collision</b></li><li class="navelem"><a class="el" href="../../da/dc1/namespacecollision_1_1detector__math.html">detector_math</a></li>
-    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

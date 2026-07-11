@@ -7,9 +7,8 @@ import numpy as np
 from core.grid_structure import SpatialGrid
 
 
-    """! @brief Test class for functionality. """
 class TestSpatialGridInit:
-    """Vérifie l'initialisation de la grille spatiale."""
+    """Checks the initialisation of the spatial grid."""
 
     def test_empty_grid(self):
         grid = SpatialGrid(np.array([1.0, 1.0, 1.0]), cell_size=0.2)
@@ -26,9 +25,8 @@ class TestSpatialGridInit:
         np.testing.assert_array_equal(grid.box_dims, dims)
 
 
-    """! @brief Test class for functionality. """
 class TestGetCellCoords:
-    """Vérifie le calcul des coordonnées de cellule."""
+    """Checks the computation of the cell coordinates."""
 
     def test_origin(self):
         grid = SpatialGrid(np.array([1.0, 1.0, 1.0]), cell_size=0.5)
@@ -48,9 +46,8 @@ class TestGetCellCoords:
         assert coords == (-1, -1, -1)
 
 
-    """! @brief Test class for functionality. """
 class TestAddFiber:
-    """Vérifie l'ajout de fibres dans la grille."""
+    """Checks the addition of fibers to the grid."""
 
     def test_add_single_fiber(self, simple_fiber_a):
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
@@ -72,16 +69,15 @@ class TestAddFiber:
         assert len(grid.fiber_cells[simple_fiber_a.parent_id]) > 1
 
 
-    """! @brief Test class for functionality. """
 class TestRemoveFiber:
-    """Vérifie la suppression de fibres de la grille."""
+    """Checks the removal of fibers from the grid."""
 
     def test_remove_existing_fiber(self, simple_fiber_a):
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
         grid.add_fiber(simple_fiber_a)
         grid.remove_fiber(simple_fiber_a.parent_id)
         assert simple_fiber_a.parent_id not in grid.fiber_cells
-        # Vérifier qu'aucune cellule ne contient encore la fibre
+        # Check that no cell still contains the fiber
         for cell_fibers in grid.cells.values():
             for f in cell_fibers:
                 assert f.parent_id != simple_fiber_a.parent_id
@@ -95,9 +91,9 @@ class TestRemoveFiber:
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
         grid.add_fiber(simple_fiber_a)
         grid.remove_fiber(simple_fiber_a.parent_id)
-        # Toutes les cellules vides doivent avoir été supprimées
+        # All empty cells must have been removed
         for key, fibers in grid.cells.items():
-            assert len(fibers) > 0, f"Cellule vide non nettoyée : {key}"
+            assert len(fibers) > 0, f"Empty cell not cleaned up: {key}"
 
     def test_remove_one_keeps_other(self, simple_fiber_a, simple_fiber_b):
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
@@ -108,9 +104,8 @@ class TestRemoveFiber:
         assert simple_fiber_a.parent_id not in grid.fiber_cells
 
 
-    """! @brief Test class for functionality. """
 class TestQueryNeighbors:
-    """Vérifie les requêtes de voisinage."""
+    """Checks the neighbourhood queries."""
 
     def test_find_nearby_fiber(self, simple_fiber_a, simple_fiber_b):
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
@@ -135,13 +130,13 @@ class TestQueryNeighbors:
         assert len(neighbors) == 0
 
     def test_unique_results(self, simple_fiber_a, simple_fiber_b):
-        """Chaque fibre voisine ne doit apparaître qu'une seule fois."""
+        """Each neighbouring fiber must appear only once."""
         grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.1)
         grid.add_fiber(simple_fiber_a)
         grid.add_fiber(simple_fiber_b)
         neighbors = grid.query_neighbors(simple_fiber_a.bbox, exclude_id=simple_fiber_a.parent_id)
         ids = [f.parent_id for f in neighbors]
-        assert len(ids) == len(set(ids)), "Doublons détectés dans les résultats"
+        assert len(ids) == len(set(ids)), "Duplicates detected in the results"
 
     def test_empty_grid_returns_empty(self):
         grid = SpatialGrid(np.array([1.0, 1.0, 1.0]), cell_size=0.2)

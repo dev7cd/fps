@@ -1,8 +1,8 @@
 """
 core/grid_structure.py
-Structure spatiale pour les collisions.
-Stocke une référence directe vers l'objet Fibre pour gérer les ghosts.
-Supporte la suppression de fibres via reverse-mapping.
+Spatial structure for collisions.
+Stores a direct reference to the Fiber object to handle ghosts.
+Supports fiber removal via reverse-mapping.
 """
 
 import numpy as np
@@ -12,40 +12,40 @@ from typing import List, Tuple, Dict, Set, Any
 class SpatialGrid:
     """!
     @class SpatialGrid
-    @brief Structure d'accélération spatiale (grille uniforme) pour la détection de collisions.
-    
-    Permet de stocker et de requêter rapidement les fibres présentes dans une zone
-    donnée du RVE. Gère le mapping inverse pour faciliter la suppression de fibres.
+    @brief Spatial acceleration structure (uniform grid) for collision detection.
+
+    Allows fast storage and querying of the fibers present in a given region
+    of the RVE. Maintains a reverse-mapping to ease fiber removal.
     """
 
     def __init__(self, box_dims: np.ndarray, cell_size: float):
         """!
-        @brief Constructeur de la grille spatiale.
-        @param box_dims np.ndarray Dimensions du domaine (Lx, Ly, Lz).
-        @param cell_size float Taille d'une cellule cubique de la grille.
+        @brief Constructor of the spatial grid.
+        @param box_dims np.ndarray Domain dimensions (Lx, Ly, Lz).
+        @param cell_size float Size of a cubic grid cell.
         """
-        self.box_dims = box_dims ##< Dimensions du domaine RVE
-        self.cell_size = cell_size ##< Taille du côté d'une cellule
-        ## Cellules occupées : coordonnées (ix, iy, iz) -> liste d'objets Fiber
+        self.box_dims = box_dims ##< RVE domain dimensions
+        self.cell_size = cell_size ##< Side length of a cell
+        ## Occupied cells: coordinates (ix, iy, iz) -> list of Fiber objects
         self.cells: Dict[Tuple[int, int, int], List[Any]] = {}
-        ## Reverse-mapping : parent_id -> ensemble de clés de cellules occupées
+        ## Reverse-mapping: parent_id -> set of occupied cell keys
         self.fiber_cells: Dict[int, Set[Tuple[int, int, int]]] = {}
 
     def _get_cell_coords(self, point: np.ndarray) -> Tuple[int, int, int]:
         """!
-        @brief Calcule les indices de cellule pour un point 3D.
-        @param point np.ndarray Coordonnées (x, y, z).
-        @return Tuple[int, int, int] Indices entiers (ix, iy, iz).
+        @brief Computes the cell indices for a 3D point.
+        @param point np.ndarray Coordinates (x, y, z).
+        @return Tuple[int, int, int] Integer indices (ix, iy, iz).
         """
         return tuple(np.floor(point / self.cell_size).astype(int))
 
     def add_fiber(self, fiber: Any):
         """!
-        @brief Indexe chaque segment de la fibre dans les cellules correspondantes.
-        
-        Calcule l'enveloppe de chaque segment de la ligne moyenne et ajoute la fibre
-        à toutes les cellules intersectées par cette enveloppe.
-        @param fiber Fiber Instance de la classe Fiber à indexer.
+        @brief Indexes each segment of the fiber into the corresponding cells.
+
+        Computes the envelope of each centerline segment and adds the fiber
+        to every cell intersected by that envelope.
+        @param fiber Fiber Instance of the Fiber class to index.
         """
         pts = fiber.centerline
         rad = fiber.radius
@@ -73,9 +73,9 @@ class SpatialGrid:
 
     def remove_fiber(self, parent_id: int):
         """!
-        @brief Supprime toutes les références d'une fibre (et ses ghosts) de la grille.
-        
-        @param parent_id int Identifiant unique de la fibre parente à retirer.
+        @brief Removes all references of a fiber (and its ghosts) from the grid.
+
+        @param parent_id int Unique identifier of the parent fiber to remove.
         """
         cell_keys = self.fiber_cells.pop(parent_id, set())
         for key in cell_keys:
@@ -86,11 +86,11 @@ class SpatialGrid:
 
     def query_neighbors(self, bbox: Tuple[np.ndarray, np.ndarray], exclude_id: int) -> List[Any]:
         """!
-        @brief Retourne les fibres uniques situées dans le voisinage d'une boîte englobante.
-        
-        @param bbox Tuple[np.ndarray, np.ndarray] Tuple (p_min, p_max) définissant la zone de recherche.
-        @param exclude_id int Identifiant de la fibre à exclure des résultats (souvent soi-même).
-        @return List[Fiber] Liste d'objets Fiber potentiellement en collision.
+        @brief Returns the unique fibers located in the neighbourhood of a bounding box.
+
+        @param bbox Tuple[np.ndarray, np.ndarray] Tuple (p_min, p_max) defining the search region.
+        @param exclude_id int Identifier of the fiber to exclude from the results (usually itself).
+        @return List[Fiber] List of Fiber objects potentially in collision.
         """
         p_min, p_max = bbox
         start_idx = np.floor(p_min / self.cell_size).astype(int)

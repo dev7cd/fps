@@ -11,9 +11,8 @@ from geometry.sections import (
 )
 
 
-    """! @brief Test class for functionality. """
 class TestCircularSection:
-    """Vérifie la section circulaire."""
+    """Checks the circular section."""
 
     def test_area(self):
         s = CircularSection(radius=1.0)
@@ -41,7 +40,7 @@ class TestCircularSection:
         assert pts.shape == (32, 3)
 
     def test_generate_points_on_circle(self):
-        """Tous les points générés doivent être sur le cercle de rayon 1."""
+        """All generated points must lie on the unit-radius circle."""
         s = CircularSection(radius=1.0)
         pts = s.generate_points(100)
         radii = np.sqrt(pts[:, 0]**2 + pts[:, 1]**2)
@@ -53,9 +52,8 @@ class TestCircularSection:
         np.testing.assert_allclose(pts[:, 2], 0.0)
 
 
-    """! @brief Test class for functionality. """
 class TestSuperEllipticalSection:
-    """Vérifie la section superelliptique."""
+    """Checks the super-elliptical section."""
 
     def test_ellipse_area(self):
         """Avec n=2, c'est une ellipse : aire = pi*a*b."""
@@ -63,7 +61,7 @@ class TestSuperEllipticalSection:
         assert s.get_area() == pytest.approx(np.pi * 2.0, rel=1e-4)
 
     def test_squircle_area_larger_than_ellipse(self):
-        """Avec n>2, l'aire doit être plus grande qu'une ellipse de mêmes axes."""
+        """With n>2, the area must be larger than an ellipse with the same axes."""
         ellipse = SuperEllipticalSection(a=1.0, b=1.0, n=2.0)
         squircle = SuperEllipticalSection(a=1.0, b=1.0, n=4.0)
         assert squircle.get_area() > ellipse.get_area()
@@ -87,9 +85,8 @@ class TestSuperEllipticalSection:
         assert pts.shape == (40, 3)
 
 
-    """! @brief Test class for functionality. """
 class TestCreateSectionFactory:
-    """Vérifie la factory create_section."""
+    """Checks the create_section factory."""
 
     def test_circular(self):
         s = create_section('circular', radius=0.5)
@@ -109,4 +106,4 @@ class TestCreateSectionFactory:
 
     def test_default_radius_fallback(self):
         s = create_section('circular')
-        assert s.get_area() == pytest.approx(np.pi, rel=1e-6)  # radius=1.0 par défaut
+        assert s.get_area() == pytest.approx(np.pi, rel=1e-6)  # radius=1.0 by default

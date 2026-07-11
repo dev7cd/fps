@@ -1,0 +1,6 @@
+<map id="run_campaign.main" name="run_campaign.main">
+<area shape="rect" id="node1" title="Main entry point: builds and runs the full campaign matrix." alt="" coords="5,42,156,69"/>
+<area shape="rect" id="node2" href="$d9/d8c/namespacerun__campaign.html#a9fe9ff7a87190f8fe405c3c9b9f0d981" title="Parses the command&#45;line arguments of the campaign runner." alt="" coords="219,5,374,47"/>
+<area shape="rect" id="node3" href="$d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec" title=" " alt="" coords="204,71,389,98"/>
+<area shape="rect" id="node4" href="$d9/d8c/namespacerun__campaign.html#ae1f247ee933da6b2f5310bf98b7157c3" title=" " alt="" coords="437,64,588,105"/>
+</map>

@@ -204,7 +204,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the Pair Correlation Function g(r) (Radial Distribution Function). </p>
-<p>g(r) ≈ K'(r) / (2πr) estimée par comptage annulaire. g(r) = 1 pour un processus CSR. g(r) &gt; 1 indique du clustering, g(r) &lt; 1 indique de la régularité. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>g(r) ~ K'(r) / (2*pi*r) estimated by annular counting. g(r) = 1 for a CSR process. g(r) &gt; 1 indicates clustering, g(r) &lt; 1 indicates regularity. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
     <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
@@ -256,7 +256,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes Ripley's K-function with toroidal correction (periodic boundaries). </p>
-<p>K(h) = A/n² × Σ_i Σ_{j≠i} 1(d_ij ≤ h) For a CSR (Complete Spatial Randomness) process: K(h) = π·h² </p><dl class="params"><dt>Parameters</dt><dd>
+<p>K(h) = A/n^2 x Sum_i Sum_{j!=i} 1(d_ij &lt;= h) For a CSR (Complete Spatial Randomness) process: K(h) = pi*h^2 </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
     <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
@@ -302,7 +302,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes Voronoi cell statistics (area distribution). </p>
-<p>Uses 3x3 replication to handle periodic boundaries. CV (coefficient de variation) : ~0 = très régulier, ~0.53 = Poisson (CSR). </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Uses 3x3 replication to handle periodic boundaries. CV (coefficient of variation): ~0 = very regular, ~0.53 = Poisson (CSR). </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">fibers</td><td>List List of fibers. </td></tr>
     <tr><td class="paramname">box_dims</td><td>tuple Domain dimensions. </td></tr>
@@ -320,7 +320,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_5f7b51b95acf1d521665910b610534f1.html">validation</a></li><li class="navelem"><a class="el" href="../../dd/de0/statistics_8py.html">statistics.py</a></li>
-    <li class="footer">Generated on Sun Apr 12 2026 21:09:31 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

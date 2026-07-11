@@ -1,5 +1,5 @@
 """
-Fixtures partagées pour les tests du projet fps.
+Shared fixtures for the fps project tests.
 """
 import pytest
 import numpy as np
@@ -8,7 +8,7 @@ from typing import Optional, Tuple
 
 
 class FakeFiber:
-    """Objet léger imitant une Fiber pour les tests de SpatialGrid et CollisionDetector."""
+    """Lightweight object mimicking a Fiber for the SpatialGrid and CollisionDetector tests."""
 
     def __init__(self, fiber_id, centerline, radius, parent_id=None):
         self.id = fiber_id
@@ -22,7 +22,7 @@ class FakeFiber:
 
 @pytest.fixture
 def simple_fiber_a():
-    """Fibre rectiligne le long de l'axe X, de (0,0.5,0.5) à (1,0.5,0.5)."""
+    """Straight fiber along the X axis, from (0,0.5,0.5) to (1,0.5,0.5)."""
     pts = np.array([
         [0.0, 0.5, 0.5],
         [0.25, 0.5, 0.5],
@@ -35,7 +35,7 @@ def simple_fiber_a():
 
 @pytest.fixture
 def simple_fiber_b():
-    """Fibre rectiligne le long de l'axe Y, de (0.5,0,0.5) à (0.5,1,0.5)."""
+    """Straight fiber along the Y axis, from (0.5,0,0.5) to (0.5,1,0.5)."""
     pts = np.array([
         [0.5, 0.0, 0.5],
         [0.5, 0.25, 0.5],
@@ -48,7 +48,7 @@ def simple_fiber_b():
 
 @pytest.fixture
 def distant_fiber():
-    """Fibre éloignée, sans collision possible avec les fibres A et B."""
+    """Distant fiber, with no possible collision with fibers A and B."""
     pts = np.array([
         [5.0, 5.0, 5.0],
         [5.5, 5.0, 5.0],

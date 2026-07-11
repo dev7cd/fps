@@ -10,91 +10,91 @@ logger = logging.getLogger(__name__)
 class GmshExporter:
     """!
     @class GmshExporter
-    @brief Classe responsable de la génération de fichiers .step et .msh via GMSH.
+    @brief Class responsible for generating .step and .msh files via GMSH.
     """
 
     def __init__(self, config):
         """!
-        @brief Initialise l'exportateur avec la configuration du RVE.
-        @param config FiberPackingConfig Objet de configuration contenant box_dims et les paramètres de maillage.
+        @brief Initialises the exporter with the RVE configuration.
+        @param config FiberPackingConfig Configuration object holding box_dims and the mesh parameters.
         """
-        self.config = config ##< Configuration de la simulation
+        self.config = config ##< Simulation configuration
 
     def generate_mesh(self, fibers, voids, output_path) -> None:
         """!
-        @brief Génère la géométrie CAO (.step) et le maillage (.msh) de manière robuste.
-        
-        Réalise les étapes suivantes :
-        1. Création du cube matrice.
-        2. Création des fibres (balayage/pipe) et pores (sphères).
-        3. Fragmentation booléenne pour assurer la conformité des interfaces.
-        4. Tri des fragments (clipping) et définition des groupes physiques.
-        5. Maillage volumique avec champs de taille adaptatifs.
+        @brief Generates the CAD geometry (.step) and the mesh (.msh) robustly.
 
-        @param fibers List[Fiber] Liste des fibres à mailler.
-        @param voids List[Void] Liste des pores à mailler.
-        @param output_path str Chemin (sans extension) pour les fichiers de sortie.
+        Performs the following steps:
+        1. Creation of the matrix cube.
+        2. Creation of the fibers (sweep/pipe) and pores (spheres).
+        3. Boolean fragmentation to ensure interface conformity.
+        4. Fragment sorting (clipping) and definition of the physical groups.
+        5. Volume meshing with adaptive size fields.
+
+        @param fibers List[Fiber] List of fibers to mesh.
+        @param voids List[Void] List of pores to mesh.
+        @param output_path str Path (without extension) for the output files.
         @return None
         """
-        # Initialisation propre
+        # Clean initialisation
         try:
             gmsh.finalize()
         except:
             pass
-            
+
         gmsh.initialize()
         gmsh.model.add("RVE_Composite_Final")
-        occ = gmsh.model.occ # Raccourci vers le noyau
+        occ = gmsh.model.occ # Shortcut to the kernel
         dims = self.config.box_dims
 
-        logger.info("Démarrage de la construction géométrique...")
+        logger.info("Starting the geometric construction...")
 
-        # --- 1. CRÉATION DU DOMAINE MATRICE ---
+        # --- 1. CREATION OF THE MATRIX DOMAIN ---
         try:
             matrix_tag = occ.addBox(0, 0, 0, dims[0], dims[1], dims[2])
         except Exception as e:
-            logger.error(f"Erreur création matrice: {e}")
+            logger.error(f"Matrix creation error: {e}")
             return
 
-        inclusion_volumes = [] 
+        inclusion_volumes = []
 
-        # --- 2. CRÉATION DES INCLUSIONS (Fibres Mères + Ghosts) ---
+        # --- 2. CREATION OF THE INCLUSIONS (root fibers + ghosts) ---
         count_f = 0
         for f in fibers:
-            # Récupérer les vecteurs de décalage périodiques
+            # Retrieve the periodic shift vectors
             shifts = PeriodicManager.generate_ghosts(f, dims)
             shifts.append(np.array([0, 0, 0], dtype=float))
 
             for s in shifts:
                 try:
-                    # Construction du chemin
-                    # On crée les points et la spline directement
+                    # Build the path
+                    # Create the points and the spline directly
                     path_pts = [occ.addPoint(*(p + s)) for p in f.centerline]
                     if len(path_pts) < 2: continue
-                    
+
                     path_spline = occ.addSpline(path_pts)
                     path_wire = occ.addWire([path_spline])
-                    
+
                     # Section
                     section_face = self._create_section_face(f, occ, shift=s)
-                    
+
                     # Extrusion
-                    # out est [(dim, tag)]
+                    # out is [(dim, tag)]
                     pipe_out = occ.addPipe([(2, section_face)], path_wire)
                     if pipe_out:
                         inclusion_volumes.append(pipe_out[0][1])
-                        
-                    # Nettoyage immédiat des outils temporaires pour soulager OCC
+
+                    # Immediate cleanup of the temporary tools to relieve OCC
                     occ.remove([(2, section_face), (1, path_wire)], recursive=True)
-                    
+
                 except Exception as e:
-                    # On continue même si un fragment échoue
+                    # Continue even if a fragment fails
                     continue
             count_f += 1
 
-        logger.info(f"{len(inclusion_volumes)} volumes de fibres générés (avant découpe).")
+        logger.info(f"{len(inclusion_volumes)} fiber volumes generated (before cutting).")
 
-        # --- 3. CRÉATION DES POROSITÉS ---
+        # --- 3. CREATION OF THE POROSITY ---
         for v in voids:
             try:
                 sphere = occ.addSphere(v.center[0], v.center[1], v.center[2], v.radius)
@@ -102,53 +102,53 @@ class GmshExporter:
             except:
                 pass
 
-        # --- 4. FRAGMENTATION (Booléenne) ---
+        # --- 4. FRAGMENTATION (boolean) ---
         occ.synchronize()
-        logger.info("Fragmentation booléenne en cours...")
-        
+        logger.info("Boolean fragmentation in progress...")
+
         try:
-            # Fragment retourne (nouveaux_objets, mapping_parents->enfants)
+            # fragment returns (new_objects, mapping parents->children)
             out, out_map = occ.fragment([(3, matrix_tag)], [(3, i) for i in inclusion_volumes])
         except Exception as e:
-            logger.error(f"Echec critique fragmentation GMSH: {e}")
+            logger.error(f"Critical GMSH fragmentation failure: {e}")
             gmsh.finalize()
             return
 
         occ.synchronize()
 
-        # --- 5. TRI ROBUSTE DES FRAGMENTS ---
-        # C'est ici que l'erreur "Unknown entity" se produisait.
-        # Stratégie : On interroge GMSH pour savoir ce qui existe VRAIMENT maintenant.
-        
-        # Récupération de toutes les entités 3D vivantes après fragment
+        # --- 5. ROBUST SORTING OF THE FRAGMENTS ---
+        # This is where the "Unknown entity" error used to occur.
+        # Strategy: query GMSH for what actually exists now.
+
+        # Retrieve all live 3D entities after fragment
         all_live_entities_3d = set(tag for dim, tag in gmsh.model.getEntities(3))
-        
+
         matrix_tags = []
         inclusion_tags = []
         to_remove = []
-        
+
         eps = 1e-5
-        
-        # out_map[0] -> Enfants de la Matrice (Index 0 du 1er argument de fragment)
-        # out_map[1:] -> Enfants des Inclusions
-        
+
+        # out_map[0]  -> children of the matrix (index 0 of fragment's first argument)
+        # out_map[1:] -> children of the inclusions
+
         for input_index, child_list in enumerate(out_map):
             for dim, tag in child_list:
-                # ÉTAPE CLÉ DE SÉCURITÉ : Vérifier si le tag est vivant
+                # KEY SAFETY STEP: check whether the tag is live
                 if tag not in all_live_entities_3d:
-                    continue 
-                
+                    continue
+
                 try:
-                    # Calcul du centre de gravité
+                    # Compute the centre of mass
                     com = occ.getCenterOfMass(dim, tag)
-                    
-                    # Clipping : Est-ce dans la boîte [0, dims] ?
+
+                    # Clipping: is it inside the box [0, dims]?
                     is_inside = (
                         -eps <= com[0] <= dims[0] + eps and
                         -eps <= com[1] <= dims[1] + eps and
                         -eps <= com[2] <= dims[2] + eps
                     )
-                    
+
                     if is_inside:
                         if input_index == 0:
                             matrix_tags.append(tag)
@@ -157,87 +157,87 @@ class GmshExporter:
                     else:
                         to_remove.append((dim, tag))
                 except Exception as e:
-                    # Si une erreur survient ici, le volume est probablement corrompu/supprimé
+                    # If an error occurs here, the volume is probably corrupted/deleted
                     continue
 
-        # Suppression propre de ce qui dépasse
+        # Clean removal of what sticks out
         if to_remove:
             occ.remove(to_remove, recursive=True)
-            
+
         occ.synchronize()
 
-        # Groupes Physiques
+        # Physical groups
         if matrix_tags:
             gmsh.model.addPhysicalGroup(3, matrix_tags, tag=2, name="MATRIX")
         if inclusion_tags:
             gmsh.model.addPhysicalGroup(3, inclusion_tags, tag=1, name="INCLUSIONS")
 
-        # Stocker les tags d'inclusions pour les champs de taille
+        # Store the inclusion tags for the size fields
         self._inclusion_tags = inclusion_tags
 
         # --- 6. EXPORTS ---
-        logger.info(f"Finalisation : {len(matrix_tags)} fragments matrice, {len(inclusion_tags)} fragments inclusions.")
+        logger.info(f"Finalisation: {len(matrix_tags)} matrix fragments, {len(inclusion_tags)} inclusion fragments.")
 
-        # CAO
+        # CAD
         gmsh.write(f"{output_path}.step")
 
-        # Maillage
-        logger.info("Maillage adaptatif...")
+        # Mesh
+        logger.info("Adaptive meshing...")
 
-        # Tailles de base
+        # Base sizes
         min_size = self.config.fiber_radius / 6.0
         max_size = max(self.config.box_dims) / 8.0
 
         gmsh.option.setNumber("Mesh.CharacteristicLengthMin", min_size)
         gmsh.option.setNumber("Mesh.CharacteristicLengthMax", max_size)
 
-        # Champs de taille adaptatifs (Distance + Threshold autour des interfaces)
+        # Adaptive size fields (Distance + Threshold around the interfaces)
         if getattr(self.config, 'enable_adaptive_mesh', True):
             self._setup_size_fields(dims, min_size, max_size)
         else:
             gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 15)
 
-        # Optimiseur maillage 3D
-        gmsh.option.setNumber("Mesh.Algorithm3D", 10) # 1=Delaunay, 10=HXT (Rapide/Parallèle)
+        # 3D mesh optimiser
+        gmsh.option.setNumber("Mesh.Algorithm3D", 10) # 1=Delaunay, 10=HXT (fast/parallel)
 
         try:
             gmsh.model.mesh.generate(3)
 
-            # Maillage périodique (contraintes sur faces opposées)
+            # Periodic mesh (constraints on opposite faces)
             if getattr(self.config, 'enable_periodic_mesh', False):
                 self._apply_periodic_constraints(dims)
-                # Regénérer après contraintes périodiques
+                # Regenerate after the periodic constraints
                 gmsh.model.mesh.generate(3)
 
             gmsh.write(f"{output_path}.msh")
         except Exception as e:
-            logger.error(f"Echec du maillage : {e}")
+            logger.error(f"Meshing failed: {e}")
 
         gmsh.finalize()
 
     def _create_section_face(self, fiber, occ, shift):
         """!
-        @brief Crée une face 2D représentant la section de la fibre.
-        @param fiber Fiber Instance de la fibre.
-        @param occ Any Raccourci vers gmsh.model.occ.
-        @param shift np.ndarray Vecteur de translation (pour les ghosts).
-        @return int Tag de la face créée.
+        @brief Creates a 2D face representing the fiber cross-section.
+        @param fiber Fiber Instance of the fiber.
+        @param occ Any Shortcut to gmsh.model.occ.
+        @param shift np.ndarray Translation vector (for the ghosts).
+        @return int Tag of the created face.
         """
         p0 = fiber.centerline[0] + shift
         if fiber.section_type == 'circular':
-            # Primitive disque : très stable
-            # zAxis = direction tangente T, xAxis = normale N
+            # Disk primitive: very stable
+            # zAxis = tangent direction T, xAxis = normal N
             return occ.addDisk(p0[0], p0[1], p0[2], fiber.radius, fiber.radius,
                                zAxis=fiber.T[0], xAxis=fiber.N[0])
         else:
-            # Spline complexe
+            # Complex spline
             pts = fiber.section_profile.generate_points(32)
             pt_tags = []
             for loc in pts:
                 # P = P0 + u*N + v*B
                 w = p0 + loc[0]*fiber.N[0] + loc[1]*fiber.B[0]
                 pt_tags.append(occ.addPoint(*w))
-            
+
             spl = occ.addSpline(pt_tags)
             lin = occ.addLine(pt_tags[-1], pt_tags[0])
             wire = occ.addWire([spl, lin])
@@ -245,13 +245,13 @@ class GmshExporter:
 
     def _setup_size_fields(self, dims, min_size, max_size):
         """!
-        @brief Configure des champs de taille adaptatifs Distance + Threshold
-        autour des interfaces fibre/matrice.
-        @param dims np.ndarray Dimensions de la boîte.
-        @param min_size float Taille de maille minimale (aux interfaces).
-        @param max_size float Taille de maille maximale (loin des fibres).
+        @brief Configures adaptive Distance + Threshold size fields
+        around the fiber/matrix interfaces.
+        @param dims np.ndarray Box dimensions.
+        @param min_size float Minimum mesh size (at the interfaces).
+        @param max_size float Maximum mesh size (far from the fibers).
         """
-        # Récupérer les surfaces des inclusions
+        # Retrieve the inclusion surfaces
         inclusion_surfaces = []
         for tag in self._inclusion_tags:
             try:
@@ -264,11 +264,11 @@ class GmshExporter:
             gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 15)
             return
 
-        # Champ 1 : Distance aux surfaces d'inclusion
+        # Field 1: distance to the inclusion surfaces
         f_dist = gmsh.model.mesh.field.add("Distance")
         gmsh.model.mesh.field.setNumbers(f_dist, "SurfacesList", inclusion_surfaces)
 
-        # Champ 2 : Seuil basé sur la distance
+        # Field 2: threshold based on the distance
         f_thresh = gmsh.model.mesh.field.add("Threshold")
         gmsh.model.mesh.field.setNumber(f_thresh, "InField", f_dist)
         gmsh.model.mesh.field.setNumber(f_thresh, "SizeMin", min_size)
@@ -276,26 +276,26 @@ class GmshExporter:
         gmsh.model.mesh.field.setNumber(f_thresh, "DistMin", self.config.fiber_radius * 0.5)
         gmsh.model.mesh.field.setNumber(f_thresh, "DistMax", self.config.fiber_radius * 3.0)
 
-        # Utiliser comme maillage de fond
+        # Use as the background mesh
         gmsh.model.mesh.field.setAsBackgroundMesh(f_thresh)
 
-        # Désactiver les sources de taille par défaut pour éviter les conflits
+        # Disable the default size sources to avoid conflicts
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
     def _apply_periodic_constraints(self, dims):
         """!
-        @brief Applique les contraintes de maillage périodique sur les 3 paires de faces.
-        Face pairs : (X=0, X=Lx), (Y=0, Y=Ly), (Z=0, Z=Lz)
-        @param dims np.ndarray Dimensions (Lx, Ly, Lz) du domaine.
+        @brief Applies the periodic mesh constraints on the 3 pairs of faces.
+        Face pairs: (X=0, X=Lx), (Y=0, Y=Ly), (Z=0, Z=Lz)
+        @param dims np.ndarray Domain dimensions (Lx, Ly, Lz).
         """
         Lx, Ly, Lz = dims
         surfaces = gmsh.model.getEntities(2)
 
         eps = 1e-4
 
-        # Pour chaque axe : identifier faces master (position ~0) et slave (position ~L)
+        # For each axis: identify master faces (position ~0) and slave faces (position ~L)
         face_pairs = [
             (0, Lx, [1, 0, 0, Lx,  0, 1, 0, 0,   0, 0, 1, 0,   0, 0, 0, 1]),  # X
             (1, Ly, [1, 0, 0, 0,   0, 1, 0, Ly,   0, 0, 1, 0,   0, 0, 0, 1]),  # Y
@@ -316,7 +316,7 @@ class GmshExporter:
                 elif abs(com[axis_idx] - length) < eps:
                     slave_tags.append(tag)
 
-            # Associer chaque face slave à son master correspondant
+            # Match each slave face with its corresponding master
             for st in slave_tags:
                 try:
                     st_com = gmsh.model.occ.getCenterOfMass(2, st)
@@ -330,7 +330,7 @@ class GmshExporter:
                         mt_com = gmsh.model.occ.getCenterOfMass(2, mt)
                     except:
                         continue
-                    # Le master doit correspondre géométriquement (même position sauf sur l'axe)
+                    # The master must match geometrically (same position except on the axis)
                     diff = 0.0
                     for k in range(3):
                         if k == axis_idx:
@@ -345,4 +345,4 @@ class GmshExporter:
                     try:
                         gmsh.model.mesh.setPeriodic(2, [st], [best_master], transform)
                     except Exception as e:
-                        logger.debug(f"setPeriodic échoué pour face {st}->{best_master}: {e}")
+                        logger.debug(f"setPeriodic failed for face {st}->{best_master}: {e}")

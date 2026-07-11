@@ -62,7 +62,7 @@ class SuperEllipticalSection(BaseSection):
         """
         theta = np.linspace(0, 2 * np.pi, num_points, endpoint=True)
         
-        # Formule paramétrique signée pour préserver les quadrants
+        # Signed parametric formula to preserve the quadrants
         c = np.cos(theta)
         s = np.sin(theta)
         
@@ -75,7 +75,7 @@ class SuperEllipticalSection(BaseSection):
         """!
         @copybrief BaseSection::contains_point
         """
-        # Équation implicite : |x/a|^n + |y/b|^n <= 1
+        # Implicit equation: |x/a|^n + |y/b|^n <= 1
         return (abs(u)/self.a)**self.n + (abs(v)/self.b)**self.n <= 1.0
 
     def get_area(self) -> float:
@@ -104,18 +104,18 @@ def create_section(type_str: str, **kwargs):
     @param kwargs Parameters for the section (radius, major_radius, minor_radius, exponent).
     @return An instance of a class inheriting from BaseSection.
     """
-    # On récupère une valeur de base pour le rayon au cas où
+    # Fall back to a base radius value if needed
     r_default = kwargs.get('radius', 1.0)
-    
+
     if type_str == 'circular':
         return CircularSection(r_default)
-        
+
     elif type_str == 'superelliptical':
-        # On extrait les paramètres proprement
+        # Extract the parameters cleanly
         a = kwargs.get('major_radius', r_default)
-        # Si minor_radius n'est pas fourni, on prend 70% de a (valeur arbitraire cohérente)
-        b = kwargs.get('minor_radius', a * 0.7) 
+        # If minor_radius is not provided, use 70% of a (consistent arbitrary value)
+        b = kwargs.get('minor_radius', a * 0.7)
         n = kwargs.get('exponent', 2.5)
         return SuperEllipticalSection(a, b, n)
-        
-    raise ValueError(f"Type de section inconnu: {type_str}")
+
+    raise ValueError(f"Unknown section type: {type_str}")

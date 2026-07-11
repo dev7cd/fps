@@ -1,6 +1,6 @@
 """
 collision/
-Module de détection des collisions et chevauchements.
+Collision and overlap detection module.
 """
 from .detector import CollisionDetector
 
