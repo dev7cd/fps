@@ -2,7 +2,7 @@
 
 *Language: **English** · [Français](README.fr.md)*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.compstruct.2026.120524-blue.svg)](https://doi.org/10.1016/j.compstruct.2026.120524)
 
@@ -391,7 +391,20 @@ If you use FPS in your research, please cite the associated article:
 
 ## License
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
+FPS is distributed under the **GNU Affero General Public License v3.0 or later
+(AGPL-3.0-or-later)** — see [LICENSE](LICENSE). In short: you are free to use,
+study, modify and share it, but if you distribute a modified version **or run it
+as a network/SaaS service**, you must make your corresponding source code
+available under the same license.
+
+**Dual licensing.** The author retains full copyright. If the AGPL copyleft terms
+do not fit your use case (e.g. integration into a proprietary or closed-source
+product/service), a separate **commercial license** can be negotiated — contact
+`exauce-devine.ngouloubi@unicaen.fr`. See [NOTICE](NOTICE) for details.
+
+Publishing the code openly does **not** transfer ownership; third-party archival
+or forking (e.g. by SoftwareX) is a copy permitted by the license, not a transfer
+of rights.
 
 ## Author
 

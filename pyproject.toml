@@ -7,7 +7,7 @@ name = "fps"
 version = "6.1.0"
 description = "Fiber Packing System - Generateur de RVE pour composites a fibres renforcees"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = {text = "AGPL-3.0-or-later"}
 authors = [
     {name = "Devine Ngouloubi"},
 ]
