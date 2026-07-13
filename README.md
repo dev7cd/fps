@@ -124,7 +124,7 @@ pip install -e ".[gui,dev]" # + PyQt6 GUI and pytest
 ### Minimal example
 
 ```bash
-python main.py --dims 1 1 1 --vf 0.30 --radius 0.02 --seed 42
+python main.py --dims 1 1 1 --vf 0.10 --radius 0.02 --seed 42
 ```
 
 ### Advanced example (dense, oriented, porous RVE with full export)
