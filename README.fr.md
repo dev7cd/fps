@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="fps_logo.png" alt="Logo FPS" width="400">
+</p>
+
 # Fiber Packing System v6
 
 *Langue : **Français** · [English](README.md)*
@@ -275,3 +279,47 @@ python gui.py
 | Densification | Activation Phase 2, iterations, jitter, compression, injection |
 | Porosite | Activation des pores, fraction volumique, rayon moyen et ecart-type |
 | Export | Prefixe de sortie, resolution FFT, maillage GMSH, periodique, Nastran, stats spatiales |
+
+## Auteur
+
+**Devine Ngouloubi** — seul developpeur (concept, conception et implementation).
+Laboratoire de Mathematiques Nicolas Oresme (LMNO, UMR 6139), Universite de
+Normandie, UNICAEN, CNRS, Caen, France.
+
+La theorie geometrique et d'homogeneisation sous-jacente a ete developpee
+conjointement avec Daniel Choi et Philippe Karamian-Surville dans l'article
+*Composite Structures* associe (voir Citation ci-dessous).
+
+## Citation
+
+Si vous utilisez FPS dans vos travaux de recherche, merci de citer l'article associe :
+
+```bibtex
+@article{Ngouloubi2026FPS,
+  title   = {A geometric algorithm for dense 3D RVEs of long curved fiber composites},
+  author  = {Ngouloubi, Devine and Cho{\"\i}, Daniel and Karamian-Surville, Philippe},
+  journal = {Composite Structures},
+  volume  = {391},
+  pages   = {120524},
+  year    = {2026},
+  doi     = {10.1016/j.compstruct.2026.120524}
+}
+```
+
+## Licence
+
+FPS est distribue sous **GNU Affero General Public License v3.0 ou ulterieure
+(AGPL-3.0-or-later)** — voir [LICENSE](LICENSE). En resume : vous etes libre
+d'utiliser, etudier, modifier et partager le logiciel, mais si vous distribuez
+une version modifiee **ou l'exploitez comme service reseau/SaaS**, vous devez
+rendre le code source correspondant disponible sous la meme licence.
+
+**Double licence.** L'auteur conserve l'integralite des droits d'auteur. Si les
+conditions copyleft de l'AGPL ne conviennent pas a votre usage (integration
+dans un produit ou service proprietaire/ferme par exemple), une **licence
+commerciale** separee peut etre negociee — contact :
+`exauce-devine.ngouloubi@unicaen.fr`. Voir [NOTICE](NOTICE) pour le detail.
+
+La publication ouverte du code ne transfere **pas** la propriete ; l'archivage
+ou le fork par des tiers (par exemple SoftwareX) est une copie autorisee par
+la licence, pas un transfert de droits.
