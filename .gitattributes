@@ -1,0 +1,17 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Shell / SLURM scripts must keep LF (submitted to a Linux HPC cluster)
+*.sh text eol=lf
+*.sl text eol=lf
+
+# Generated Doxygen HTML: exclude from GitHub language statistics and diffs
+docs/html/* linguist-generated=true
+docs/html/* linguist-vendored=true
+docs/html/* -diff
+
+# Binary assets
+*.png binary
+*.pdf binary
+*.raw binary
+*.npy binary
