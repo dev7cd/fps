@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """! @brief Quick Doxygen documentation for test module."""
 """
 Tests unitaires pour geometry/sections.py — Sections et factory.
