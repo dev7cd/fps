@@ -1,13 +1,13 @@
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "fps"
 version = "6.1.0"
 description = "Fiber Packing System - Generateur de RVE pour composites a fibres renforcees"
 requires-python = ">=3.9"
-license = {text = "AGPL-3.0-or-later"}
+license = "AGPL-3.0-or-later"
 authors = [
     {name = "Devine Ngouloubi"},
 ]
@@ -27,6 +27,12 @@ dev = ["pytest>=7.0,<9.0"]
 
 [project.scripts]
 fps = "cli:parse_args"
+
+[tool.setuptools]
+py-modules = ["cli", "main", "gui", "run_campaign", "run_campaign_short"]
+
+[tool.setuptools.packages.find]
+include = ["core", "collision", "export", "generation", "geometry", "utils", "validation", "visualization"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
