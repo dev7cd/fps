@@ -1,0 +1,35 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # gmsh's Python API links against a few system X11/GL libraries even
+      # when used headless.
+      - name: Install gmsh runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglu1-mesa libxrender1 libxcursor1 libxft2 libxinerama1
+
+      - name: Install FPS (base + dev extras)
+        run: pip install -e ".[dev]"
+
+      - name: Run test suite
+        run: pytest

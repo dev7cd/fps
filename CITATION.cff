@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite both the software itself and the
+  associated article (see preferred-citation below).
+type: software
+title: "FPS: Fiber Packing System"
+version: 6.1.0
+date-released: 2026-07-13
+license: AGPL-3.0-or-later
+authors:
+  - family-names: Ngouloubi
+    given-names: Devine
+    affiliation: >-
+      Nicolas Oresme Mathematics Laboratory (LMNO, UMR 6139), Normandy
+      University, UNICAEN, CNRS, Caen, France
+    email: exauce-devine.ngouloubi@unicaen.fr
+repository-code: "https://github.com/dev7cd/fps"
+url: "https://github.com/dev7cd/fps"
+keywords:
+  - representative volume element
+  - fiber-reinforced composites
+  - microstructure generation
+  - RVE
+  - collision detection
+  - homogenization
+preferred-citation:
+  type: article
+  title: "A geometric algorithm for dense 3D RVEs of long curved fiber composites"
+  authors:
+    - family-names: Ngouloubi
+      given-names: Devine
+    - family-names: Choï
+      given-names: Daniel
+    - family-names: Karamian-Surville
+      given-names: Philippe
+  journal: "Composite Structures"
+  volume: "391"
+  start: "120524"
+  year: 2026
+  doi: "10.1016/j.compstruct.2026.120524"
