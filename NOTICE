@@ -31,3 +31,36 @@ NOTE: This software was developed in an academic setting (Normandy University,
 UNICAEN, CNRS, LMNO). Ownership and the right to grant commercial licenses may be
 subject to the institution's intellectual-property policy; confirm with the
 relevant technology-transfer / valorisation office before any commercial use.
+
+================================================================================
+THIRD-PARTY COMPONENTS
+================================================================================
+FPS depends on the following third-party packages, each under its own license.
+A commercial license for FPS covers FPS's own source code only; it does not
+by itself grant rights to redistribute these dependencies in a closed-source
+product — check each one's terms independently.
+
+    numpy        BSD-3-Clause
+    scipy        BSD-3-Clause
+    numba        BSD-2-Clause
+    matplotlib   PSF-based (BSD-style)
+    meshio       MIT
+    gmsh         GNU GPL (see https://gmsh.info for the exact version/terms)
+    PyQt6        GPL-3.0-or-later (optional, `gui` extra) or Riverbank
+                 commercial license — see https://www.riverbankcomputing.com
+
+gmsh and PyQt6 (GUI extra) are themselves copyleft; combining them with FPS
+under AGPL-3.0-or-later for open-source distribution is not an issue, but a
+closed-source/commercial FPS licensee who also wants to redistribute gmsh or
+PyQt6 in binary/closed form must separately clear that with their respective
+projects (Riverbank sells commercial PyQt6 licenses for this purpose).
+
+================================================================================
+TRADEMARKS / BRANDING
+================================================================================
+The "FPS" / "Fiber Packing System" name and the project logo (fps_logo.png)
+are not covered by the AGPL-3.0-or-later or the commercial license above.
+Redistributing modified versions of the software under the same name/logo in
+a way that implies endorsement by the original author is not authorized;
+forks should use a different name/logo or clearly mark themselves as
+unofficial derivatives.

@@ -37,6 +37,13 @@ RVE_*/
 *.bdf
 slice*.pgm
 
+# Campaign results (date/time-stamped per run, see run_campaign*.py / rve_campaign.sl)
+campaign/
+campaign_short/
+
+# Ad hoc local scratch work / results
+sg_work/
+
 # Environments / editors
 .venv/
 venv/
