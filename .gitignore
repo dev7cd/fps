@@ -14,14 +14,9 @@ dist/
 *.egg-info/
 .eggs/
 
-# LaTeX build artifacts (SoftwareX manuscript)
-softwarex/*.aux
-softwarex/*.log
-softwarex/*.out
-softwarex/*.bbl
-softwarex/*.blg
-softwarex/*.synctex.gz
-softwarex/build.log
+# SoftwareX manuscript working directory: kept locally for the submission
+# workflow, deliberately not published on the public GitHub mirror.
+softwarex/
 
 # Doxygen build log
 doxygen_warnings.log
@@ -50,4 +45,3 @@ venv/
 .env
 .idea/
 .vscode/
-softwarex/*.spl
