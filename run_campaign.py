@@ -1,13 +1,18 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """
 @file run_campaign.py
 @brief Automation of the multi-seed / multi-resolution RVE generation campaign.
 
 @details
 Generates a matrix of configurations (N_seeds x N_resolutions) by calling
-main.py through subprocess. Each run is isolated in its own output directory,
+main.py through subprocess. Each invocation of this script gets its own
+date/time-stamped root directory so results from successive campaigns never
+overwrite each other; each run within it is isolated in its own subdirectory,
 structured as follows:
 
-    campaign/
+    campaign/20260729_142301/
     +-- cfg_42/
     |   +-- res_064/
     |   |   +-- RVE_cfg42_r064.*
@@ -47,6 +52,7 @@ import sys
 import os
 import time
 import logging
+from datetime import datetime
 from itertools import product
 from pathlib import Path
 
@@ -75,8 +81,9 @@ GLOBAL_FLAGS = [
 DEFAULT_SEEDS       = list(range(42, 52))          # 42..51 inclusive
 DEFAULT_RESOLUTIONS = [64, 128, 256, 512, 700]
 
-# Root directory of the campaign
-CAMPAIGN_ROOT = Path("campaign")
+# Root directory of the campaign. Each invocation gets its own timestamped
+# subdirectory so results from successive runs never overwrite each other.
+CAMPAIGN_ROOT = Path("campaign") / datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Path to main.py (relative to this script's location)
 MAIN_SCRIPT = Path(__file__).parent / "main.py"

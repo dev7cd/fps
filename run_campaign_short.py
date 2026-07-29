@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """
 @file run_campaign_short.py
 @brief Generation campaign for SHORT-fiber RVEs (FFT res <= 128).
@@ -26,9 +29,12 @@ Two chained sub-campaigns sharing the same base geometry:
      step in {0.015, 0.020, 0.025}
      -> fiber lengths ~ {0.285, 0.380, 0.475}, all < 1.0.
 
+Each invocation of this script gets its own date/time-stamped root directory
+so results from successive campaigns never overwrite each other.
+
 Output tree:
 
-    campaign_short/
+    campaign_short/20260729_142301/
     |-- A_vf_sweep/
     |   |-- vf_0090/   RVE_vf0090_*
     |   |-- vf_0179/
@@ -52,6 +58,7 @@ import subprocess
 import sys
 import time
 import logging
+from datetime import datetime
 from pathlib import Path
 
 # -- Base geometry common to both sub-campaigns ------------------------------
@@ -77,7 +84,9 @@ A_VF_VALUES = ["0.0009", "0.00179", "0.00269", "0.00358", "0.00447"]
 B_VF = "0.00447"
 B_STEP_VALUES = ["0.015", "0.020", "0.025"]
 
-CAMPAIGN_ROOT = Path("campaign_short")
+# Each invocation gets its own timestamped subdirectory so results from
+# successive runs never overwrite each other.
+CAMPAIGN_ROOT = Path("campaign_short") / datetime.now().strftime("%Y%m%d_%H%M%S")
 MAIN_SCRIPT = Path(__file__).parent / "main.py"
 
 logging.basicConfig(

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ## @file gui.py
 #  @brief Graphical User Interface for the Fiber Packing System.
 #  @details Built with PyQt6, this interface allows users to configure RVE parameters,

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 """
 generation/generator.py
 Optimised "CSAW" generator v6.1

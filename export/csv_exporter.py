@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ## @file csv_exporter.py
 #  @brief Export of fibers to a specific text/CSV format (set_tubes.csv).
 #  @details Format: "tube" "disc" R R DirX DirY DirZ Pt1X Pt1Y Pt1Z Pt2X Pt2Y Pt2Z ...
