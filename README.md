@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="fps_logo.png" alt="FPS logo" width="400">
+</p>
+
 # Fiber Packing System (FPS)
 
 *Language: **English** · [Français](README.fr.md)*
@@ -5,6 +9,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.compstruct.2026.120524-blue.svg)](https://doi.org/10.1016/j.compstruct.2026.120524)
+[![tests](https://github.com/dev7cd/fps/actions/workflows/tests.yml/badge.svg)](https://github.com/dev7cd/fps/actions/workflows/tests.yml)
 
 **FPS** is an open-source Python tool that generates **periodic 3D representative
 volume elements (RVEs)** of fiber-reinforced composites with **long, strongly
