@@ -63,22 +63,34 @@ class FiberGenerator:
         else:
             logger.debug("No bias detected (isotropic).")
 
-    def generate_fiber(self, fiber_id: int) -> Optional[Fiber]:
+    def generate_fiber(self, fiber_id: int, check_collisions: bool = True) -> Optional[Fiber]:
         """!
         @brief Main method: Snake Algorithm with Backtracking.
         @param fiber_id int Unique identifier for the new fiber.
+        @param check_collisions bool Reject the steps that hit an existing fiber.
+               Set to False for the densification phase, which inserts fibers with
+               overlaps and resolves them afterwards by collective rearrangement.
         @return Optional[Fiber] A Fiber object if successful, None otherwise.
         @details Uses a stochastic walk with curvature constraints and collision checks.
         """
         radius = self.config.fiber_radius
 
-        p0 = self._find_start_point(radius)
-        if p0 is None:
-            return None
+        if check_collisions:
+            p0 = self._find_start_point(radius)
+            if p0 is None:
+                return None
+        else:
+            p0 = self.rng.uniform([0, 0, 0], self.config.box_dims)
 
         control_points = [p0]
         n_retry_max = 50
         n_fail = 0
+        # Backtracking alone can cycle: popping a point and re-adding it resets
+        # n_fail, so a walk blocked further on retries forever (always the case
+        # with max_curvature_angle = 0, where every proposal is identical).
+        # The total number of failures per fiber is therefore capped as well.
+        n_fail_total = 0
+        n_fail_total_max = n_retry_max * self.config.max_control_points
         current_dir = self._initial_direction()
 
         while len(control_points) < self.config.max_control_points:
@@ -87,7 +99,7 @@ class FiberGenerator:
             p_next, new_dir = self._propose_next_point(p_cur, current_dir)
 
             # Collision & self-intersection
-            if self.detector.is_segment_free(p_cur, p_next, radius):
+            if not check_collisions or self.detector.is_segment_free(p_cur, p_next, radius):
                 if not self._check_self_collision(p_next, control_points, radius):
                     control_points.append(p_next)
                     current_dir = new_dir
@@ -95,6 +107,9 @@ class FiberGenerator:
                     continue
 
             n_fail += 1
+            n_fail_total += 1
+            if n_fail_total > n_fail_total_max:
+                return None
             if n_fail > n_retry_max:
                 if len(control_points) > 1:
                     control_points.pop()

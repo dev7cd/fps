@@ -555,28 +555,41 @@ class MainWindow(QMainWindow):
         sec.form().addRow("Cycles:", self.spin_opt_iters)
 
         self.spin_jitter = self._double_spin(0.0, 1.0, 0.05, 3,
-            "Amplitude of the random vibrations applied to the fibers\nto reorganise them (fraction of the radius).")
+            "Amplitude of the random kick applied when the relaxation\nstops making progress (fraction of the radius).")
         ## @var spin_jitter
         #  @brief Vibration amplitude selector.
         sec.form().addRow("Vibrations:", self.spin_jitter)
-
-        self.spin_compression = self._double_spin(0.0, 0.5, 0.01, 3,
-            "Intensity of the compression towards the volume centre\nto bring the fibers closer.")
-        ## @var spin_compression
-        #  @brief Compression intensity selector.
-        sec.form().addRow("Compression:", self.spin_compression)
 
         self.spin_injection = QSpinBox()
         ## @var spin_injection
         #  @brief Fiber injection count selector.
         self.spin_injection.setRange(0, 500)
         self.spin_injection.setValue(50)
-        self.spin_injection.setToolTip("Number of attempts to add new fibers\nat each optimisation cycle.")
+        self.spin_injection.setToolTip("Maximum number of fibers inserted\nat each densification round.")
         sec.form().addRow("Injections/cycle:", self.spin_injection)
+
+        self.spin_dens_sweeps = QSpinBox()
+        ## @var spin_dens_sweeps
+        #  @brief Relaxation sweep budget per densification round.
+        self.spin_dens_sweeps.setRange(1, 5000)
+        self.spin_dens_sweeps.setValue(400)
+        self.spin_dens_sweeps.setToolTip(
+            "Maximum number of sweeps allowed to push the overlaps apart.\n"
+            "A round that runs out of sweeps is rolled back.")
+        sec.form().addRow("Relaxation sweeps:", self.spin_dens_sweeps)
+
+        ## @var spin_dens_damping
+        #  @brief Over-relaxation factor of the contact resolution.
+        self.spin_dens_damping = self._double_spin(0.1, 1.9, 1.6, 2,
+            "How much of each overlap is corrected per sweep.\n"
+            "Above 1.0 the correction overshoots, which converges much faster:\n"
+            "1.0 is roughly 30x slower than 1.6 for the same result.")
+        sec.form().addRow("Relaxation factor:", self.spin_dens_damping)
 
         # Store the widgets to enable/disable them
         self._opt_widgets = [self.spin_opt_iters, self.spin_jitter,
-                             self.spin_compression, self.spin_injection]
+                             self.spin_injection, self.spin_dens_sweeps,
+                             self.spin_dens_damping]
         parent_layout.addWidget(sec)
 
     def _on_optimize_toggled(self, checked):
@@ -762,8 +775,9 @@ class MainWindow(QMainWindow):
         else:
             args += ["--opt_iters", str(self.spin_opt_iters.value())]
             args += ["--jitter", str(self.spin_jitter.value())]
-            args += ["--compression", str(self.spin_compression.value())]
             args += ["--injection", str(self.spin_injection.value())]
+            args += ["--dens_sweeps", str(self.spin_dens_sweeps.value())]
+            args += ["--dens_damping", str(self.spin_dens_damping.value())]
 
         # Porosity
         if self.chk_porosity.isChecked():

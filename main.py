@@ -119,7 +119,10 @@ def main():
     # --- STEP 1: PHASE 1 (CSAW) ---
     logger.info("--- PHASE 1: Constructive placement (CSAW) ---")
     attempts = 0
-    max_fails = 500
+    # Was hardcoded, which made --max_attempts inert. Grinding sequential
+    # adsorption to exhaustion is also wasteful when phase 2 is enabled: the
+    # collective rearrangement places what phase 1 can no longer fit.
+    max_fails = config.generation_parameters.get('max_packing_attempts', 500)
     vf_phase1_limit = config.target_volume_fraction
 
     while attempts < max_fails:
@@ -186,10 +189,15 @@ def main():
     validator = TopologyValidator(config.box_dims)
     min_clearance = validator.check_clearance(fibers)
 
-    # if min_clearance < 0:
-    #     logger.critical(f"ALERT: intersection detected ({min_clearance:.6e}).")
-    # else:
-    #     logger.info(f"Topological audit: OK. Min clearance = {min_clearance:.6e}")
+    requested = getattr(config, 'min_clearance', 0.0) or 0.0
+    if min_clearance < 0:
+        logger.critical(f"ALERT: intersection detected ({min_clearance:.6e}).")
+    elif min_clearance < requested:
+        logger.warning(f"Topological audit: min clearance = {min_clearance:.6e} "
+                       f"below the requested {requested:.6e}.")
+    else:
+        logger.info(f"Topological audit: OK. Min clearance = {min_clearance:.6e} "
+                    f"(requested >= {requested:.6e})")
 
     # --- STEP 4: POROSITY ---
     voids = []

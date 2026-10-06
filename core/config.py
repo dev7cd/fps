@@ -59,9 +59,16 @@ class FiberPackingConfig:
     enable_optimizer: bool = True          ##< Enable the compaction phase
     optimizer_iterations: int = 10         ##< Number of compaction/injection cycles
 
-    jitter_intensity: float = 0.05       ##< Fraction of radius for random jitter
-    compression_intensity: float = 0.01   ##< Displacement fraction towards the centre per cycle
-    injection_per_iteration: int = 50    ##< Number of fiber-insertion attempts after compaction
+    jitter_intensity: float = 0.05       ##< Fraction of radius for the random kick used when relaxation stalls
+    injection_per_iteration: int = 50    ##< Max number of fibers inserted per densification round
+
+    ## Force-biased collective rearrangement (phase 2)
+    densifier_sweeps: int = 400            ##< Max relaxation sweeps per round
+    densifier_damping: float = 1.6         ##< Over-relaxation factor of the contact correction (>1 converges much faster)
+    densifier_smoothing: float = 0.1       ##< Laplacian smoothing applied where curvature exceeds the limit
+    densifier_margin: float = 0.02         ##< Relaxation cushion, as a fraction of the radius: fibers are
+                                           ##< pushed slightly beyond contact so the sweep terminates instead
+                                           ##< of chasing an asymptotically small overlap
 
     # --- 5. DEFECTS AND POROSITY (VOIDS) ---
     generate_porosity: bool = True       ##< Enable air-bubble (void) generation

@@ -73,7 +73,7 @@ fps/
 ├── generation/
 │   ├── generator.py           # CSAW algorithm (self-avoiding walk + backtracking) + RSDA
 │   ├── periodicity.py         # PeriodicManager (wrap, 26-neighbour ghosts)
-│   ├── optimizer_dynamic.py   # Compress & Fill: jitter + compression + soft-push + injection
+│   ├── optimizer_dynamic.py   # Collective rearrangement: overlapping insertion + force-biased relaxation
 │   └── porosity_gen.py        # Vectorised RSA for periodic spherical pores
 ├── collision/
 │   ├── detector.py            # CollisionDetector (API: group_valid, segment_free, periodic)
@@ -193,10 +193,11 @@ python main.py \
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
 | `--optimize` / `--no_optimize` | flag | on | Enable/disable the densifier |
-| `--opt_iters` | int | 10 | Optimisation cycles |
-| `--jitter` | float | 0.05 | Jitter intensity (fraction of radius) |
-| `--compression` | float | 0.01 | Centripetal compression intensity |
-| `--injection` | int | 50 | Injection attempts per cycle |
+| `--opt_iters` | int | 10 | Max densification rounds |
+| `--jitter` | float | 0.05 | Random kick used when the relaxation stalls (fraction of radius) |
+| `--injection` | int | 50 | Max fibers inserted per round |
+| `--dens_sweeps` | int | 400 | Max relaxation sweeps per round |
+| `--dens_damping` | float | 1.6 | Over-relaxation factor of the contact resolution |
 
 ### 5. Porosity (spherical pores)
 
@@ -257,13 +258,29 @@ free up space (`--rsda`):
 - Full rollback if the perturbation creates new collisions.
 - Helps exceed the jamming limit of pure RSA (~54.7 %).
 
-### Compress & Fill (non-destructive densification, Stage 2)
+### Collective rearrangement (densification, Stage 2)
 
-Increases the volume fraction by admissibly reorganising the existing
-configuration (jitter, centripetal drift, soft-push repulsion,
-bounded-curvature morphogenesis) and refilling freed void space through
-additional CSAW passes — **without changing any fiber radius**. Each move is
-transactional: it is rolled back if it breaks admissibility.
+Sequential adsorption saturates well below the volume fractions a composite RVE
+needs, because it can only ever reject a fiber that does not fit. Stage 2 goes
+past that limit the standard way (Altendorf & Jeulin, 2011): it inserts the
+missing fibers **with overlaps allowed**, then pushes every overlapping pair
+apart until the configuration is admissible again — **without changing any
+fiber radius**.
+
+- Each contact displaces both fibers by half the penetration, spread over the
+  control points around the contact with a Gaussian weight: the fiber bends and
+  slides around its neighbour instead of translating as a rigid body.
+- Displacements are accumulated and applied at once (Jacobi), so the result does
+  not depend on the fiber ordering.
+- After each sweep the chain is rebuilt at the generation step length, so
+  densification does not silently rewrite the fiber length statistics.
+- The relaxation targets a slightly larger separation than required
+  (`densifier_margin`), which makes it terminate on a genuine positive gap
+  instead of chasing an asymptotically small overlap.
+- Everything is periodic: a fiber is measured against the closest image of its
+  neighbours **and against its own images**.
+- A round that cannot be relaxed is rolled back, so what Stage 2 returns is
+  always free of intersections and respects `--clearance`.
 
 ### Collision detection
 
@@ -362,7 +379,7 @@ python gui.py
 | Domain and Targets | RVE dimensions, volume fraction, random seed |
 | Fiber Geometry | Radius, section type, clearance, super-ellipse parameters |
 | Orientation | Bias mode (free/uniaxial/planar), alignment strength, curvature, RSDA |
-| Densification | Enable Stage 2, iterations, jitter, compression, injection |
+| Densification | Enable Stage 2, rounds, stall kick, injection |
 | Porosity | Enable pores, volume fraction, mean radius and standard deviation |
 | Export | Output prefix, FFT resolution, Gmsh mesh, periodic, Nastran, spatial stats |
 

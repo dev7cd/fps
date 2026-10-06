@@ -20,7 +20,7 @@ def parse_args():
     instance and args is the raw argparse Namespace.
     """
     parser = argparse.ArgumentParser(
-        description="High-performance fiber RVE generator (CSAW + compression)",
+        description="High-performance fiber RVE generator (CSAW + collective rearrangement)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
@@ -61,10 +61,11 @@ def parse_args():
     g_opt = parser.add_argument_group('4. Optimisation (Phase 2)')
     g_opt.add_argument("--optimize", action='store_true', default=True, help="Enable the dynamic optimiser")
     g_opt.add_argument("--no_optimize", action='store_false', dest='optimize', help="Disable the optimiser")
-    g_opt.add_argument("--opt_iters", type=int, default=10, help="Number of optimisation cycles")
-    g_opt.add_argument("--jitter", type=float, default=0.05, help="Jitter intensity (fraction of radius)")
-    g_opt.add_argument("--compression", type=float, default=0.01, help="Centripetal compression intensity")
-    g_opt.add_argument("--injection", type=int, default=50, help="Injection attempts per cycle")
+    g_opt.add_argument("--opt_iters", type=int, default=10, help="Max densification rounds")
+    g_opt.add_argument("--jitter", type=float, default=0.05, help="Random kick used when the relaxation stalls (fraction of radius)")
+    g_opt.add_argument("--injection", type=int, default=50, help="Max fibers inserted per densification round")
+    g_opt.add_argument("--dens_sweeps", type=int, default=400, help="Max relaxation sweeps per densification round")
+    g_opt.add_argument("--dens_damping", type=float, default=1.6, help="Over-relaxation factor of the contact resolution")
 
     # --- 5. POROSITY ---
     g_void = parser.add_argument_group('5. Porosity')
@@ -134,8 +135,9 @@ def parse_args():
         enable_optimizer=args.optimize,
         optimizer_iterations=args.opt_iters,
         jitter_intensity=args.jitter,
-        compression_intensity=args.compression,
         injection_per_iteration=args.injection,
+        densifier_sweeps=args.dens_sweeps,
+        densifier_damping=args.dens_damping,
 
         # Porosity
         generate_porosity=args.porosity,

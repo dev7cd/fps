@@ -36,7 +36,7 @@ fiber_packing_system_v6/
 ├── generation/
 │   ├── generator.py           # Algorithme CSAW + RSDA
 │   ├── periodicity.py         # Gestion des conditions periodiques (ghosts)
-│   ├── optimizer_dynamic.py   # Jitter + compression + injection
+│   ├── optimizer_dynamic.py   # Rearrangement collectif force-biased (insertion + relaxation)
 │   └── porosity_gen.py        # RSA pour pores spheriques
 ├── collision/
 │   ├── detector.py            # API de detection de collision
@@ -144,10 +144,11 @@ python main.py \
 | Parametre | Type | Defaut | Description |
 |-----------|------|--------|-------------|
 | `--optimize` / `--no_optimize` | flag | on | Activer/desactiver le densificateur |
-| `--opt_iters` | int | 10 | Cycles d'optimisation |
-| `--jitter` | float | 0.05 | Intensite des secousses (ratio du rayon) |
-| `--compression` | float | 0.01 | Intensite compression centripete |
-| `--injection` | int | 50 | Tentatives d'injection par cycle |
+| `--opt_iters` | int | 10 | Tours de densification maximum |
+| `--jitter` | float | 0.05 | Secousse aleatoire quand la relaxation stagne (ratio du rayon) |
+| `--injection` | int | 50 | Fibres inserees au maximum par tour |
+| `--dens_sweeps` | int | 400 | Balayages de relaxation maximum par tour |
+| `--dens_damping` | float | 1.6 | Facteur de sur-relaxation de la resolution des contacts |
 
 ### 5. Porosite
 
@@ -276,7 +277,7 @@ python gui.py
 | Domaine et Cibles | Dimensions du RVE, fraction volumique, graine aleatoire |
 | Geometrie des Fibres | Rayon, type de section, clearance, parametres superellipse |
 | Orientation | Mode de biais (libre/uniaxial/planaire), force d'alignement, courbure, RSDA |
-| Densification | Activation Phase 2, iterations, jitter, compression, injection |
+| Densification | Activation Phase 2, tours, secousse de deblocage, injection |
 | Porosite | Activation des pores, fraction volumique, rayon moyen et ecart-type |
 | Export | Prefixe de sortie, resolution FFT, maillage GMSH, periodique, Nastran, stats spatiales |
 

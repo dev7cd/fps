@@ -21,18 +21,30 @@ class SpatialGrid:
     of the RVE. Maintains a reverse-mapping to ease fiber removal.
     """
 
-    def __init__(self, box_dims: np.ndarray, cell_size: float):
+    def __init__(self, box_dims: np.ndarray, cell_size: float, query_margin: float = 0.0):
         """!
         @brief Constructor of the spatial grid.
         @param box_dims np.ndarray Domain dimensions (Lx, Ly, Lz).
         @param cell_size float Size of a cubic grid cell.
+        @param query_margin float Extra padding applied to every query box.
+               Required when a minimum clearance is enforced: two fibers whose
+               envelopes are disjoint but closer than the clearance must still
+               be reported as candidates.
         """
         self.box_dims = box_dims ##< RVE domain dimensions
         self.cell_size = cell_size ##< Side length of a cell
+        self.query_margin = query_margin ##< Padding added to each query bounding box
         ## Occupied cells: coordinates (ix, iy, iz) -> list of Fiber objects
         self.cells: Dict[Tuple[int, int, int], List[Any]] = {}
         ## Reverse-mapping: parent_id -> set of occupied cell keys
         self.fiber_cells: Dict[int, Set[Tuple[int, int, int]]] = {}
+
+    def clear(self):
+        """!
+        @brief Empties the grid, keeping its geometry parameters.
+        """
+        self.cells.clear()
+        self.fiber_cells.clear()
 
     def _get_cell_coords(self, point: np.ndarray) -> Tuple[int, int, int]:
         """!
@@ -94,13 +106,16 @@ class SpatialGrid:
         @param bbox Tuple[np.ndarray, np.ndarray] Tuple (p_min, p_max) defining the search region.
         @param exclude_id int Identifier of the fiber to exclude from the results (usually itself).
         @return List[Fiber] List of Fiber objects potentially in collision.
+        @note Every distinct object is returned once, root fibers and periodic
+              ghosts alike. De-duplicating on parent_id would drop the root when
+              one of its ghosts is met first, and the pair would never be tested.
         """
         p_min, p_max = bbox
-        start_idx = np.floor(p_min / self.cell_size).astype(int)
-        end_idx = np.floor(p_max / self.cell_size).astype(int)
+        start_idx = np.floor((p_min - self.query_margin) / self.cell_size).astype(int)
+        end_idx = np.floor((p_max + self.query_margin) / self.cell_size).astype(int)
 
         neighbors = []
-        seen_ids = {exclude_id}
+        seen_objects = set()
 
         for ix in range(start_idx[0], end_idx[0] + 1):
             for iy in range(start_idx[1], end_idx[1] + 1):
@@ -108,7 +123,10 @@ class SpatialGrid:
                     cell = self.cells.get((ix, iy, iz))
                     if cell:
                         for fib in cell:
-                            if fib.parent_id not in seen_ids:
+                            if fib.parent_id == exclude_id:
+                                continue
+                            key = id(fib)
+                            if key not in seen_objects:
                                 neighbors.append(fib)
-                                seen_ids.add(fib.parent_id)
+                                seen_objects.add(key)
         return neighbors

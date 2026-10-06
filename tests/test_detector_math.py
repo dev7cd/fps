@@ -132,6 +132,21 @@ class TestCheckCollisionNumba:
         # n1 = 0 segments, the loop does not run
         assert check_collision_numba(pts1, pts2, 1.0, 1.0) is False
 
+    def test_clearance_is_enforced(self):
+        """Two parallel fibers with a 0.1 surface gap: rejected as soon as clearance > 0.1."""
+        pts1 = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=np.float64)
+        pts2 = np.array([[0.0, 0.5, 0.0], [1.0, 0.5, 0.0]], dtype=np.float64)
+        # Surface gap = 0.5 - (0.2 + 0.2) = 0.1
+        assert check_collision_numba(pts1, pts2, 0.2, 0.2, 0.05) is False
+        assert check_collision_numba(pts1, pts2, 0.2, 0.2, 0.15) is True
+
+    def test_clearance_defaults_to_zero(self):
+        """Omitting the clearance keeps the plain non-intersection criterion."""
+        pts1 = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]], dtype=np.float64)
+        pts2 = np.array([[0.0, 0.5, 0.0], [1.0, 0.5, 0.0]], dtype=np.float64)
+        assert (check_collision_numba(pts1, pts2, 0.2, 0.2)
+                == check_collision_numba(pts1, pts2, 0.2, 0.2, 0.0))
+
 
 class TestMinDistSegmentsNumba:
     """Tests de la distance minimale entre polylignes."""

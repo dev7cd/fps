@@ -12,7 +12,7 @@ import logging
 from typing import List, Dict
 from scipy.spatial import cKDTree
 
-from collision.detector_math import min_dist_periodic_segments_numba
+from collision.detector_math import min_dist_periodic_images_numba
 
 ## @var logger
 #  @brief Logger for the topology module.
@@ -36,7 +36,10 @@ class TopologyValidator:
     def check_clearance(self, fibers: List) -> float:
         """!
         @brief Calculates the exact minimum clearance (empty space) between all fiber pairs.
-        @details Uses exact segment-to-segment distance with Minimum Image Convention (MIC).
+        @details Uses exact segment-to-segment distance, minimised over the periodic
+        images (valid even for fibers longer than the domain, unlike the MIC).
+        Each fiber is also measured against its own images: under periodic
+        boundaries a fiber can cross itself through a face.
         A result > 0 indicates no intersections.
         @param fibers List List of Fiber objects to audit.
         @return float Minimum gap value (negative if fibers intersect).
@@ -52,11 +55,18 @@ class TopologyValidator:
             pts1 = fibers[i].centerline
             r1 = fibers[i].radius
 
+            # Fiber against its own periodic images
+            d_self = min_dist_periodic_images_numba(pts1, pts1, self.dims, True)
+            gap_self = d_self - 2 * r1
+            if gap_self < min_gap:
+                min_gap = gap_self
+                min_gap_pair = (fibers[i].id, fibers[i].id)
+
             for j in range(i + 1, n_fibers):
                 pts2 = fibers[j].centerline
                 r2 = fibers[j].radius
 
-                d_center = min_dist_periodic_segments_numba(pts1, pts2, self.dims)
+                d_center = min_dist_periodic_images_numba(pts1, pts2, self.dims)
 
                 gap = d_center - (r1 + r2)
 

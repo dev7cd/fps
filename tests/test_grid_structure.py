@@ -146,3 +146,54 @@ class TestQueryNeighbors:
         bbox = (np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 1.0]))
         neighbors = grid.query_neighbors(bbox, exclude_id=0)
         assert neighbors == []
+
+    def test_root_and_ghost_are_both_returned(self, simple_fiber_a, simple_fiber_b):
+        """A ghost must not hide the root fiber it comes from (same parent_id)."""
+        from tests.conftest import FakeFiber
+
+        ghost = FakeFiber(fiber_id=simple_fiber_b.id,
+                          centerline=simple_fiber_b.centerline + np.array([0.0, 1.0, 0.0]),
+                          radius=simple_fiber_b.radius,
+                          parent_id=simple_fiber_b.parent_id)
+
+        grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
+        grid.add_fiber(ghost)   # indexed first, so it is met first
+        grid.add_fiber(simple_fiber_b)
+
+        bbox = (np.array([0.0, 0.0, 0.0]), np.array([2.0, 2.0, 2.0]))
+        found = grid.query_neighbors(bbox, exclude_id=simple_fiber_a.parent_id)
+        assert len(found) == 2, "the root fiber was dropped because its ghost came first"
+        assert {id(f) for f in found} == {id(ghost), id(simple_fiber_b)}
+
+    def test_exclude_id_also_drops_ghosts(self, simple_fiber_b):
+        from tests.conftest import FakeFiber
+
+        ghost = FakeFiber(fiber_id=simple_fiber_b.id,
+                          centerline=simple_fiber_b.centerline + np.array([0.0, 1.0, 0.0]),
+                          radius=simple_fiber_b.radius,
+                          parent_id=simple_fiber_b.parent_id)
+        grid = SpatialGrid(np.array([2.0, 2.0, 2.0]), cell_size=0.2)
+        grid.add_fiber(simple_fiber_b)
+        grid.add_fiber(ghost)
+
+        bbox = (np.array([0.0, 0.0, 0.0]), np.array([2.0, 2.0, 2.0]))
+        assert grid.query_neighbors(bbox, exclude_id=simple_fiber_b.parent_id) == []
+
+    def test_query_margin_widens_the_search(self, simple_fiber_a):
+        """A fiber sitting in the next cell is only reached once a margin is set."""
+        cell = 0.2
+        grid = SpatialGrid(np.array([10.0, 10.0, 10.0]), cell_size=cell)
+        grid.add_fiber(simple_fiber_a)
+
+        p_min, p_max = simple_fiber_a.bbox
+        # Probe box placed two cells away from the fiber envelope
+        offset = np.array([0.0, p_max[1] - p_min[1] + 2 * cell, 0.0])
+        probe = (p_min + offset, p_max + offset)
+
+        assert grid.query_neighbors(probe, exclude_id=-1) == []
+
+        wide = SpatialGrid(np.array([10.0, 10.0, 10.0]), cell_size=cell,
+                           query_margin=3 * cell)
+        wide.add_fiber(simple_fiber_a)
+        ids = [f.parent_id for f in wide.query_neighbors(probe, exclude_id=-1)]
+        assert simple_fiber_a.parent_id in ids

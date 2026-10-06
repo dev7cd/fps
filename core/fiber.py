@@ -48,16 +48,21 @@ class Fiber:
 
         self.refresh_geometry()
 
-    def refresh_geometry(self):
+    def refresh_geometry(self, with_frames: bool = True):
         """!
         @brief Updates the derived geometric data.
         @details Computes the centerline by interpolation, generates the Bishop frames (T, N, B)
         and updates the bounding box.
+        @param with_frames bool Recompute the Bishop frames. They cost an order of
+               magnitude more than the centerline and are only needed for meshing
+               and voxelisation, so the densification loop skips them and asks for
+               a full refresh once the geometry has settled.
         @return None
         """
         self.centerline = CatmullRomSpline.interpolate(self.control_points, num_points=100)
         # Compute local frames for GMSH and Voxelizer
-        self.T, self.N, self.B = compute_bishop_frame(self.centerline)
+        if with_frames:
+            self.T, self.N, self.B = compute_bishop_frame(self.centerline)
 
         p_min = np.min(self.centerline, axis=0) - self.radius
         p_max = np.max(self.centerline, axis=0) + self.radius

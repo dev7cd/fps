@@ -26,24 +26,54 @@ class CollisionDetector:
         @param config FiberPackingConfig Configuration object holding the RVE parameters.
         """
         self.config = config ##< Simulation configuration
-        cell_size = 2 * config.fiber_radius + getattr(config, 'min_clearance', 0.0)
-        self.grid = SpatialGrid(np.array(config.box_dims), cell_size) ##< Spatial grid for test acceleration
+        ## Minimum empty gap enforced between two fiber surfaces (0.0 = simple contact)
+        self.min_clearance = max(0.0, float(getattr(config, 'min_clearance', 0.0) or 0.0))
+        cell_size = 2 * config.fiber_radius + self.min_clearance
+        ## Spatial grid for test acceleration (queries padded by the clearance)
+        self.grid = SpatialGrid(np.array(config.box_dims), cell_size,
+                                query_margin=self.min_clearance)
+
+    def _bboxes_close(self, bbox1, bbox2) -> bool:
+        """!
+        @brief Cheap rejection test between two bounding boxes.
+        @details Boxes already include the fiber radii; separating them by more
+        than the clearance rules out any contact, so the O(N*M) segment kernel
+        can be skipped. Purely a shortcut: it never changes a verdict.
+        @return bool True if the boxes are close enough to require the fine test.
+        """
+        min1, max1 = bbox1
+        min2, max2 = bbox2
+        c = self.min_clearance
+        return bool(np.all(min1 - c <= max2) and np.all(min2 - c <= max1))
 
     def check_collision_fine(self, f1, f2) -> bool:
         """!
         @brief Unified method to test the collision between two fibers.
         @param f1 Fiber First fiber.
         @param f2 Fiber Second fiber.
-        @return bool True if a collision is detected, False otherwise.
+        @return bool True if a collision (or a clearance violation) is detected, False otherwise.
         """
-        return check_collision_numba(f1.centerline, f2.centerline, f1.radius, f2.radius)
+        if not self._bboxes_close(f1.bbox, f2.bbox):
+            return False
+        return check_collision_numba(f1.centerline, f2.centerline,
+                                     f1.radius, f2.radius, self.min_clearance)
 
     def is_group_valid(self, fiber_group: List) -> bool:
         """!
         @brief Checks whether a group of fibers is free of internal and external collisions.
-        @param fiber_group List[Fiber] List of fibers to validate.
+        @param fiber_group List[Fiber] List of fibers to validate (root + periodic ghosts).
         @return bool True if the group is valid, False otherwise.
         """
+        # Internal check: a fiber must not overlap its own periodic images.
+        # The grid queries below exclude parent_id, so this pair is invisible to them.
+        n = len(fiber_group)
+        for a in range(n):
+            fa = fiber_group[a]
+            for b in range(a + 1, n):
+                fb = fiber_group[b]
+                if self.check_collision_fine(fa, fb):
+                    return False
+
         for fiber in fiber_group:
             neighbors = self.grid.query_neighbors(fiber.bbox, fiber.parent_id)
             for nb in neighbors:
@@ -61,10 +91,14 @@ class CollisionDetector:
         """
         s_min = np.minimum(p1, p2) - radius
         s_max = np.maximum(p1, p2) + radius
-        neighbors = self.grid.query_neighbors((s_min, s_max), exclude_id=-1)
+        probe_bbox = (s_min, s_max)
+        neighbors = self.grid.query_neighbors(probe_bbox, exclude_id=-1)
         seg_points = np.ascontiguousarray(np.vstack((p1, p2)))
         for nb in neighbors:
-            if check_collision_numba(seg_points, nb.centerline, radius, nb.radius):
+            if not self._bboxes_close(probe_bbox, nb.bbox):
+                continue
+            if check_collision_numba(seg_points, nb.centerline, radius, nb.radius,
+                                     self.min_clearance):
                 return False
         return True
 
@@ -77,10 +111,16 @@ class CollisionDetector:
         """
         s_min = point - radius
         s_max = point + radius
-        neighbors = self.grid.query_neighbors((s_min, s_max), exclude_id=-1)
-        pt_arr = point.reshape(1,3)
+        probe_bbox = (s_min, s_max)
+        neighbors = self.grid.query_neighbors(probe_bbox, exclude_id=-1)
+        # Degenerate segment (point duplicated): a (1, 3) array would expose
+        # zero segments to the kernel and the test would always pass.
+        pt_arr = np.ascontiguousarray(np.vstack((point, point)))
         for nb in neighbors:
-            if check_collision_numba(pt_arr, nb.centerline, radius, nb.radius):
+            if not self._bboxes_close(probe_bbox, nb.bbox):
+                continue
+            if check_collision_numba(pt_arr, nb.centerline, radius, nb.radius,
+                                     self.min_clearance):
                 return False
         return True
 
@@ -91,6 +131,25 @@ class CollisionDetector:
         """
         for f in fiber_group:
             self.grid.add_fiber(f)
+
+    def rebuild_index(self, fibers: List):
+        """!
+        @brief Rebuilds the spatial index from scratch for the given root fibers.
+        @details Regenerates the periodic ghosts as well, so the index always
+        matches the current geometry. Any code that moves fibers must call this
+        (or remove/re-add them) before querying the grid again.
+        @param fibers List[Fiber] Root fibers (ghosts are recreated internally).
+        """
+        from core.fiber import Fiber
+        from generation.periodicity import PeriodicManager
+
+        self.grid.clear()
+        for f in fibers:
+            self.grid.add_fiber(f)
+            for shift in PeriodicManager.generate_ghosts(f, self.config.box_dims):
+                ghost = Fiber(f.id, f.control_points + shift, f.radius,
+                              vars(self.config), is_ghost=True, parent_id=f.id)
+                self.grid.add_fiber(ghost)
 
     def is_fiber_valid_periodic(self, fiber) -> bool:
         """!
@@ -118,6 +177,9 @@ class CollisionDetector:
             # Search for neighbours close to the ghost image
             neighbors = self.grid.query_neighbors(ghost_bbox, exclude_id=fiber.parent_id)
             for nb in neighbors:
-                if check_collision_numba(ghost_points, nb.centerline, fiber.radius, nb.radius):
+                if not self._bboxes_close(ghost_bbox, nb.bbox):
+                    continue
+                if check_collision_numba(ghost_points, nb.centerline, fiber.radius, nb.radius,
+                                         self.min_clearance):
                     return False
         return True
