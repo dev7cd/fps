@@ -8,6 +8,11 @@
 The algorithm uses a bounding-box (BBox) rasterisation approach accelerated
 by Numba to test whether voxels belong to the cylinders (fibers) or the
 spheres (pores).
+
+Supported domain: only fibers with a circular cross-section are voxelised.
+The rasteriser uses the centerline and the scalar radius alone, so any other
+section (e.g. superelliptical) would be exported as a circular tube; such
+fibers are rejected with UnsupportedSectionError before any rasterisation.
 """
 
 import numpy as np
@@ -27,6 +32,50 @@ TAG_FIBER = 128
 ## @var TAG_VOID
 #  @brief Tag for the pores (porosity).
 TAG_VOID = 255
+
+## @var SUPPORTED_SECTIONS
+#  @brief Cross-section types that the voxel export represents faithfully.
+SUPPORTED_SECTIONS = ("circular",)
+
+
+class UnsupportedSectionError(ValueError):
+    """!
+    @class UnsupportedSectionError
+    @brief Raised when the voxel export is requested for a cross-section it cannot represent.
+    """
+
+
+def check_voxel_section_type(section_type):
+    """!
+    @brief Rejects a cross-section type that the voxel export does not support.
+    @param section_type str Declared section type (e.g. 'circular').
+    @exception UnsupportedSectionError If the section type is not in SUPPORTED_SECTIONS.
+    """
+    if section_type not in SUPPORTED_SECTIONS:
+        raise UnsupportedSectionError(
+            f"Voxel export does not support the '{section_type}' cross-section: "
+            f"only {', '.join(SUPPORTED_SECTIONS)} sections are voxelised."
+        )
+
+
+def check_voxel_fibers(fibers):
+    """!
+    @brief Rejects a fiber collection containing any unsupported cross-section.
+    @param fibers list List of Fiber objects.
+    @exception UnsupportedSectionError If at least one fiber has an unsupported section;
+    the message lists the offending fiber ids.
+    """
+    unsupported = {}
+    for f in fibers:
+        if f.section_type not in SUPPORTED_SECTIONS:
+            unsupported.setdefault(f.section_type, []).append(f.id)
+    if unsupported:
+        details = "; ".join(f"'{sec}' (fiber ids {ids})" for sec, ids in unsupported.items())
+        raise UnsupportedSectionError(
+            f"Voxel export does not support these cross-sections: {details}. "
+            f"Only {', '.join(SUPPORTED_SECTIONS)} sections are voxelised; "
+            f"no grid was produced."
+        )
 
 
 class Voxelizer:
@@ -56,7 +105,11 @@ class Voxelizer:
         @param res int Grid resolution (number of voxels per axis, e.g. 256 for 256^3).
 
         @return np.ndarray grid 3D numpy array of type uint8 containing the tags.
+        @exception UnsupportedSectionError If a fiber has a non-circular section
+        (checked before any rasterisation).
         """
+        check_voxel_fibers(fibers)
+
         dims = np.array(self.config.box_dims)
 
         # Initialisation: everything is MATRIX (0)

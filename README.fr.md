@@ -117,7 +117,7 @@ python main.py \
 | Parametre | Type | Defaut | Description |
 |-----------|------|--------|-------------|
 | `--radius` | float | 0.02 | Rayon de collision (enveloppe circulaire) |
-| `--section` | str | circular | Type de section (circular, superelliptical) |
+| `--section` | str | circular | Type de section (circular, superelliptical). `main.py` refuse `superelliptical` (code de sortie 2) car l'export voxel ne prend en charge que les sections circulaires |
 | `--sec_major` | float | 0.019 | Demi-axe majeur (section reelle) |
 | `--sec_minor` | float | 0.015 | Demi-axe mineur (section reelle) |
 | `--sec_n` | float | 2.5 | Exposant superellipse (>2 = coins arrondis) |
@@ -237,6 +237,10 @@ Decomposition anisotrope par analyse en composantes principales :
 ### Voxelisation
 
 Rasterisation 3D sur grille reguliere :
+- Domaine pris en charge : sections circulaires uniquement. La rasterisation
+  utilise la ligne centrale et le rayon scalaire ; toute autre section est
+  refusee (`UnsupportedSectionError`) avant rasterisation, aucune grille
+  circulaire n'est renvoyee pour une geometrie non circulaire
 - Tags : matrice=0, fibres=128, pores=255 (uint8, choisi pour l'export PGM en niveaux de gris)
 - Distance point-segment exacte par voxel (Numba JIT)
 - Acceleration par BBox locale + early exit

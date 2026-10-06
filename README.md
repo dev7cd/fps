@@ -166,7 +166,7 @@ python main.py \
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
 | `--radius` | float | 0.02 | Collision radius (circular envelope) |
-| `--section` | str | circular | Cross-section type (circular, superelliptical) |
+| `--section` | str | circular | Cross-section type (circular, superelliptical). `main.py` refuses `superelliptical` (exit code 2) because the voxel export only supports circular sections |
 | `--sec_major` | float | 0.019 | Major semi-axis (real section) |
 | `--sec_minor` | float | 0.015 | Minor semi-axis (real section) |
 | `--sec_n` | float | 2.5 | Super-ellipse exponent (>2 = rounded corners) |
@@ -336,6 +336,10 @@ Anisotropic decomposition via principal component analysis:
 
 3D rasterisation on a regular grid:
 
+- Supported domain: circular cross-sections only. The rasteriser uses the
+  centerline and the scalar radius; any other section is refused with
+  `UnsupportedSectionError` before rasterisation, so no circular grid is
+  returned for a non-circular geometry.
 - Tags: matrix = 0, fiber = 128, pore = 255 (uint8, chosen for direct PGM greyscale export).
 - Exact point-segment distance per voxel (Numba JIT).
 - Accelerated by local BBox + early exit.

@@ -30,7 +30,7 @@ from core.fiber import Fiber # Needed to instantiate the ghosts
 from validation.topology import TopologyValidator
 
 from export.gmsh_exporter import GmshExporter
-from export.voxelizer import Voxelizer
+from export.voxelizer import Voxelizer, UnsupportedSectionError, check_voxel_section_type
 from export.csv_exporter import CSVFiberExporter
 from visualization.descriptors import AD_PCA_Analyzer, MicroDescriptor
 
@@ -109,6 +109,15 @@ def main():
 
     # --- STEP 0: configuration ---
     config, args = parse_args()
+
+    # The voxel export below is unconditional: refuse unsupported sections now,
+    # before the costly generation and before writing any output file.
+    try:
+        check_voxel_section_type(config.fiber_section_type)
+    except UnsupportedSectionError as e:
+        logger.error(f"{e} main.py always exports the voxel grid: use --section circular.")
+        sys.exit(2)
+
     logger.info(f"=== INITIALISATION: target Vf={config.target_volume_fraction:.1%} ===")
 
     detector = CollisionDetector(config)
