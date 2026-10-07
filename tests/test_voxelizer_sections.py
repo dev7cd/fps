@@ -62,14 +62,19 @@ def forbid_rasterisation(monkeypatch):
     monkeypatch.setattr(voxelizer, "_raster_fiber_numba", _fail)
 
 
-def test_circular_section_keeps_reference_grid(voxelizer_unit_box):
-    grid = voxelizer_unit_box.create_grid([make_fiber(1, CIRCULAR)], [], 64)
+def test_circular_section_has_flat_cylindrical_ends(voxelizer_unit_box):
+    fiber = make_fiber(1, CIRCULAR)
+    grid = voxelizer_unit_box.create_grid([fiber], [], 64)
 
     assert grid.shape == (64, 64, 64)
     assert grid.dtype == np.uint8
     assert set(np.unique(grid)) == {0, TAG_FIBER}
-    # Non-regression count recorded in T02 before the fix.
-    assert int(np.sum(grid == TAG_FIBER)) == 3648
+    # Regression count for the flat-ended swept cylinder (no hemispherical caps).
+    assert int(np.sum(grid == TAG_FIBER)) == 3040
+    axial_centres = (np.flatnonzero(np.any(grid == TAG_FIBER, axis=(0, 1))) + 0.5) / 64
+    assert axial_centres.min() >= fiber.centerline[0, 2]
+    assert axial_centres.max() <= fiber.centerline[-1, 2]
+    assert fiber.get_real_volume() == pytest.approx(np.pi * ENVELOPE_RADIUS**2 * 0.6)
 
 
 def test_superelliptical_section_is_refused(voxelizer_unit_box, forbid_rasterisation):

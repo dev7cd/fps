@@ -70,7 +70,9 @@ class Fiber:
 
     def get_real_volume(self) -> float:
         """!
-        @brief Computes the real volume of the fiber.
+        @brief Computes the real volume of the fiber without end caps.
+        @details The fiber is a finite cylinder/tube with flat end sections:
+                 volume = section area * curvilinear centerline length.
         @return float Volume based on the real section area and the curvilinear length.
         """
         area = self.section_profile.get_area()

@@ -209,7 +209,10 @@ class Voxelizer:
 def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
     """!
     @brief Numba kernel for rasterising a segmented fiber.
-    @details Computes the minimum distance between each voxel centre and the fiber segments.
+    @details Rasterises the tube swept along the polyline. Internal segment
+    joins use the closest-segment distance; the two external ends are cut by
+    planes normal to the first and last segments, so no hemispherical caps are
+    added. This matches Fiber.get_real_volume() = section area * centerline length.
 
     @param grid Reference to the 3D grid.
     @param centerline Points of the fiber centerline.
@@ -231,7 +234,11 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
                 if grid[i, j, k] != 0:
                     continue
 
-                is_inside = False
+                min_d_sq = 1e300
+                nearest_idx = -1
+                nearest_b = 0.0
+                nearest_c1 = 0.0
+                nearest_c2 = 0.0
 
                 for idx in range(n_pts - 1):
                     p1 = centerline[idx]
@@ -249,10 +256,9 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
                     c2 = vx * vx + vy * vy + vz * vz
 
                     if c2 <= 1e-12:
-                        b = 0.0
-                    else:
-                        b = c1 / c2
+                        continue
 
+                    b = c1 / c2
                     if b < 0.0:
                         b = 0.0
                     elif b > 1.0:
@@ -264,11 +270,21 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
 
                     d_sq = (x - proj_x) ** 2 + (y - proj_y) ** 2 + (z - proj_z) ** 2
 
-                    if d_sq <= r_sq:
-                        is_inside = True
-                        break
+                    if d_sq < min_d_sq:
+                        min_d_sq = d_sq
+                        nearest_idx = idx
+                        nearest_b = b
+                        nearest_c1 = c1
+                        nearest_c2 = c2
 
-                if is_inside:
+                # The clamped closest-point construction is a capsule at the
+                # two outer endpoints. Remove only those endpoint features;
+                # internal joins stay rounded so the sampled tube remains
+                # connected, including for curved centerlines.
+                at_start_cap = nearest_idx == 0 and nearest_b == 0.0 and nearest_c1 < 0.0
+                at_end_cap = (nearest_idx == n_pts - 2 and nearest_b == 1.0 and
+                              nearest_c1 > nearest_c2)
+                if min_d_sq <= r_sq and not at_start_cap and not at_end_cap:
                     grid[i, j, k] = tag
 
 
