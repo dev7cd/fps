@@ -62,14 +62,62 @@ def forbid_rasterisation(monkeypatch):
     monkeypatch.setattr(voxelizer, "_raster_fiber_numba", _fail)
 
 
-def test_circular_section_keeps_reference_grid(voxelizer_unit_box):
-    grid = voxelizer_unit_box.create_grid([make_fiber(1, CIRCULAR)], [], 64)
+def test_circular_section_has_flat_cylindrical_ends(voxelizer_unit_box):
+    fiber = make_fiber(1, CIRCULAR)
+    grid = voxelizer_unit_box.create_grid([fiber], [], 64)
 
     assert grid.shape == (64, 64, 64)
     assert grid.dtype == np.uint8
     assert set(np.unique(grid)) == {0, TAG_FIBER}
-    # Non-regression count recorded in T02 before the fix.
-    assert int(np.sum(grid == TAG_FIBER)) == 3648
+    # Regression count for the flat-ended swept cylinder (no hemispherical caps).
+    assert int(np.sum(grid == TAG_FIBER)) == 3040
+    axial_centres = (np.flatnonzero(np.any(grid == TAG_FIBER, axis=(0, 1))) + 0.5) / 64
+    assert axial_centres.min() >= fiber.centerline[0, 2]
+    assert axial_centres.max() <= fiber.centerline[-1, 2]
+    assert fiber.get_real_volume() == pytest.approx(np.pi * ENVELOPE_RADIUS**2 * 0.6)
+
+
+def test_folded_fiber_keeps_voxels_covered_beyond_an_end_plane():
+    # Hairpin polyline: up along x = 0.5, across, then back down along x = 0.58,
+    # ending at z = 0.6. The probe voxel lies below that end plane: its nearest
+    # segment is the end cap (rejected), but the first leg covers it.
+    centerline = np.array([[0.5, 0.5, 0.2], [0.5, 0.5, 0.8],
+                           [0.58, 0.5, 0.8], [0.58, 0.5, 0.6]])
+    n, r = 100, 0.08
+    grid = np.zeros((n, n, n), dtype=np.uint8)
+    h = 1.0 / n
+    voxelizer._raster_fiber_numba(grid, centerline, r * r, 0, n, 0, n, 0, n, h, h, h, TAG_FIBER)
+
+    def centre(i, j, k):
+        return np.array([i + 0.5, j + 0.5, k + 0.5]) * h
+
+    covered, outside, inside_leg = (55, 49, 56), (60, 49, 56), (60, 49, 61)
+    end = centerline[-1]
+    first_leg_dist = np.hypot(*(centre(*covered) - [0.5, 0.5, 0.0])[:2])
+    # The probe is closer to the end point than to the first leg, yet inside the first leg.
+    assert np.linalg.norm(centre(*covered) - end) < first_leg_dist < r
+    assert grid[covered] == TAG_FIBER
+    # Beyond the end plane and covered by nothing else: not tagged (no cap).
+    assert np.linalg.norm(centre(*outside) - end) < r
+    assert grid[outside] == 0
+    # Inside the last leg, above its end: tagged.
+    assert grid[inside_leg] == TAG_FIBER
+
+
+def test_curved_fiber_volume_matches_swept_disk():
+    # Quarter torus: the swept-disk volume is pi r^2 * (R theta) (Pappus). Joins
+    # must neither add caps at the ends nor lose volume in the bend.
+    r, R = 0.08, 0.3
+    theta = np.linspace(0.0, np.pi / 2, 100)
+    centerline = np.ascontiguousarray(np.stack(
+        [0.2 + R * np.cos(theta), 0.2 + R * np.sin(theta), np.full_like(theta, 0.5)], axis=1))
+    n = 128
+    grid = np.zeros((n, n, n), dtype=np.uint8)
+    h = 1.0 / n
+    voxelizer._raster_fiber_numba(grid, centerline, r * r, 0, n, 0, n, 0, n, h, h, h, TAG_FIBER)
+    volume = np.count_nonzero(grid == TAG_FIBER) * h ** 3
+    exact = np.pi * r * r * np.sum(np.linalg.norm(np.diff(centerline, axis=0), axis=1))
+    assert abs(volume - exact) / exact < 0.025
 
 
 def test_superelliptical_section_is_refused(voxelizer_unit_box, forbid_rasterisation):
