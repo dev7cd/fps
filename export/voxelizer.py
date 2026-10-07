@@ -209,10 +209,21 @@ class Voxelizer:
 def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, kmax, dx, dy, dz, tag):
     """!
     @brief Numba kernel for rasterising a segmented fiber.
-    @details Rasterises the tube swept along the polyline. Internal segment
-    joins use the closest-segment distance; the two external ends are cut by
-    planes normal to the first and last segments, so no hemispherical caps are
-    added. This matches Fiber.get_real_volume() = section area * centerline length.
+    @details Rasterises the tube swept by a disk of radius r kept normal to the
+    polyline (flat ends, no hemispherical caps), so that its volume matches
+    Fiber.get_real_volume() = section area * centerline length.
+
+    A point is inside when either
+    - its projection falls *within* a segment (0 <= b <= 1, not clamped) at a
+      distance <= r: a flat-ended cylinder per segment; or
+    - it lies within r of an *internal* vertex and in the outer wedge of the
+      bend, i.e. in front of the incoming segment's normal plane and behind
+      the outgoing one's: the region the disk sweeps while turning.
+    The two outer ends have no vertex contribution, so they stay flat however
+    short the segments are (clamped capsules would rebuild an almost full cap
+    from the joint next to each end). Every segment and vertex is tested on its
+    own, so a portion of the same fiber passing nearby still covers a voxel
+    beyond an end plane (folded fiber).
 
     @param grid Reference to the 3D grid.
     @param centerline Points of the fiber centerline.
@@ -234,57 +245,48 @@ def _raster_fiber_numba(grid, centerline, r_sq, imin, imax, jmin, jmax, kmin, km
                 if grid[i, j, k] != 0:
                     continue
 
-                min_d_sq = 1e300
-                nearest_idx = -1
-                nearest_b = 0.0
-                nearest_c1 = 0.0
-                nearest_c2 = 0.0
+                is_inside = False
 
+                # Flat-ended cylinders, one per segment.
                 for idx in range(n_pts - 1):
                     p1 = centerline[idx]
                     p2 = centerline[idx + 1]
-
                     vx = p2[0] - p1[0]
                     vy = p2[1] - p1[1]
                     vz = p2[2] - p1[2]
-
+                    c2 = vx * vx + vy * vy + vz * vz
+                    if c2 <= 1e-12:
+                        continue
                     wx = x - p1[0]
                     wy = y - p1[1]
                     wz = z - p1[2]
-
                     c1 = wx * vx + wy * vy + wz * vz
-                    c2 = vx * vx + vy * vy + vz * vz
-
-                    if c2 <= 1e-12:
+                    if c1 < 0.0 or c1 > c2:
                         continue
-
                     b = c1 / c2
-                    if b < 0.0:
-                        b = 0.0
-                    elif b > 1.0:
-                        b = 1.0
+                    d_sq = (wx - b * vx) ** 2 + (wy - b * vy) ** 2 + (wz - b * vz) ** 2
+                    if d_sq <= r_sq:
+                        is_inside = True
+                        break
 
-                    proj_x = p1[0] + b * vx
-                    proj_y = p1[1] + b * vy
-                    proj_z = p1[2] + b * vz
+                # Outer wedges at internal vertices.
+                if not is_inside:
+                    for idx in range(1, n_pts - 1):
+                        pv = centerline[idx]
+                        wx = x - pv[0]
+                        wy = y - pv[1]
+                        wz = z - pv[2]
+                        if wx * wx + wy * wy + wz * wz > r_sq:
+                            continue
+                        pin = centerline[idx - 1]
+                        pout = centerline[idx + 1]
+                        in_dot = wx * (pv[0] - pin[0]) + wy * (pv[1] - pin[1]) + wz * (pv[2] - pin[2])
+                        out_dot = wx * (pout[0] - pv[0]) + wy * (pout[1] - pv[1]) + wz * (pout[2] - pv[2])
+                        if in_dot >= 0.0 and out_dot <= 0.0:
+                            is_inside = True
+                            break
 
-                    d_sq = (x - proj_x) ** 2 + (y - proj_y) ** 2 + (z - proj_z) ** 2
-
-                    if d_sq < min_d_sq:
-                        min_d_sq = d_sq
-                        nearest_idx = idx
-                        nearest_b = b
-                        nearest_c1 = c1
-                        nearest_c2 = c2
-
-                # The clamped closest-point construction is a capsule at the
-                # two outer endpoints. Remove only those endpoint features;
-                # internal joins stay rounded so the sampled tube remains
-                # connected, including for curved centerlines.
-                at_start_cap = nearest_idx == 0 and nearest_b == 0.0 and nearest_c1 < 0.0
-                at_end_cap = (nearest_idx == n_pts - 2 and nearest_b == 1.0 and
-                              nearest_c1 > nearest_c2)
-                if min_d_sq <= r_sq and not at_start_cap and not at_end_cap:
+                if is_inside:
                     grid[i, j, k] = tag
 
 
