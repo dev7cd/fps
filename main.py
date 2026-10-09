@@ -104,13 +104,17 @@ def main():
     # --- STEP 0: configuration ---
     config, args = parse_args()
 
-    # The voxel export below is unconditional: refuse unsupported sections now,
-    # before the costly generation and before writing any output file.
+    # The voxel export below is unconditional and the audit only covers circular sections:
+    # refuse other sections now, before the costly generation, with the validity diagnostic.
     try:
         check_voxel_section_type(config.fiber_section_type)
     except UnsupportedSectionError as e:
-        logger.error(f"{e} main.py always exports the voxel grid: use --section circular.")
-        sys.exit(2)
+        result = geometric_audit.refusal('input validation (section)',
+                                         f"{e} main.py always exports the voxel grid: use --section circular.")
+        path = geometric_audit.write_record(f"{config.output_prefix}_validity.json",
+                                            geometric_audit.build_record(config, None, result, 1))
+        logger.error(f"{result['cause']} Diagnostic: {path}. No generation, no export.")
+        sys.exit(1)
 
     logger.info(f"=== INITIALISATION: target Vf={config.target_volume_fraction:.1%} ===")
 
@@ -207,11 +211,12 @@ def finalize(config, fibers, t_start):
     result = geometric_audit.audit(fibers, config.box_dims, requested,
                                    section_type=config.fiber_section_type,
                                    generate_porosity=config.generate_porosity)
-    exit_code = 0 if result['status'] == 'passed' else 1
-    validity = geometric_audit.build_record(config, fibers, result, exit_code)
+    validity = geometric_audit.build_record(config, fibers, result, 0 if result['status'] == 'passed' else 1)
     path = geometric_audit.write_record(f"{config.output_prefix}_validity.json", validity)
-    if result['status'] != 'passed':
-        logger.error(f"Geometric audit {result['status']} ({result['stage']}): {result['cause']}. "
+    # Decision on the final status of the record: a passed audit whose hashes cannot be built is
+    # turned into `undetermined` by build_record (no export without its link to the geometry).
+    if validity['status'] != 'passed':
+        logger.error(f"Geometric audit {validity['status']} ({validity['stage']}): {validity['cause']}. "
                      f"Diagnostic: {path}. No export written.")
         sys.exit(1)
     logger.info(f"Geometric audit passed: min clearance = {result['min_clearance']:.6e} "

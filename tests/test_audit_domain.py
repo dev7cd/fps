@@ -124,3 +124,31 @@ def test_v3_record_is_strict_json(tmp_path):
     assert data['status'] == 'undetermined' and data['requested_clearance'] is None
     assert data['min_clearance'] is None and data['min_clearance_cause']
     assert data['contact_allowed'] is False
+
+
+def test_v3_non_integer_identifier():
+    """R12: an identifier that the hash cannot convert is refused at validation, not after a success."""
+    fs = two_good()
+    fs[0].id = 'a'
+    assert 'integers' in undetermined(fs)
+
+
+def test_v3_stale_bounding_box():
+    """The voxelizer uses fiber.bbox to choose images and raster bounds: a stale cache is refused."""
+    fs = two_good()
+    fs[1].bbox = (fs[1].bbox[0] + 0.01, fs[1].bbox[1])
+    assert 'bounding box' in undetermined(fs)
+
+
+@pytest.mark.parametrize('bad', [float('nan'), float('inf')])
+def test_v3_non_finite_self_distance(monkeypatch, bad):
+    """R11: a non-finite distance on the self images only, with finite inter-fiber distances, is refused."""
+    real = ga.periodic_polyline_distance
+
+    def fake(p1, p2, Lx, Ly, Lz, same):
+        if same:
+            return bad, 0, 0, 0, -1, -1
+        return real(p1, p2, Lx, Ly, Lz, same)
+    monkeypatch.setattr(ga, 'periodic_polyline_distance', fake)
+    cause = undetermined(two_good())
+    assert 'non-finite distance' in cause and 'own images' in cause

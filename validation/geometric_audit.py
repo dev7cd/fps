@@ -39,10 +39,13 @@ NUM_POINTS = 100
 SEGMENT_C2_MIN = 1e-12          # squared length (code units); segments at or below are skipped by the voxelizer
 FPS_ROOT = Path(__file__).resolve().parents[1]
 
-METHOD = ('exact segment-to-segment distance between the sampled centerlines (validation/audit_distance.py: '
-          'four endpoint-to-segment candidates and the interior stationary point from n = d1 x d2), minimised '
-          'over every periodic image that can hold the minimum; clearance = distance - (r_i + r_j); a fiber '
-          'against its own non-zero images: distance - 2 r_i')
+METHOD = ('segment-to-segment distance between the sampled centerlines (validation/audit_distance.py), in double '
+          'precision: minimum of the four endpoint-to-segment distances and of the interior candidate; interior '
+          'candidate from n = d1 x d2 (line distance |r.n|/|n|) when |n|^2 > 1e-4 a e, otherwise golden-section '
+          'search of the convex function dist(P(s), segment) down to |ds| <= 1e-14; minimised over every periodic '
+          'image that can hold the minimum; clearance = distance - (r_i + r_j), a fiber against its own non-zero '
+          'images: distance - 2 r_i. Numerical qualification by the V1/V2 tests against an exact rational oracle '
+          '(|d - d_ref| <= 1e-12 max segment length on the tested cases); not a certified floating-point bound')
 SAMPLING = {'routine': 'geometry.curves.CatmullRomSpline.interpolate', 'num_points': NUM_POINTS, 'alpha': 0.5,
             'form': 'uniform Catmull-Rom basis per span with ghost end points, then the routine resampling; '
                     'alpha=0.5 does not make the parameterisation centripetal',
@@ -136,7 +139,9 @@ def _validate(fibers, box_dims, requested, section_type, generate_porosity):
     if not fibers:
         raise AuditInputError('no fiber to audit')
     ids = [f.id for f in fibers]
-    if len(set(ids)) != len(ids):
+    if any(isinstance(i, bool) or not isinstance(i, (int, np.integer)) for i in ids):
+        raise AuditInputError(f'fiber identifiers must be integers: {ids!r}')
+    if len(set(int(i) for i in ids)) != len(ids):
         raise AuditInputError('duplicate fiber identifiers')
     lines = []
     for f in fibers:
@@ -152,6 +157,11 @@ def _validate(fibers, box_dims, requested, section_type, generate_porosity):
                                   f'(stale geometry); exports and the adapter would not see the same object')
         if line.ndim != 2 or line.shape[1] != 3 or line.shape[0] < 2 or not np.all(np.isfinite(line)):
             raise AuditInputError(f'fiber {f.id}: centerline must be a finite (n >= 2, 3) array')
+        box = getattr(f, 'bbox', None)
+        if box is None or not (np.array_equal(np.asarray(box[0], dtype=float), line.min(axis=0) - f.radius)
+                               and np.array_equal(np.asarray(box[1], dtype=float), line.max(axis=0) + f.radius)):
+            raise AuditInputError(f'fiber {f.id}: cached bounding box differs from the centerline +- radius '
+                                  f'(stale geometry); the voxelizer uses it to choose images and raster bounds')
         c2 = np.sum(np.diff(line, axis=0) ** 2, axis=1)
         if np.any(c2 <= SEGMENT_C2_MIN):
             k = int(np.argmax(c2 <= SEGMENT_C2_MIN))
@@ -200,10 +210,9 @@ def audit(fibers, box_dims, requested, section_type='circular', generate_porosit
             for j in range(i, len(fibers)):
                 fj = fibers[j]
                 d, kx, ky, kz, si, sj = periodic_polyline_distance(lines[i], lines[j], L[0], L[1], L[2], i == j)
-                if not math.isfinite(d):
-                    if i == j:
-                        continue                               # no non-zero image of a fiber near itself
-                    raise AuditInputError(f'no distance computed between fibers {fi.id} and {fj.id}')
+                if not math.isfinite(d):                       # self images included: they always exist
+                    what = f'fiber {fi.id} and its own images' if i == j else f'fibers {fi.id} and {fj.id}'
+                    raise AuditInputError(f'non-finite distance ({d!r}) between {what}')
                 gap = d - (float(fi.radius) + float(fj.radius))
                 if gap < best:
                     best = gap
@@ -225,28 +234,46 @@ def audit(fibers, box_dims, requested, section_type='circular', generate_porosit
     return res
 
 
+def refusal(stage, cause):
+    """Audit result of an attempt refused before any geometry exists."""
+    return {'status': 'undetermined', 'cause': cause, 'stage': stage, 'min_clearance': None,
+            'min_clearance_cause': 'geometry not produced', 'responsible_pair': None}
+
+
 def build_record(config, fibers, result, exit_code):
-    """Validity record of an attempt (strict JSON once passed through json_safe)."""
+    """Validity record of an attempt (strict JSON once passed through json_safe).
+
+    The hashes are required for a success: if they cannot be built, a `passed` result becomes
+    `undetermined` (stage `hashes`, exit code 1). `fibers` is None when no geometry was produced.
+    """
     prov = fps_provenance()
-    try:
-        records = microstructure_records(fibers)
-        fib_sha = fibers_sha256(records)
-        fallback = [f.id for f in fibers if len(np.asarray(f.control_points)) < 4]
-        geo_sha, geo_obj = audited_geometry_sha256(fib_sha, config.box_dims, fallback, prov['commit'])
-        hash_cause = None
-    except Exception as e:
+    status, cause, stage = result['status'], result['cause'], result['stage']
+    if fibers is None:
         fib_sha = geo_sha = geo_obj = None
-        hash_cause = f'hash not computed: {type(e).__name__}: {e}'
+        hash_cause = 'geometry not produced'
+    else:
+        try:
+            records = microstructure_records(fibers)
+            fib_sha = fibers_sha256(records)
+            fallback = [f.id for f in fibers if len(np.asarray(f.control_points)) < 4]
+            geo_sha, geo_obj = audited_geometry_sha256(fib_sha, config.box_dims, fallback, prov['commit'])
+            hash_cause = None
+        except Exception as e:
+            fib_sha = geo_sha = geo_obj = None
+            hash_cause = f'hash not computed: {type(e).__name__}: {e}'
+            if status == 'passed':
+                status, stage, exit_code = 'undetermined', 'hashes', 1
+                cause = f'audit passed but the geometry hashes could not be built ({hash_cause}): no export'
     requested = getattr(config, 'min_clearance', None)
     return {
         'schema_version': SCHEMA_VERSION,
         'attempt': {'id': uuid.uuid4().hex, 'timestamp': datetime.datetime.now().isoformat(timespec='seconds')},
-        'status': result['status'], 'cause': result['cause'], 'stage': result['stage'],
+        'status': status, 'cause': cause, 'stage': stage,
         'exit_code': exit_code,
         'fps': prov,
         'seed': getattr(config, 'seed', None),
         'config_effective': json_safe(vars(config)),
-        'n_fibers': len(fibers),
+        'n_fibers': None if fibers is None else len(fibers),
         'fibers_sha256': fib_sha,
         'audited_geometry_sha256': geo_sha,
         'audited_geometry': geo_obj,

@@ -93,3 +93,75 @@ def test_v4_passed_exports_with_status(tmp_path):
     assert (tmp_path / 'rve_voxelmap.npy').read_bytes() != OLD['_voxelmap.npy']
     for f, cp in zip(fibers, cps):
         assert np.array_equal(f.control_points, cp)
+
+
+def strict(path):
+    def refuse(c):
+        raise ValueError(f'non-strict JSON constant {c}')
+    return json.loads(path.read_text(), parse_constant=refuse)
+
+
+def test_v4_section_refused_by_the_real_launcher(tmp_path, monkeypatch):
+    """R10: main.main with a non-circular section accepted by the parser: code 1, strict `undetermined`
+    diagnostic, no generation and no exporter, earlier exports intact, unknown geometry left unknown."""
+    seed_old_files(tmp_path)
+    calls = forbid_exports(monkeypatch)
+
+    def no_generation(*a, **k):
+        raise AssertionError('generation started for a refused section')
+    monkeypatch.setattr(main, 'FiberGenerator', no_generation)
+    monkeypatch.setattr(main, 'CollisionDetector', no_generation)
+    monkeypatch.setattr('sys.argv', ['main.py', '--section', 'superelliptical', '--no_mesh', '--res_fft', '16',
+                                     '--output', str(tmp_path / 'rve')])
+    with pytest.raises(SystemExit) as exc:
+        main.main()
+    assert exc.value.code == 1 and calls == []
+    rec = strict(tmp_path / 'rve_validity.json')
+    assert rec['status'] == 'undetermined' and rec['exit_code'] == 1 and 'superelliptical' in rec['cause']
+    assert rec['stage'] == 'input validation (section)'
+    assert rec['n_fibers'] is None and rec['fibers_sha256'] is None and rec['audited_geometry_sha256'] is None
+    assert rec['hash_cause'] == 'geometry not produced' and rec['min_clearance'] is None
+    for suffix, data in OLD.items():
+        if suffix != '_validity.json':
+            assert (tmp_path / f'rve{suffix}').read_bytes() == data, suffix
+
+
+def nominal_fibers():
+    return [fiber(1, (0.2, 0.2, 0.5), (0.2, 0.8, 0.5)), fiber(2, (0.6, 0.2, 0.5), (0.6, 0.8, 0.5))]
+
+
+@pytest.mark.parametrize('bad', [float('nan'), float('inf')])
+def test_v4_non_finite_self_distance_stops_exports(tmp_path, monkeypatch, bad):
+    """R11 in finalize: non-finite self-image distance, finite inter-fiber distance -> refusal before exports."""
+    seed_old_files(tmp_path)
+    calls = forbid_exports(monkeypatch)
+    real = main.geometric_audit.periodic_polyline_distance
+
+    def fake(p1, p2, Lx, Ly, Lz, same):
+        return (bad, 0, 0, 0, -1, -1) if same else real(p1, p2, Lx, Ly, Lz, same)
+    monkeypatch.setattr(main.geometric_audit, 'periodic_polyline_distance', fake)
+    with pytest.raises(SystemExit) as exc:
+        main.finalize(config(tmp_path), nominal_fibers(), 0.0)
+    assert exc.value.code == 1 and calls == []
+    rec = strict(tmp_path / 'rve_validity.json')
+    assert rec['status'] == 'undetermined' and 'own images' in rec['cause']
+
+
+def test_v4_hash_failure_turns_success_into_refusal(tmp_path, monkeypatch):
+    """R12: nominal geometry (audit passed) but the hash cannot be built -> undetermined, code 1, no export."""
+    seed_old_files(tmp_path)
+    calls = forbid_exports(monkeypatch)
+
+    def broken(records):
+        raise RuntimeError('injected hash failure')
+    monkeypatch.setattr(main.geometric_audit, 'fibers_sha256', broken)
+    with pytest.raises(SystemExit) as exc:
+        main.finalize(config(tmp_path), nominal_fibers(), 0.0)
+    assert exc.value.code == 1 and calls == []
+    rec = strict(tmp_path / 'rve_validity.json')
+    assert rec['status'] == 'undetermined' and rec['stage'] == 'hashes' and rec['exit_code'] == 1
+    assert rec['fibers_sha256'] is None and 'injected hash failure' in rec['hash_cause']
+    assert rec['min_clearance'] is not None                # the geometric result is kept in the diagnostic
+    for suffix, data in OLD.items():
+        if suffix != '_validity.json':
+            assert (tmp_path / f'rve{suffix}').read_bytes() == data, suffix

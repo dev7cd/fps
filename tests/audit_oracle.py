@@ -8,14 +8,13 @@ The float coordinates actually given to the kernel are converted to exact ration
 The squared distance f(s, t) = |r + s d1 - t d2|^2 (r = A - C) is minimised exactly
 over [0, 1]^2: interior stationary point when det = a e - b^2 > 0, and the
 minimiser of each of the four edges, clamped. Only the final square root uses
-high-precision decimals (60 digits). Nothing here calls validation/audit_distance.py
+high-precision decimals: it is computed with 60 and with 90 digits, and the two
+rounded results must be identical (stability check). Nothing here calls validation/audit_distance.py
 or collision/detector_math.py.
 """
-from decimal import Decimal, getcontext
+from decimal import Decimal, localcontext
 from fractions import Fraction
 import itertools
-
-getcontext().prec = 60
 
 
 def _q(p):
@@ -59,8 +58,20 @@ def segment_distance_sq(A, B, C, D):
     return min(cands)
 
 
+def _sqrt_at(q, digits):
+    with localcontext() as ctx:
+        ctx.prec = digits
+        return float(Decimal(q.numerator).sqrt() / Decimal(q.denominator).sqrt())
+
+
 def sqrt_exact(q):
-    return float(Decimal(q.numerator).sqrt() / Decimal(q.denominator).sqrt()) if q > 0 else 0.0
+    """Square root of an exact rational, rounded to float; stable between 60 and 90 digits."""
+    if q <= 0:
+        return 0.0
+    a, b = _sqrt_at(q, 60), _sqrt_at(q, 90)
+    if a != b:
+        raise ArithmeticError(f'oracle square root not stable between 60 and 90 digits: {a!r} != {b!r}')
+    return a
 
 
 def segment_distance(A, B, C, D):
