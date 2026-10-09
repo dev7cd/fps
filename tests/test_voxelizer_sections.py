@@ -150,8 +150,9 @@ def test_cli_refuses_superelliptical_before_generation(tmp_path):
         cwd=tmp_path, capture_output=True, text=True, timeout=120,
     )
 
-    assert result.returncode != 0
+    # D10 (R10): refusal with the validity diagnostic, exit code 1, before generation and exports.
+    assert result.returncode == 1
     assert "does not support the 'superelliptical' cross-section" in result.stderr
     assert "use --section circular" in result.stderr
     assert "PHASE 1" not in result.stderr
-    assert list(tmp_path.iterdir()) == []
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["RVE_Result_validity.json"]

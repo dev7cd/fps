@@ -28,6 +28,7 @@ from generation.porosity_gen import PorosityGenerator
 from core.fiber import Fiber # Needed to instantiate the ghosts
 
 from validation.topology import TopologyValidator
+from validation import geometric_audit
 
 from export.gmsh_exporter import GmshExporter
 from export.voxelizer import Voxelizer, UnsupportedSectionError, check_voxel_section_type
@@ -50,7 +51,8 @@ logging.basicConfig(
 #  @brief Main logger for the RVE orchestrator.
 logger = logging.getLogger("RVE_Orchestrator")
 
-def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str):
+def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str,
+                              validity: dict = None):
     """!
     @brief Saves the RVE geometry and certified analysis results to a JSON file.
     @details This "O1" record contains metadata, simulation parameters,
@@ -59,6 +61,7 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
     @param fibers List of Fiber objects (roots).
     @param stats_dict Dictionary containing AD-PCA and spatial statistics.
     @param filename Output filename without extension.
+    @param validity Validity record of the final geometric audit (F03), stored under "validity".
     @return None
     """
     import datetime
@@ -81,19 +84,10 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
             "algo_params": config.generation_parameters
         },
         "computed_statistics": stats_dict,
-        "microstructure_data": []
+        "microstructure_data": geometric_audit.microstructure_records(fibers)
     }
-
-    for f in fibers:
-        fiber_entry = {
-            "id": f.id,
-            "control_points": f.control_points,
-            "radius": f.radius,
-            "geometry": {
-                "real_volume": f.get_real_volume()
-            }
-        }
-        record["microstructure_data"].append(fiber_entry)
+    if validity is not None:
+        record["validity"] = geometric_audit.json_safe(validity)
 
     with open(f"{filename}.json", "w") as f:
         json.dump(record, f, default=np_encoder, indent=4)
@@ -110,13 +104,17 @@ def main():
     # --- STEP 0: configuration ---
     config, args = parse_args()
 
-    # The voxel export below is unconditional: refuse unsupported sections now,
-    # before the costly generation and before writing any output file.
+    # The voxel export below is unconditional and the audit only covers circular sections:
+    # refuse other sections now, before the costly generation, with the validity diagnostic.
     try:
         check_voxel_section_type(config.fiber_section_type)
     except UnsupportedSectionError as e:
-        logger.error(f"{e} main.py always exports the voxel grid: use --section circular.")
-        sys.exit(2)
+        result = geometric_audit.refusal('input validation (section)',
+                                         f"{e} main.py always exports the voxel grid: use --section circular.")
+        path = geometric_audit.write_record(f"{config.output_prefix}_validity.json",
+                                            geometric_audit.build_record(config, None, result, 1))
+        logger.error(f"{result['cause']} Diagnostic: {path}. No generation, no export.")
+        sys.exit(1)
 
     logger.info(f"=== INITIALISATION: target Vf={config.target_volume_fraction:.1%} ===")
 
@@ -193,20 +191,40 @@ def main():
         optimizer = DynamicOptimizer(config, detector)
         fibers = optimizer.optimize_and_fill(fibers)
 
-    # --- STEP 3: AUDIT ---
-    logger.info("--- PHASE 3: Topological validation ---")
+    finalize(config, fibers, t_start)
+
+
+def finalize(config, fibers, t_start):
+    """!
+    @brief Final audit, porosity, statistics and exports of the generated fibers.
+    @details The blocking audit (F03) runs on the fibers transmitted to the exports, before any
+    other output: on `failed` or `undetermined` it writes `<prefix>_validity.json` and exits
+    with code 1, leaving earlier exports of the same prefix untouched.
+    @param config The configuration object.
+    @param fibers Final fibers (roots), not modified after the audit.
+    @param t_start Start time of the run.
+    @return None
+    """
+    # --- STEP 3: AUDIT (blocking, F03) ---
+    logger.info("--- PHASE 3: Geometric audit (blocking) ---")
+    requested = getattr(config, 'min_clearance', 0.0)
+    result = geometric_audit.audit(fibers, config.box_dims, requested,
+                                   section_type=config.fiber_section_type,
+                                   generate_porosity=config.generate_porosity)
+    validity = geometric_audit.build_record(config, fibers, result, 0 if result['status'] == 'passed' else 1)
+    path = geometric_audit.write_record(f"{config.output_prefix}_validity.json", validity)
+    # Decision on the final status of the record: a passed audit whose hashes cannot be built is
+    # turned into `undetermined` by build_record (no export without its link to the geometry).
+    if validity['status'] != 'passed':
+        logger.error(f"Geometric audit {validity['status']} ({validity['stage']}): {validity['cause']}. "
+                     f"Diagnostic: {path}. No export written.")
+        sys.exit(1)
+    logger.info(f"Geometric audit passed: min clearance = {result['min_clearance']:.6e} "
+                f"(requested >= {float(requested):.6e}, pair {result['responsible_pair']['fibers']}).")
+
+    # Historical statistic (generation detector kernel), kept as a separate measure.
     validator = TopologyValidator(config.box_dims)
     min_clearance = validator.check_clearance(fibers)
-
-    requested = getattr(config, 'min_clearance', 0.0) or 0.0
-    if min_clearance < 0:
-        logger.critical(f"ALERT: intersection detected ({min_clearance:.6e}).")
-    elif min_clearance < requested:
-        logger.warning(f"Topological audit: min clearance = {min_clearance:.6e} "
-                       f"below the requested {requested:.6e}.")
-    else:
-        logger.info(f"Topological audit: OK. Min clearance = {min_clearance:.6e} "
-                    f"(requested >= {requested:.6e})")
 
     # --- STEP 4: POROSITY ---
     voids = []
@@ -257,7 +275,7 @@ def main():
         logger.info(f"  Mean NND = {nnd['nnd_mean']:.6f}, Voronoi CV = {voronoi['areas_cv']:.4f}")
 
     # 2. O1 save (parametric record)
-    save_parametric_record_O1(config, fibers, final_stats, f"{config.output_prefix}_parametric")
+    save_parametric_record_O1(config, fibers, final_stats, f"{config.output_prefix}_parametric", validity)
 
     # 3. CSV saves (DOUBLE EXPORT)
 

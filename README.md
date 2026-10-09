@@ -52,7 +52,7 @@ The pipeline runs in 5 sequential stages:
 ```
 Stage 1 : Constructive placement (CSAW)      -> generation/generator.py
 Stage 2 : Non-destructive densification       -> generation/optimizer_dynamic.py   (Compress & Fill)
-Stage 3 : Topological audit                    -> validation/topology.py
+Stage 3 : Blocking geometric audit (F03)       -> validation/geometric_audit.py
 Stage 4 : Porosity generation (optional)       -> generation/porosity_gen.py
 Stage 5 : Statistics and export                -> main.py
 ```
@@ -79,7 +79,9 @@ fps/
 │   ├── detector.py            # CollisionDetector (API: group_valid, segment_free, periodic)
 │   └── detector_math.py       # Numba kernels: segment-to-segment distance (Eberly), MIC
 ├── validation/
-│   ├── topology.py            # Unified clearance audit (segment-segment + gap distribution)
+│   ├── geometric_audit.py     # Blocking final audit (F03): status, scope, {prefix}_validity.json
+│   ├── audit_distance.py      # Audit distance kernel, independent of the generation detector
+│   ├── topology.py            # Historical clearance statistic (topology_gap_min) + gap distribution
 │   └── statistics.py          # Spatial descriptors (NND, Ripley K, g(r), Voronoi)
 ├── visualization/
 │   ├── descriptors.py         # AD–PCA (orientation tensors), MicroDescriptor
@@ -170,7 +172,7 @@ python main.py \
 | `--sec_major` | float | 0.019 | Major semi-axis (real section) |
 | `--sec_minor` | float | 0.015 | Minor semi-axis (real section) |
 | `--sec_n` | float | 2.5 | Super-ellipse exponent (>2 = rounded corners) |
-| `--clearance` | float | 0.0 | Minimum inter-fiber clearance |
+| `--clearance` | float | 0.0 | Minimum inter-fiber clearance requested by the final audit; 0 allows contact |
 
 ### 3. Trajectory and orientation
 
@@ -225,7 +227,8 @@ python main.py \
 
 | File | Description |
 |------|-------------|
-| `{prefix}_parametric.json` | metadata, parameters, statistics, fiber geometry |
+| `{prefix}_validity.json` | status of the final geometric audit (`passed`, `failed`, `undetermined`), written for every attempt |
+| `{prefix}_parametric.json` | metadata, parameters, statistics, fiber geometry, and the same `validity` record |
 | `{prefix}_roots.csv` | control points of the root fibers |
 | `{prefix}_full_periodic.csv` | root fibers + all periodic ghosts |
 | `{prefix}_voxelmap.npy` | 3D uint8 grid (matrix=0, fiber=128, pore=255) |
@@ -233,6 +236,29 @@ python main.py \
 | `{prefix}.step` | CAD geometry (OpenCASCADE) |
 | `{prefix}.msh` | finite-element mesh (Gmsh v4) |
 | `{prefix}.bdf` | Nastran Bulk Data (with `--nastran`) |
+
+### Final geometric audit (F03)
+
+After optimisation, `main.py` audits the fibers transmitted to the exports, before
+porosity, statistics and any export. Only `passed` allows the exports; `failed`
+(envelope intersection or clearance below `--clearance`) and `undetermined`
+(unusable input, domain not covered, audit error) write `{prefix}_validity.json`
+and exit with code 1, leaving earlier exports of the same prefix untouched.
+
+Scope of `passed`: a sufficient condition for the tubes of the sampled centerline
+(the 100-point polyline rasterised by the voxelizer) to be disjoint, for the
+audit kernel `validation/audit_distance.py` qualified by the tests
+`tests/test_audit_*.py`. Not covered: the continuous spline, self-intersections
+of a fiber with itself, the separation of fibers in the voxel grid, periodic
+images needing shifts beyond -1/0/+1 (refused), non-circular sections and pores.
+The record carries the method, the scope, the excluded checks, the measured and
+requested clearances, the responsible pair, the FPS commit and two hashes:
+`fibers_sha256` (canonical `microstructure_data`) and `audited_geometry_sha256`
+(geometry, box, section and interpolation convention, FPS commit).
+
+The generation detector (`collision/detector_math.py`) is unchanged; its
+absolute threshold can overestimate the distance between short or nearly
+parallel segments, which is why the final audit uses its own kernel.
 
 ## Algorithms
 

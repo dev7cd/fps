@@ -15,7 +15,7 @@ Le pipeline s'execute en 5 phases sequentielles :
 ```
 Phase 1 : Placement constructif (CSAW)      -> generation/generator.py
 Phase 2 : Densification dynamique            -> generation/optimizer_dynamic.py
-Phase 3 : Audit topologique                  -> validation/topology.py
+Phase 3 : Audit geometrique bloquant (F03)   -> validation/geometric_audit.py
 Phase 4 : Generation de porosite             -> generation/porosity_gen.py
 Phase 5 : Statistiques et exports            -> main.py
 ```
@@ -42,7 +42,9 @@ fiber_packing_system_v6/
 │   ├── detector.py            # API de detection de collision
 │   └── detector_math.py       # Kernels Numba : distance segment-a-segment (Eberly)
 ├── validation/
-│   ├── topology.py            # Audit clearance (segment-segment + MIC) + distribution gaps
+│   ├── geometric_audit.py     # Audit final bloquant (F03) : statut, portee, {prefix}_validity.json
+│   ├── audit_distance.py      # Noyau de distance de l'audit, independant du detecteur de generation
+│   ├── topology.py            # Statistique historique de clearance (topology_gap_min) + distribution gaps
 │   └── statistics.py          # Descripteurs spatiaux (NND, Ripley K, g(r), Voronoi)
 ├── visualization/
 │   ├── descriptors.py         # AD-PCA (tenseurs d'orientation), MicroDescriptor
@@ -121,7 +123,7 @@ python main.py \
 | `--sec_major` | float | 0.019 | Demi-axe majeur (section reelle) |
 | `--sec_minor` | float | 0.015 | Demi-axe mineur (section reelle) |
 | `--sec_n` | float | 2.5 | Exposant superellipse (>2 = coins arrondis) |
-| `--clearance` | float | 0.0 | Clearance minimale inter-fibres |
+| `--clearance` | float | 0.0 | Clearance minimale exigee par l'audit final ; 0 autorise le contact |
 
 ### 3. Trajectoire et orientation
 
@@ -176,7 +178,8 @@ python main.py \
 
 | Fichier | Description |
 |---------|-------------|
-| `{prefix}_parametric.json` | Metadonnees, parametres, statistiques, geometrie des fibres |
+| `{prefix}_validity.json` | Statut de l'audit geometrique final (`passed`, `failed`, `undetermined`), ecrit a chaque tentative |
+| `{prefix}_parametric.json` | Metadonnees, parametres, statistiques, geometrie des fibres et le meme bloc `validity` |
 | `{prefix}_roots.csv` | Points de controle des fibres racines |
 | `{prefix}_full_periodic.csv` | Fibres racines + tous les ghosts periodiques |
 | `{prefix}_voxelmap.npy` | Grille 3D uint8 (matrice=0, fibres=128, pores=255) |
@@ -184,6 +187,16 @@ python main.py \
 | `{prefix}.step` | Geometrie CAO (OpenCASCADE) |
 | `{prefix}.msh` | Maillage elements finis (GMSH v4) |
 | `{prefix}.bdf` | Maillage Nastran Bulk Data (si `--nastran`) |
+
+Audit geometrique final (F03) : apres l'optimisation, `main.py` audite les fibres
+transmises aux exports, avant porosite, statistiques et exports. Seul `passed`
+autorise les exports ; `failed` et `undetermined` ecrivent `{prefix}_validity.json`
+et terminent en code 1, sans toucher aux exports anterieurs du meme prefixe.
+Portee de `passed` : condition suffisante de non-intersection des tubes de la
+ligne echantillonnee (polyligne de 100 points voxelisee), pour le noyau d'audit
+qualifie par `tests/test_audit_*.py`. Hors portee : spline continue,
+auto-intersections d'une fibre, separation des fibres dans la grille voxel,
+images au-dela de -1/0/+1 (refusees), sections non circulaires et pores.
 
 ## Algorithmes
 
