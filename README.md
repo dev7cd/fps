@@ -223,6 +223,7 @@ python main.py \
 | `--nastran` | flag | off | Export to Nastran .bdf format |
 | `--abaqus` | flag | off | Export the voxel grid to an Abaqus .inp input file (C3D8) |
 | `--res_abaqus` | int | `--res_fft` | Voxels per axis of the Abaqus export |
+| `--abaqus_no_pbc` | flag | off | Do not write the periodic equations in the Abaqus export |
 | `--no_spatial_stats` | flag | off | Disable spatial descriptors |
 
 ## Output files
@@ -255,10 +256,16 @@ exits with code 1. In Abaqus, import the STEP as one part per body.
 
 `--abaqus` writes one C3D8 hexahedron per voxel of the grid (the FFT grid by default, or
 `--res_abaqus` voxels per axis), before the CAD export, in a few seconds. The mesh is
-conforming by construction and its opposite faces carry matching nodes (periodic
-constraints). Part `VER` holds the element sets `MATRIX`, `INCLUSIONS`, `PORES` (when not
-empty) and the node sets `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1`; the assembly holds instance
-`VER-1`. Materials, sections and steps are defined in Abaqus. At 128 voxels per axis:
+conforming by construction. Part `VER` holds the element sets `MATRIX`, `INCLUSIONS`,
+`PORES` (when not empty), the face node sets `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1` and the
+corner node sets `C0`, `CX`, `CY`, `CZ` at (0,0,0), (Lx,0,0), (0,Ly,0), (0,0,Lz); the
+assembly holds instance `VER-1`. Periodic conditions (unless `--abaqus_no_pbc`): every
+node of an upper face is tied to its image by
+`u(n) - u(image) - a [u(CX) - u(C0)] - b [u(CY) - u(C0)] - c [u(CZ) - u(C0)] = 0`
+(a, b, c = 1 on the upper x, y, z faces), with no added node. To apply a macroscopic
+strain E: fix `C0` and prescribe u(CX) = Lx E e1, u(CY) = Ly E e2, u(CZ) = Lz E e3; the
+mean stress is Sigma_ia = RF_i(Ca) L_a / V. Materials, sections and steps are defined in
+Abaqus. At 128 voxels per axis:
 2.1 million elements, about 250 MB. The Learning Edition is limited to 1000 nodes, i.e.
 `--res_abaqus 9`.
 

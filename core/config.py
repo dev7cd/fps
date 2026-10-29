@@ -86,6 +86,7 @@ class FiberPackingConfig:
     export_nastran: bool = False           ##< Export to .bdf format via meshio
     export_abaqus: bool = False            ##< Export the voxel grid to an Abaqus input file (.inp)
     abaqus_resolution: Optional[int] = None  ##< Voxels per axis of the Abaqus export (None: FFT grid)
+    abaqus_periodic: bool = True           ##< Write the periodic equations in the Abaqus export
     mesh_curvature_resolution: int = 20    ##< Number of segments to discretise the section
     voxel_resolution: int = 256            ##< Grid resolution for FFT export (NxNxN)
     output_prefix: str = "RVE_Sample_60"   ##< Output file prefix

@@ -320,7 +320,7 @@ def finalize(config, fibers, t_start):
     if config.export_abaqus:
         res = config.abaqus_resolution or config.voxel_resolution
         abq_grid = grid if res == config.voxel_resolution else vox.create_grid(fibers, voids, res=res)
-        AbaqusVoxelExporter(config).write(abq_grid, f"{config.output_prefix}.inp")
+        AbaqusVoxelExporter(config).write(abq_grid, f"{config.output_prefix}.inp", periodic=config.abaqus_periodic)
 
     if config.export_mesh:
         exporter = GmshExporter(config)

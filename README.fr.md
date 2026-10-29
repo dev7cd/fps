@@ -174,6 +174,7 @@ python main.py \
 | `--nastran` | flag | off | Exporter en format Nastran .bdf |
 | `--abaqus` | flag | off | Exporter la grille voxel en fichier d'entree Abaqus .inp (C3D8) |
 | `--res_abaqus` | int | `--res_fft` | Voxels par axe de l'export Abaqus |
+| `--abaqus_no_pbc` | flag | off | Ne pas ecrire les equations periodiques dans l'export Abaqus |
 | `--no_spatial_stats` | flag | off | Desactiver les descripteurs spatiaux |
 
 ## Fichiers de sortie
@@ -203,10 +204,15 @@ code 1. Dans Abaqus, importer le STEP en une piece par corps.
 
 Export Abaqus voxel (`--abaqus`) : un hexaedre C3D8 par voxel de la grille (celle de la
 FFT par defaut, ou `--res_abaqus` voxels par axe), ecrit avant l'export CAO, en quelques
-secondes. Le maillage est conforme par construction et ses faces opposees portent des
-noeuds en vis-a-vis (conditions periodiques). La piece `VER` contient les ensembles
-d'elements `MATRIX`, `INCLUSIONS`, `PORES` (s'ils ne sont pas vides) et les ensembles de
-noeuds `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1` ; l'assemblage contient l'instance `VER-1`.
+secondes. Le maillage est conforme par construction. La piece `VER` contient les ensembles
+d'elements `MATRIX`, `INCLUSIONS`, `PORES` (s'ils ne sont pas vides), les ensembles de
+noeuds `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1` des faces et `C0`, `CX`, `CY`, `CZ` des coins
+(0,0,0), (Lx,0,0), (0,Ly,0), (0,0,Lz) ; l'assemblage contient l'instance `VER-1`.
+Conditions periodiques (sauf `--abaqus_no_pbc`) : chaque noeud d'une face haute est lie a
+son image par `u(n) - u(image) - a [u(CX) - u(C0)] - b [u(CY) - u(C0)] - c [u(CZ) - u(C0)] = 0`
+(a, b, c = 1 sur les faces hautes x, y, z), sans noeud ajoute. Pour imposer une
+deformation macroscopique E : bloquer `C0` et imposer u(CX) = Lx E e1, u(CY) = Ly E e2,
+u(CZ) = Lz E e3 ; la contrainte moyenne vaut Sigma_ia = RF_i(Ca) L_a / V.
 Materiaux, sections et etapes sont a definir dans Abaqus. A 128 voxels par axe :
 2,1 millions d'elements, environ 250 Mo. La Learning Edition est limitee a 1000 noeuds,
 soit `--res_abaqus 9`.

@@ -38,6 +38,27 @@ def read_inp(path):
     return nodes, elements, sets
 
 
+def read_equations(path):
+    """Returns the *Equation blocks as lists of (node, dof, coefficient)."""
+    equations, inside, todo = [], False, 0
+    for line in open(path):
+        line = line.strip()
+        if line.startswith("*"):
+            inside = line.lower().startswith("*equation")
+            continue
+        if not inside:
+            continue
+        values = [v.strip() for v in line.split(",") if v.strip()]
+        if todo == 0:
+            todo = int(values[0])
+            equations.append([])
+            continue
+        for p in range(0, len(values), 3):
+            equations[-1].append((int(values[p]), int(values[p + 1]), float(values[p + 2])))
+            todo -= 1
+    return equations
+
+
 @pytest.fixture(scope="module")
 def exported(tmp_path_factory):
     grid = np.full(SHAPE, TAG_MATRIX, dtype=np.uint8)
@@ -86,3 +107,47 @@ def test_part_and_assembly_structure(exported):
     text = open(exported[3]).read()
     assert "*Part, name=VER" in text and "*End Part" in text
     assert "*Instance, name=VER-1, part=VER" in text
+
+
+def test_periodic_equations_hold_for_periodic_fields(exported):
+    """u = E x + w(x), w periodic, satisfies every equation; dependent nodes appear once."""
+    path = exported[3]
+    nodes, _, sets = read_inp(path)
+    equations = read_equations(path)
+    nx, ny, nz = SHAPE
+    tied = [n for n, x in nodes.items() if np.any(np.isclose(x, DIMS))]
+    corners = {sets[c][0] for c in ("CX", "CY", "CZ")}
+    assert len(equations) == 3 * (len(tied) - 3)
+
+    rng = np.random.default_rng(0)
+    E = rng.normal(size=(3, 3))
+    w = rng.normal(size=(nx, ny, nz, 3))  # periodic fluctuation, one value per canonical node
+    h = DIMS / np.array(SHAPE)
+
+    def u(n):
+        x = nodes[n]
+        i, j, k = np.rint(x / h).astype(int)
+        return E @ x + w[i % nx, j % ny, k % nz]
+
+    dependent = [eq[0][0] for eq in equations]
+    assert len(set(dependent)) * 3 == len(dependent)
+    assert not corners & set(dependent)
+    others = {n for eq in equations for n, _, _ in eq[1:]}
+    assert not others & set(dependent)
+    for eq in equations:
+        assert abs(sum(c * u(n)[dof - 1] for n, dof, c in eq)) < 1e-9
+
+
+def test_corner_sets(exported):
+    nodes, _, sets = read_inp(exported[3])
+    expected = {"C0": [0, 0, 0], "CX": [DIMS[0], 0, 0], "CY": [0, DIMS[1], 0], "CZ": [0, 0, DIMS[2]]}
+    for name, x in expected.items():
+        assert np.allclose(nodes[sets[name][0]], x)
+
+
+def test_no_equation_without_pbc(tmp_path):
+    config = FiberPackingConfig()
+    config.box_dims = DIMS
+    path = str(tmp_path / "rve.inp")
+    summary = AbaqusVoxelExporter(config).write(np.zeros(SHAPE, np.uint8), path, periodic=False)
+    assert summary["periodic_equations"] == 0 and "*Equation" not in open(path).read()
