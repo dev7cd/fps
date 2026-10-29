@@ -172,7 +172,8 @@ python main.py \
 | `--periodic_mesh` | flag | off | Maillage periodique (noeuds identiques sur faces opposees) |
 | `--no_adaptive_mesh` | flag | off | Desactiver le raffinement adaptatif Distance+Threshold |
 | `--nastran` | flag | off | Exporter en format Nastran .bdf |
-| `--abaqus` | flag | off | Exporter le maillage en fichier d'entree Abaqus .inp |
+| `--abaqus` | flag | off | Exporter la grille voxel en fichier d'entree Abaqus .inp (C3D8) |
+| `--res_abaqus` | int | `--res_fft` | Voxels par axe de l'export Abaqus |
 | `--no_spatial_stats` | flag | off | Desactiver les descripteurs spatiaux |
 
 ## Fichiers de sortie
@@ -188,7 +189,7 @@ python main.py \
 | `{prefix}.step` | Geometrie CAO (OpenCASCADE) |
 | `{prefix}.msh` | Maillage elements finis (GMSH v4) |
 | `{prefix}.bdf` | Maillage Nastran Bulk Data (si `--nastran`) |
-| `{prefix}.inp` | Maillage Abaqus, tetraedres C3D4, ensembles `MATRIX` et `INCLUSIONS` (si `--abaqus`) |
+| `{prefix}.inp` | Maillage voxel Abaqus, un C3D8 par voxel (si `--abaqus`) |
 | `{prefix}_export_check.json` | Controle des exports CAO et maillage (`passed` ou `failed`) |
 
 Controle des exports : apres le maillage, `GmshExporter` verifie que tous les tubes
@@ -198,8 +199,17 @@ geometrie libre (Abaqus en ferait des corps vides), que les volumes mailles de
 des inclusions est a moins de 5 % du volume reel des fibres. Les volumes sont mesures
 sur le maillage : `occ.getMass` est trop imprecis sur les faces balayees decoupees.
 En cas d'echec, `{prefix}_export_check.json` donne la cause et `main.py` termine en
-code 1. Dans Abaqus, importer le STEP en une piece par corps ; le `.inp` place
-`MATRIX` et `INCLUSIONS` au niveau de l'assemblage.
+code 1. Dans Abaqus, importer le STEP en une piece par corps.
+
+Export Abaqus voxel (`--abaqus`) : un hexaedre C3D8 par voxel de la grille (celle de la
+FFT par defaut, ou `--res_abaqus` voxels par axe), ecrit avant l'export CAO, en quelques
+secondes. Le maillage est conforme par construction et ses faces opposees portent des
+noeuds en vis-a-vis (conditions periodiques). La piece `VER` contient les ensembles
+d'elements `MATRIX`, `INCLUSIONS`, `PORES` (s'ils ne sont pas vides) et les ensembles de
+noeuds `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1` ; l'assemblage contient l'instance `VER-1`.
+Materiaux, sections et etapes sont a definir dans Abaqus. A 128 voxels par axe :
+2,1 millions d'elements, environ 250 Mo. La Learning Edition est limitee a 1000 noeuds,
+soit `--res_abaqus 9`.
 
 Audit geometrique final (F03) : apres l'optimisation, `main.py` audite les fibres
 transmises aux exports, avant porosite, statistiques et exports. Seul `passed`

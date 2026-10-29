@@ -34,7 +34,6 @@ def export(tmp_path_factory):
     config.box_dims = np.array([1.0, 1.0, 1.0])
     config.fiber_radius = RADIUS
     config.enable_adaptive_mesh = False
-    config.export_abaqus = True
     fiber = Fiber(1, POINTS.copy(), RADIUS, {})
     prefix = str(tmp_path_factory.mktemp("gmsh") / "rve")
     record = GmshExporter(config).generate_mesh([fiber], [], prefix)
@@ -72,10 +71,3 @@ def test_enclosed_inclusion_counts_as_a_solid(tmp_path):
     record = GmshExporter(config).generate_mesh([Fiber(1, inner, RADIUS, {})], [], str(tmp_path / "rve"))
     assert record["status"] == "passed", record["cause"]
     assert record["checks"]["step_items"]["BREP_WITH_VOIDS"] == 1
-
-
-def test_abaqus_input_has_the_phase_sets(export):
-    with open(f"{export[1]}.inp") as fh:
-        text = fh.read()
-    assert "*ELSET,ELSET=MATRIX" in text and "*ELSET,ELSET=INCLUSIONS" in text
-    assert "type=C3D4" in text

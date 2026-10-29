@@ -221,7 +221,8 @@ python main.py \
 | `--periodic_mesh` | flag | off | Periodic mesh (identical nodes on opposite faces) |
 | `--no_adaptive_mesh` | flag | off | Disable Distance+Threshold adaptive refinement |
 | `--nastran` | flag | off | Export to Nastran .bdf format |
-| `--abaqus` | flag | off | Export the mesh to an Abaqus .inp input file |
+| `--abaqus` | flag | off | Export the voxel grid to an Abaqus .inp input file (C3D8) |
+| `--res_abaqus` | int | `--res_fft` | Voxels per axis of the Abaqus export |
 | `--no_spatial_stats` | flag | off | Disable spatial descriptors |
 
 ## Output files
@@ -237,7 +238,7 @@ python main.py \
 | `{prefix}.step` | CAD geometry (OpenCASCADE) |
 | `{prefix}.msh` | finite-element mesh (Gmsh v4) |
 | `{prefix}.bdf` | Nastran Bulk Data (with `--nastran`) |
-| `{prefix}.inp` | Abaqus mesh, C3D4 tetrahedra, `MATRIX` and `INCLUSIONS` element sets (with `--abaqus`) |
+| `{prefix}.inp` | Abaqus voxel mesh, one C3D8 per voxel (with `--abaqus`) |
 | `{prefix}_export_check.json` | Check of the CAD and mesh exports (`passed` or `failed`) |
 
 ### Export check
@@ -248,8 +249,18 @@ bodies), that the mesh volumes of `MATRIX` and `INCLUSIONS` fill the box exactly
 without pores, that the inclusion volume is within 5 % of the real fiber volume.
 Volumes are measured on the mesh: `occ.getMass` is too inaccurate on the trimmed
 swept faces. On failure, `{prefix}_export_check.json` gives the cause and `main.py`
-exits with code 1. In Abaqus, import the STEP as one part per body; the `.inp` puts
-`MATRIX` and `INCLUSIONS` at assembly level.
+exits with code 1. In Abaqus, import the STEP as one part per body.
+
+### Abaqus voxel export
+
+`--abaqus` writes one C3D8 hexahedron per voxel of the grid (the FFT grid by default, or
+`--res_abaqus` voxels per axis), before the CAD export, in a few seconds. The mesh is
+conforming by construction and its opposite faces carry matching nodes (periodic
+constraints). Part `VER` holds the element sets `MATRIX`, `INCLUSIONS`, `PORES` (when not
+empty) and the node sets `X0`, `X1`, `Y0`, `Y1`, `Z0`, `Z1`; the assembly holds instance
+`VER-1`. Materials, sections and steps are defined in Abaqus. At 128 voxels per axis:
+2.1 million elements, about 250 MB. The Learning Edition is limited to 1000 nodes, i.e.
+`--res_abaqus 9`.
 
 ### Final geometric audit (F03)
 

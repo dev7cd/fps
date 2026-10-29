@@ -33,6 +33,7 @@ from validation import geometric_audit
 from export.gmsh_exporter import GmshExporter
 from export.voxelizer import Voxelizer, UnsupportedSectionError, check_voxel_section_type
 from export.csv_exporter import CSVFiberExporter
+from export.abaqus_exporter import AbaqusVoxelExporter
 from visualization.descriptors import AD_PCA_Analyzer, MicroDescriptor
 
 # Logging configuration
@@ -314,6 +315,12 @@ def finalize(config, fibers, t_start):
     grid = vox.create_grid(fibers, voids, res=config.voxel_resolution)
     np.save(f"{config.output_prefix}_voxelmap.npy", grid)
     vox.save_pgm(grid, config.output_prefix)
+
+    # Abaqus voxel mesh: written before the CAD export, which can take tens of minutes
+    if config.export_abaqus:
+        res = config.abaqus_resolution or config.voxel_resolution
+        abq_grid = grid if res == config.voxel_resolution else vox.create_grid(fibers, voids, res=res)
+        AbaqusVoxelExporter(config).write(abq_grid, f"{config.output_prefix}.inp")
 
     if config.export_mesh:
         exporter = GmshExporter(config)

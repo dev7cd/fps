@@ -83,7 +83,8 @@ def parse_args():
     g_sys.add_argument("--periodic_mesh", action='store_true', help="Enable the periodic GMSH mesh")
     g_sys.add_argument("--no_adaptive_mesh", action='store_true', help="Disable the adaptive refinement")
     g_sys.add_argument("--nastran", action='store_true', help="Export to Nastran .bdf format")
-    g_sys.add_argument("--abaqus", action='store_true', help="Export the mesh to an Abaqus .inp file")
+    g_sys.add_argument("--abaqus", action='store_true', help="Export the voxel grid to an Abaqus .inp file (C3D8)")
+    g_sys.add_argument("--res_abaqus", type=int, default=None, help="Voxels per axis of the Abaqus export (default: --res_fft)")
     g_sys.add_argument("--no_spatial_stats", action='store_true', help="Disable the spatial descriptors (NND, Ripley K, g(r), Voronoi)")
 
     args = parser.parse_args()
@@ -155,6 +156,7 @@ def parse_args():
         output_prefix=args.output,
         export_nastran=args.nastran,
         export_abaqus=args.abaqus,
+        abaqus_resolution=args.res_abaqus,
         compute_spatial_stats=(not args.no_spatial_stats),
     )
 
