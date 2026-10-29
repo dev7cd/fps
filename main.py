@@ -317,7 +317,7 @@ def finalize(config, fibers, t_start):
 
     if config.export_mesh:
         exporter = GmshExporter(config)
-        exporter.generate_mesh(fibers, voids, config.output_prefix)
+        export_check = exporter.generate_mesh(fibers, voids, config.output_prefix)
 
         # Nastran .bdf export if requested
         if config.export_nastran:
@@ -327,6 +327,10 @@ def finalize(config, fibers, t_start):
                 f"{config.output_prefix}.msh",
                 f"{config.output_prefix}.bdf"
             )
+
+        if export_check["status"] != "passed":
+            logger.error(f"=== FAILED export check in {time.time() - t_start:.2f}s ===")
+            sys.exit(1)
 
 
 

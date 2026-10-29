@@ -221,6 +221,7 @@ python main.py \
 | `--periodic_mesh` | flag | off | Periodic mesh (identical nodes on opposite faces) |
 | `--no_adaptive_mesh` | flag | off | Disable Distance+Threshold adaptive refinement |
 | `--nastran` | flag | off | Export to Nastran .bdf format |
+| `--abaqus` | flag | off | Export the mesh to an Abaqus .inp input file |
 | `--no_spatial_stats` | flag | off | Disable spatial descriptors |
 
 ## Output files
@@ -236,6 +237,19 @@ python main.py \
 | `{prefix}.step` | CAD geometry (OpenCASCADE) |
 | `{prefix}.msh` | finite-element mesh (Gmsh v4) |
 | `{prefix}.bdf` | Nastran Bulk Data (with `--nastran`) |
+| `{prefix}.inp` | Abaqus mesh, C3D4 tetrahedra, `MATRIX` and `INCLUSIONS` element sets (with `--abaqus`) |
+| `{prefix}_export_check.json` | Check of the CAD and mesh exports (`passed` or `failed`) |
+
+### Export check
+
+After meshing, `GmshExporter` checks that every tube was built, that the STEP holds
+one solid per exported volume and no loose geometry (Abaqus imports it as empty
+bodies), that the mesh volumes of `MATRIX` and `INCLUSIONS` fill the box exactly and,
+without pores, that the inclusion volume is within 5 % of the real fiber volume.
+Volumes are measured on the mesh: `occ.getMass` is too inaccurate on the trimmed
+swept faces. On failure, `{prefix}_export_check.json` gives the cause and `main.py`
+exits with code 1. In Abaqus, import the STEP as one part per body; the `.inp` puts
+`MATRIX` and `INCLUSIONS` at assembly level.
 
 ### Final geometric audit (F03)
 

@@ -172,6 +172,7 @@ python main.py \
 | `--periodic_mesh` | flag | off | Maillage periodique (noeuds identiques sur faces opposees) |
 | `--no_adaptive_mesh` | flag | off | Desactiver le raffinement adaptatif Distance+Threshold |
 | `--nastran` | flag | off | Exporter en format Nastran .bdf |
+| `--abaqus` | flag | off | Exporter le maillage en fichier d'entree Abaqus .inp |
 | `--no_spatial_stats` | flag | off | Desactiver les descripteurs spatiaux |
 
 ## Fichiers de sortie
@@ -187,6 +188,18 @@ python main.py \
 | `{prefix}.step` | Geometrie CAO (OpenCASCADE) |
 | `{prefix}.msh` | Maillage elements finis (GMSH v4) |
 | `{prefix}.bdf` | Maillage Nastran Bulk Data (si `--nastran`) |
+| `{prefix}.inp` | Maillage Abaqus, tetraedres C3D4, ensembles `MATRIX` et `INCLUSIONS` (si `--abaqus`) |
+| `{prefix}_export_check.json` | Controle des exports CAO et maillage (`passed` ou `failed`) |
+
+Controle des exports : apres le maillage, `GmshExporter` verifie que tous les tubes
+ont ete construits, que le STEP ne contient qu'un solide par volume exporte et aucune
+geometrie libre (Abaqus en ferait des corps vides), que les volumes mailles de
+`MATRIX` et `INCLUSIONS` remplissent exactement la boite et que, sans pores, le volume
+des inclusions est a moins de 5 % du volume reel des fibres. Les volumes sont mesures
+sur le maillage : `occ.getMass` est trop imprecis sur les faces balayees decoupees.
+En cas d'echec, `{prefix}_export_check.json` donne la cause et `main.py` termine en
+code 1. Dans Abaqus, importer le STEP en une piece par corps ; le `.inp` place
+`MATRIX` et `INCLUSIONS` au niveau de l'assemblage.
 
 Audit geometrique final (F03) : apres l'optimisation, `main.py` audite les fibres
 transmises aux exports, avant porosite, statistiques et exports. Seul `passed`

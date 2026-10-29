@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import gmsh
+import json
+import re
 import numpy as np
 import logging
 from generation.periodicity import PeriodicManager
@@ -23,9 +25,9 @@ class GmshExporter:
         """
         self.config = config ##< Simulation configuration
 
-    def generate_mesh(self, fibers, voids, output_path) -> None:
+    def generate_mesh(self, fibers, voids, output_path) -> dict:
         """!
-        @brief Generates the CAD geometry (.step) and the mesh (.msh) robustly.
+        @brief Generates the CAD geometry (.step) and the mesh (.msh) robustly, then checks them.
 
         Performs the following steps:
         1. Creation of the matrix cube.
@@ -33,11 +35,12 @@ class GmshExporter:
         3. Boolean fragmentation to ensure interface conformity.
         4. Fragment sorting (clipping) and definition of the physical groups.
         5. Volume meshing with adaptive size fields.
+        6. Check of the exports, written to {output_path}_export_check.json (see check_exports).
 
         @param fibers List[Fiber] List of fibers to mesh.
         @param voids List[Void] List of pores to mesh.
         @param output_path str Path (without extension) for the output files.
-        @return None
+        @return dict Export check record; its "status" is "passed" or "failed".
         """
         # Clean initialisation
         try:
@@ -57,9 +60,11 @@ class GmshExporter:
             matrix_tag = occ.addBox(0, 0, 0, dims[0], dims[1], dims[2])
         except Exception as e:
             logger.error(f"Matrix creation error: {e}")
-            return
+            gmsh.finalize()
+            return self._write_check(output_path, {"status": "failed", "cause": f"matrix creation: {e}"})
 
         inclusion_volumes = []
+        failed_tubes = []  # (fiber id, shift, error): a fiber missing from the exports must be reported
 
         # --- 2. CREATION OF THE INCLUSIONS (root fibers + ghosts) ---
         count_f = 0
@@ -88,10 +93,16 @@ class GmshExporter:
                         inclusion_volumes.append(pipe_out[0][1])
 
                     # Immediate cleanup of the temporary tools to relieve OCC
-                    occ.remove([(2, section_face), (1, path_wire)], recursive=True)
+                    # (path_wire is a wire tag, not a curve tag: remove the spline itself)
+                    occ.remove([(2, section_face), (1, path_spline)], recursive=True)
+                    # The interior spline points are not on the wire boundary: without this they stay
+                    # as free vertices, written to the STEP (Abaqus reads each one as an empty body)
+                    occ.remove([(0, t) for t in path_pts[1:-1]])
 
                 except Exception as e:
-                    # Continue even if a fragment fails
+                    # Continue with the other tubes; the check marks the export as failed
+                    failed_tubes.append((f.id, [float(c) for c in s], str(e)))
+                    logger.warning(f"Tube of fiber {f.id} (shift {s}) failed: {e}")
                     continue
             count_f += 1
 
@@ -115,7 +126,7 @@ class GmshExporter:
         except Exception as e:
             logger.error(f"Critical GMSH fragmentation failure: {e}")
             gmsh.finalize()
-            return
+            return self._write_check(output_path, {"status": "failed", "cause": f"fragmentation: {e}"})
 
         occ.synchronize()
 
@@ -134,6 +145,9 @@ class GmshExporter:
 
         # out_map[0]  -> children of the matrix (index 0 of fragment's first argument)
         # out_map[1:] -> children of the inclusions
+        # A piece inside an inclusion is a child of both the box and the inclusion: it belongs to
+        # the inclusions only, otherwise MATRIX would cover the whole box.
+        inclusion_children = {tag for child_list in out_map[1:] for _, tag in child_list}
 
         for input_index, child_list in enumerate(out_map):
             for dim, tag in child_list:
@@ -154,7 +168,8 @@ class GmshExporter:
 
                     if is_inside:
                         if input_index == 0:
-                            matrix_tags.append(tag)
+                            if tag not in inclusion_children:
+                                matrix_tags.append(tag)
                         else:
                             inclusion_tags.append(tag)
                     else:
@@ -203,6 +218,7 @@ class GmshExporter:
         # 3D mesh optimiser
         gmsh.option.setNumber("Mesh.Algorithm3D", 10) # 1=Delaunay, 10=HXT (fast/parallel)
 
+        mesh_error = None
         try:
             gmsh.model.mesh.generate(3)
 
@@ -213,10 +229,125 @@ class GmshExporter:
                 gmsh.model.mesh.generate(3)
 
             gmsh.write(f"{output_path}.msh")
+            # Abaqus input file: nodes, elements and one element set per physical group
+            if getattr(self.config, 'export_abaqus', False):
+                gmsh.write(f"{output_path}.inp")
         except Exception as e:
+            mesh_error = str(e)
             logger.error(f"Meshing failed: {e}")
 
+        expected = sum(f.get_real_volume() for f in fibers) if not voids else None
+        record = self.check_exports(output_path, dims, len(matrix_tags), len(inclusion_tags),
+                                    failed_tubes, mesh_error, expected)
         gmsh.finalize()
+        return self._write_check(output_path, record)
+
+    def check_exports(self, output_path, dims, n_matrix, n_inclusions, failed_tubes,
+                      mesh_error, expected_inclusion_volume, mesh_tolerance=1e-6, inclusion_tolerance=0.05):
+        """!
+        @brief Checks the exports of the current model: tubes built, STEP read back, mesh volumes.
+
+        Volumes are measured on the tetrahedral mesh, not with occ.getMass: its integration over
+        the trimmed swept faces is off by up to a few 1e-3 of the box volume, while the mesh of a
+        conforming partition fills the box exactly.
+        - every tube was built (no fiber silently missing);
+        - the STEP holds one solid per exported volume and no loose geometry (curve or surface
+          sets, which Abaqus imports as empty bodies), and reads back with the same solids;
+        - mesh volume of MATRIX + INCLUSIONS equals the box volume (relative mesh_tolerance);
+        - without pores, mesh volume of INCLUSIONS matches the real fiber volume (relative
+          inclusion_tolerance): a coarse check against a lost piece, wide enough for the inscribed
+          polygonal sections (about -3 % without the adaptive refinement).
+
+        @param output_path str Path (without extension) of the exports.
+        @param dims np.ndarray Box dimensions.
+        @param n_matrix int Number of matrix solids written.
+        @param n_inclusions int Number of inclusion solids written.
+        @param failed_tubes list (fiber id, shift, error) of the tubes that could not be built.
+        @param mesh_error Optional[str] Meshing error, None if the mesh was written.
+        @param expected_inclusion_volume Optional[float] Real fiber volume, None if not checked.
+        @param mesh_tolerance float Relative tolerance on the box volume.
+        @param inclusion_tolerance float Relative tolerance on the inclusion volume.
+        @return dict Check record with "status", "checks" and "cause".
+        """
+        box_volume = float(np.prod(dims))
+        checks = {"failed_tubes": failed_tubes, "n_matrix_solids": n_matrix,
+                  "n_inclusion_solids": n_inclusions}
+        causes = []
+        if failed_tubes:
+            causes.append(f"{len(failed_tubes)} tube(s) not built")
+
+        # Mesh volumes per physical group (current model)
+        if mesh_error is None:
+            node_tags, coords, _ = gmsh.model.mesh.getNodes()
+            X = np.zeros((int(node_tags.max()) + 1, 3))
+            X[node_tags.astype(int)] = coords.reshape(-1, 3)
+            volumes = {}
+            for dim, phys in gmsh.model.getPhysicalGroups(3):
+                name = gmsh.model.getPhysicalName(dim, phys)
+                volumes[name] = 0.0
+                for tag in gmsh.model.getEntitiesForPhysicalGroup(dim, phys):
+                    for etype, _, enodes in zip(*gmsh.model.mesh.getElements(3, tag)):
+                        if etype != 4:  # linear tetrahedra only
+                            causes.append(f"unsupported element type {etype} for the volume check")
+                            continue
+                        n = enodes.astype(int).reshape(-1, 4)
+                        a, b, c, d = (X[n[:, i]] for i in range(4))
+                        volumes[name] += float(np.abs(np.einsum('ij,ij->i', np.cross(b - a, c - a), d - a)).sum() / 6)
+            checks["mesh_volumes"] = volumes
+            total = sum(volumes.values())
+            checks["mesh_volume_error"] = total / box_volume - 1
+            if abs(checks["mesh_volume_error"]) > mesh_tolerance:
+                causes.append(f"mesh volume {total:.9g} differs from the box volume {box_volume:.9g}")
+            if expected_inclusion_volume:
+                err = volumes.get("INCLUSIONS", 0.0) / expected_inclusion_volume - 1
+                checks["inclusion_volume_error"] = err
+                if abs(err) > inclusion_tolerance:
+                    causes.append(f"inclusion volume off by {err:+.2%} from the real fiber volume")
+        else:
+            causes.append(f"meshing failed: {mesh_error}")
+
+        # STEP: top-level items as written (Gmsh ignores loose curve sets when reading back)
+        with open(f"{output_path}.step") as fh:
+            text = fh.read()
+        items = {k: len(re.findall(rf"=\s*{k}\s*\(", text))
+                 for k in ("MANIFOLD_SOLID_BREP", "GEOMETRIC_CURVE_SET", "GEOMETRIC_SET", "SHELL_BASED_SURFACE_MODEL")}
+        checks["step_items"] = items
+        if items["MANIFOLD_SOLID_BREP"] != n_matrix + n_inclusions:
+            causes.append(f"STEP holds {items['MANIFOLD_SOLID_BREP']} solids instead of {n_matrix + n_inclusions}")
+        loose = sum(v for k, v in items.items() if k != "MANIFOLD_SOLID_BREP")
+        if loose:
+            causes.append(f"STEP holds {loose} loose geometric sets")
+
+        # STEP read back in a separate model
+        gmsh.model.add("step_check")
+        try:
+            gmsh.model.occ.importShapes(f"{output_path}.step")
+            gmsh.model.occ.synchronize()
+            checks["step_solids_read_back"] = len(gmsh.model.getEntities(3))
+            if checks["step_solids_read_back"] != n_matrix + n_inclusions:
+                causes.append(f"STEP reads back as {checks['step_solids_read_back']} solids")
+        except Exception as e:
+            causes.append(f"STEP read back failed: {e}")
+        gmsh.model.remove()
+
+        status = "failed" if causes else "passed"
+        return {"status": status, "cause": "; ".join(causes), "checks": checks}
+
+    @staticmethod
+    def _write_check(output_path, record):
+        """!
+        @brief Writes the export check record to {output_path}_export_check.json and logs it.
+        @param output_path str Path (without extension) of the exports.
+        @param record dict Check record.
+        @return dict The same record.
+        """
+        with open(f"{output_path}_export_check.json", "w") as fh:
+            json.dump(record, fh, indent=2)
+        if record["status"] == "passed":
+            logger.info(f"Export check passed: {output_path}_export_check.json")
+        else:
+            logger.error(f"Export check failed ({record['cause']}): {output_path}_export_check.json")
+        return record
 
     def _create_section_face(self, fiber, occ, shift):
         """!
@@ -228,10 +359,16 @@ class GmshExporter:
         """
         p0 = fiber.centerline[0] + shift
         if fiber.section_type == 'circular':
-            # Disk primitive: very stable
-            # zAxis = tangent direction T, xAxis = normal N
-            return occ.addDisk(p0[0], p0[1], p0[2], fiber.radius, fiber.radius,
-                               zAxis=fiber.T[0], xAxis=fiber.N[0])
+            # Circle made of four arcs in the (N, B) plane. A disk would give a single periodic
+            # lateral face; once trimmed by a box face it nearly grazes, Abaqus's STEP reader
+            # keeps the wrong side of the seam and loses about half of the piece.
+            r, N, B = fiber.radius, fiber.N[0], fiber.B[0]
+            center = occ.addPoint(*p0)
+            rim = [occ.addPoint(*(p0 + r * u)) for u in (N, B, -N, -B)]
+            arcs = [occ.addCircleArc(rim[i], center, rim[(i + 1) % 4]) for i in range(4)]
+            face = occ.addPlaneSurface([occ.addCurveLoop(arcs)])
+            occ.remove([(0, center)])  # the center is not on the face boundary
+            return face
         else:
             # Complex spline
             pts = fiber.section_profile.generate_points(32)
@@ -244,7 +381,9 @@ class GmshExporter:
             spl = occ.addSpline(pt_tags)
             lin = occ.addLine(pt_tags[-1], pt_tags[0])
             wire = occ.addWire([spl, lin])
-            return occ.addPlaneSurface([wire])
+            face = occ.addPlaneSurface([wire])
+            occ.remove([(0, t) for t in pt_tags[1:-1]])  # free interior spline points
+            return face
 
     def _setup_size_fields(self, dims, min_size, max_size):
         """!
