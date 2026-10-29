@@ -58,8 +58,20 @@ def test_matrix_and_inclusions_partition_the_box(export):
 
 def test_step_holds_only_the_solids(export):
     items = export[0]["checks"]["step_items"]
-    assert items["MANIFOLD_SOLID_BREP"] == 3
+    assert items["MANIFOLD_SOLID_BREP"] + items["BREP_WITH_VOIDS"] == 3
     assert items["GEOMETRIC_CURVE_SET"] == items["GEOMETRIC_SET"] == items["SHELL_BASED_SURFACE_MODEL"] == 0
+
+
+def test_enclosed_inclusion_counts_as_a_solid(tmp_path):
+    """A fiber piece entirely inside the box makes the matrix a BREP_WITH_VOIDS in the STEP."""
+    config = FiberPackingConfig()
+    config.box_dims = np.array([1.0, 1.0, 1.0])
+    config.fiber_radius = RADIUS
+    config.enable_adaptive_mesh = False
+    inner = np.array([[0.3, 0.5, 0.5], [0.45, 0.52, 0.5], [0.6, 0.5, 0.5], [0.7, 0.48, 0.5]])
+    record = GmshExporter(config).generate_mesh([Fiber(1, inner, RADIUS, {})], [], str(tmp_path / "rve"))
+    assert record["status"] == "passed", record["cause"]
+    assert record["checks"]["step_items"]["BREP_WITH_VOIDS"] == 1
 
 
 def test_abaqus_input_has_the_phase_sets(export):

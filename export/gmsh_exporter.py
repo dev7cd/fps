@@ -63,16 +63,16 @@ class GmshExporter:
             gmsh.finalize()
             return self._write_check(output_path, {"status": "failed", "cause": f"matrix creation: {e}"})
 
-        inclusion_volumes = []
         failed_tubes = []  # (fiber id, shift, error): a fiber missing from the exports must be reported
+        groups = []  # inclusion volumes fragmented together: the tubes of one fiber, or one pore
 
         # --- 2. CREATION OF THE INCLUSIONS (root fibers + ghosts) ---
-        count_f = 0
         for f in fibers:
             # Retrieve the periodic shift vectors
             shifts = PeriodicManager.generate_ghosts(f, dims)
             shifts.append(np.array([0, 0, 0], dtype=float))
 
+            tubes = []
             for s in shifts:
                 try:
                     # Build the path
@@ -90,7 +90,7 @@ class GmshExporter:
                     # out is [(dim, tag)]
                     pipe_out = occ.addPipe([(2, section_face)], path_wire)
                     if pipe_out:
-                        inclusion_volumes.append(pipe_out[0][1])
+                        tubes.append(pipe_out[0][1])
 
                     # Immediate cleanup of the temporary tools to relieve OCC
                     # (path_wire is a wire tag, not a curve tag: remove the spline itself)
@@ -104,85 +104,61 @@ class GmshExporter:
                     failed_tubes.append((f.id, [float(c) for c in s], str(e)))
                     logger.warning(f"Tube of fiber {f.id} (shift {s}) failed: {e}")
                     continue
-            count_f += 1
+            if tubes:
+                groups.append(tubes)
 
-        logger.info(f"{len(inclusion_volumes)} fiber volumes generated (before cutting).")
+        logger.info(f"{sum(len(g) for g in groups)} fiber volumes generated (before cutting).")
 
         # --- 3. CREATION OF THE POROSITY ---
         for v in voids:
             try:
-                sphere = occ.addSphere(v.center[0], v.center[1], v.center[2], v.radius)
-                inclusion_volumes.append(sphere)
-            except:
-                pass
+                groups.append([occ.addSphere(v.center[0], v.center[1], v.center[2], v.radius)])
+            except Exception as e:
+                failed_tubes.append(("void", [float(c) for c in v.center], str(e)))
+                logger.warning(f"Pore at {v.center} failed: {e}")
 
-        # --- 4. FRAGMENTATION (boolean) ---
+        # --- 4. FRAGMENTATION (boolean), ONE INCLUSION AT A TIME ---
+        # The fibers are disjoint (audit F03) and the pores avoid them, so each fiber (root and
+        # ghosts) or pore only has to be fragmented with the matrix. A single fragment of the 92
+        # tubes of a 26-fiber RVE had not finished after 35 min; on 8 fibers, one at a time took
+        # 496 s against more than 900 s. An overlap would show in the checks (mesh volume above
+        # the box volume), a non-shared interface in the conformity check.
         occ.synchronize()
-        logger.info("Boolean fragmentation in progress...")
-
-        try:
-            # fragment returns (new_objects, mapping parents->children)
-            out, out_map = occ.fragment([(3, matrix_tag)], [(3, i) for i in inclusion_volumes])
-        except Exception as e:
-            logger.error(f"Critical GMSH fragmentation failure: {e}")
-            gmsh.finalize()
-            return self._write_check(output_path, {"status": "failed", "cause": f"fragmentation: {e}"})
-
-        occ.synchronize()
-
-        # --- 5. ROBUST SORTING OF THE FRAGMENTS ---
-        # This is where the "Unknown entity" error used to occur.
-        # Strategy: query GMSH for what actually exists now.
-
-        # Retrieve all live 3D entities after fragment
-        all_live_entities_3d = set(tag for dim, tag in gmsh.model.getEntities(3))
-
-        matrix_tags = []
-        inclusion_tags = []
-        to_remove = []
+        logger.info(f"Boolean fragmentation of {len(groups)} inclusions, one at a time...")
 
         eps = 1e-5
 
-        # out_map[0]  -> children of the matrix (index 0 of fragment's first argument)
-        # out_map[1:] -> children of the inclusions
-        # A piece inside an inclusion is a child of both the box and the inclusion: it belongs to
-        # the inclusions only, otherwise MATRIX would cover the whole box.
-        inclusion_children = {tag for child_list in out_map[1:] for _, tag in child_list}
+        def is_inside(tag):
+            # Clipping: is the centre of mass inside the box [0, dims]?
+            com = occ.getCenterOfMass(3, tag)
+            return all(-eps <= com[i] <= dims[i] + eps for i in range(3))
 
-        for input_index, child_list in enumerate(out_map):
-            for dim, tag in child_list:
-                # KEY SAFETY STEP: check whether the tag is live
-                if tag not in all_live_entities_3d:
-                    continue
+        matrix_tags = [matrix_tag]
+        inclusion_tags = []
+        for k, group in enumerate(groups):
+            try:
+                # fragment returns (new_objects, mapping parents->children)
+                _, out_map = occ.fragment([(3, t) for t in matrix_tags], [(3, v) for v in group])
+            except Exception as e:
+                logger.error(f"Critical GMSH fragmentation failure (inclusion {k + 1}/{len(groups)}): {e}")
+                gmsh.finalize()
+                return self._write_check(output_path, {"status": "failed", "cause": f"fragmentation: {e}"})
+            occ.synchronize()
 
-                try:
-                    # Compute the centre of mass
-                    com = occ.getCenterOfMass(dim, tag)
-
-                    # Clipping: is it inside the box [0, dims]?
-                    is_inside = (
-                        -eps <= com[0] <= dims[0] + eps and
-                        -eps <= com[1] <= dims[1] + eps and
-                        -eps <= com[2] <= dims[2] + eps
-                    )
-
-                    if is_inside:
-                        if input_index == 0:
-                            if tag not in inclusion_children:
-                                matrix_tags.append(tag)
-                        else:
-                            inclusion_tags.append(tag)
-                    else:
-                        to_remove.append((dim, tag))
-                except Exception as e:
-                    # If an error occurs here, the volume is probably corrupted/deleted
-                    continue
-
-        # Clean removal of what sticks out
-        if to_remove:
-            occ.remove(to_remove, recursive=True)
-
-        occ.synchronize()
+            # out_map[:n] -> children of the matrix pieces, out_map[n:] -> children of the group.
+            # A piece inside an inclusion is a child of both: it belongs to the inclusion only,
+            # otherwise MATRIX would cover the whole box.
+            n = len(matrix_tags)
+            children = list(dict.fromkeys(t for c in out_map[n:] for _, t in c))
+            matrix_tags = list(dict.fromkeys(t for c in out_map[:n] for _, t in c if t not in children))
+            inside = [t for t in children if is_inside(t)]
+            outside = [(3, t) for t in children if t not in inside]
+            # Clean removal of what sticks out
+            if outside:
+                occ.remove(outside, recursive=True)
+                occ.synchronize()
+            inclusion_tags += inside
+            logger.info(f"Inclusion {k + 1}/{len(groups)} fragmented ({len(inside)} pieces inside).")
 
         # Physical groups
         if matrix_tags:
@@ -251,6 +227,7 @@ class GmshExporter:
         the trimmed swept faces is off by up to a few 1e-3 of the box volume, while the mesh of a
         conforming partition fills the box exactly.
         - every tube was built (no fiber silently missing);
+        - every face inside the box bounds two volumes (conforming interfaces);
         - the STEP holds one solid per exported volume and no loose geometry (curve or surface
           sets, which Abaqus imports as empty bodies), and reads back with the same solids;
         - mesh volume of MATRIX + INCLUSIONS equals the box volume (relative mesh_tolerance);
@@ -306,15 +283,30 @@ class GmshExporter:
         else:
             causes.append(f"meshing failed: {mesh_error}")
 
+        # Conformity: an interface inside the box separates two volumes. A face with a single
+        # volume away from the box faces is an interface written twice (non-conforming mesh).
+        unshared = 0
+        for _, face in gmsh.model.getEntities(2):
+            if len(gmsh.model.getAdjacencies(2, face)[0]) == 1:
+                com = gmsh.model.occ.getCenterOfMass(2, face)
+                if all(1e-6 < com[i] < dims[i] - 1e-6 for i in range(3)):
+                    unshared += 1
+        checks["unshared_interior_faces"] = unshared
+        if unshared:
+            causes.append(f"{unshared} interior faces bound a single volume (non-conforming interfaces)")
+
         # STEP: top-level items as written (Gmsh ignores loose curve sets when reading back)
         with open(f"{output_path}.step") as fh:
             text = fh.read()
+        # (a matrix enclosing whole inclusion pieces is written as BREP_WITH_VOIDS)
+        solid_kinds = ("MANIFOLD_SOLID_BREP", "BREP_WITH_VOIDS")
         items = {k: len(re.findall(rf"=\s*{k}\s*\(", text))
-                 for k in ("MANIFOLD_SOLID_BREP", "GEOMETRIC_CURVE_SET", "GEOMETRIC_SET", "SHELL_BASED_SURFACE_MODEL")}
+                 for k in solid_kinds + ("GEOMETRIC_CURVE_SET", "GEOMETRIC_SET", "SHELL_BASED_SURFACE_MODEL")}
         checks["step_items"] = items
-        if items["MANIFOLD_SOLID_BREP"] != n_matrix + n_inclusions:
-            causes.append(f"STEP holds {items['MANIFOLD_SOLID_BREP']} solids instead of {n_matrix + n_inclusions}")
-        loose = sum(v for k, v in items.items() if k != "MANIFOLD_SOLID_BREP")
+        n_solids = sum(items[k] for k in solid_kinds)
+        if n_solids != n_matrix + n_inclusions:
+            causes.append(f"STEP holds {n_solids} solids instead of {n_matrix + n_inclusions}")
+        loose = sum(v for k, v in items.items() if k not in solid_kinds)
         if loose:
             causes.append(f"STEP holds {loose} loose geometric sets")
 
@@ -359,15 +351,18 @@ class GmshExporter:
         """
         p0 = fiber.centerline[0] + shift
         if fiber.section_type == 'circular':
-            # Circle made of four arcs in the (N, B) plane. A disk would give a single periodic
-            # lateral face; once trimmed by a box face it nearly grazes, Abaqus's STEP reader
-            # keeps the wrong side of the seam and loses about half of the piece.
+            # Circle made of two half circles, normal T and starting from N. A disk would give a
+            # single periodic lateral face; once trimmed by a box face it nearly grazes, Abaqus's
+            # STEP reader keeps the wrong side of the seam and loses about half of the piece.
+            # Two faces fragment about 3.6 times faster than four (one fiber: 23 s against 84 s).
+            # The halves share their end points (separate circles leave copies behind); each one
+            # is defined by three points of the circle, through B and through -B.
             r, N, B = fiber.radius, fiber.N[0], fiber.B[0]
-            center = occ.addPoint(*p0)
-            rim = [occ.addPoint(*(p0 + r * u)) for u in (N, B, -N, -B)]
-            arcs = [occ.addCircleArc(rim[i], center, rim[(i + 1) % 4]) for i in range(4)]
-            face = occ.addPlaneSurface([occ.addCurveLoop(arcs)])
-            occ.remove([(0, center)])  # the center is not on the face boundary
+            a, mid_b, b, mid_mb = (occ.addPoint(*(p0 + r * u)) for u in (N, B, -N, -B))
+            halves = [occ.addCircleArc(a, mid_b, b, center=False),
+                      occ.addCircleArc(b, mid_mb, a, center=False)]
+            face = occ.addPlaneSurface([occ.addCurveLoop(halves)])
+            occ.remove([(0, mid_b), (0, mid_mb)])  # not on the face boundary
             return face
         else:
             # Complex spline
