@@ -79,7 +79,7 @@ def void_records(voids):
 
 
 def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str,
-                              validity: dict = None, args=None, voids=None):
+                              validity: dict = None, args=None, voids=None, timings=None):
     """!
     @brief Saves the RVE geometry and certified analysis results to a JSON file.
     @details This "O1" record contains metadata, simulation parameters,
@@ -92,6 +92,7 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
     @param args Parsed CLI namespace: the complete argument set, stored under "cli_arguments", from
     which regenerate.py rebuilds the configuration.
     @param voids Pores (with their periodic images), stored under "voids".
+    @param timings Wall-clock duration of each phase in seconds, stored under "timings_s".
     @return None
     """
     import datetime
@@ -119,6 +120,7 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
         "computed_statistics": stats_dict,
         "microstructure_data": geometric_audit.microstructure_records(fibers),
         "voids": void_records(voids or []),
+        "timings_s": timings or {},
     }
     if validity is not None:
         record["validity"] = geometric_audit.json_safe(validity)
@@ -161,6 +163,8 @@ def main(argv=None):
 
     # --- STEP 1: PHASE 1 (CSAW) ---
     logger.info("--- PHASE 1: Constructive placement (CSAW) ---")
+    timings = {}
+    t_phase = time.perf_counter()
     attempts = 0
     # Was hardcoded, which made --max_attempts inert. Grinding sequential
     # adsorption to exhaustion is also wasteful when phase 2 is enabled: the
@@ -221,16 +225,21 @@ def main(argv=None):
         else:
             attempts += 1
 
+    timings["placement"] = time.perf_counter() - t_phase
+    t_phase = time.perf_counter()
+
     # --- STEP 2: PHASE 2 (densification) ---
     if config.enable_optimizer:
         logger.info("--- PHASE 2: Dynamic optimisation ---")
         optimizer = DynamicOptimizer(config, detector)
         fibers = optimizer.optimize_and_fill(fibers)
 
-    finalize(config, fibers, t_start, args=args)
+    timings["densification"] = time.perf_counter() - t_phase
+
+    finalize(config, fibers, t_start, args=args, timings=timings)
 
 
-def finalize(config, fibers, t_start, args=None, voids=None):
+def finalize(config, fibers, t_start, args=None, voids=None, timings=None):
     """!
     @brief Final audit, porosity, statistics and exports of the generated fibers.
     @details The blocking audit (F03) runs on the fibers transmitted to the exports, before any
@@ -239,6 +248,7 @@ def finalize(config, fibers, t_start, args=None, voids=None):
     @param config The configuration object.
     @param fibers Final fibers (roots), not modified after the audit.
     @param t_start Start time of the run.
+    @param timings dict of phase durations (seconds) measured so far, completed here.
     @param args Parsed CLI namespace, stored in the parametric record.
     @param voids Pores to export as they are (regeneration from a record); None generates them
     when porosity is enabled.
@@ -246,6 +256,8 @@ def finalize(config, fibers, t_start, args=None, voids=None):
     """
     # --- STEP 3: AUDIT (blocking, F03) ---
     logger.info("--- PHASE 3: Geometric audit (blocking) ---")
+    timings = dict(timings or {})
+    t_phase = time.perf_counter()
     requested = getattr(config, 'min_clearance', 0.0)
     result = geometric_audit.audit(fibers, config.box_dims, requested,
                                    section_type=config.fiber_section_type,
@@ -264,6 +276,9 @@ def finalize(config, fibers, t_start, args=None, voids=None):
     # Historical statistic (generation detector kernel), kept as a separate measure.
     validator = TopologyValidator(config.box_dims)
     min_clearance = validator.check_clearance(fibers)
+
+    timings["fiber_audit"] = time.perf_counter() - t_phase
+    t_phase = time.perf_counter()
 
     # --- STEP 4: POROSITY ---
     if voids is not None:
@@ -287,6 +302,9 @@ def finalize(config, fibers, t_start, args=None, voids=None):
     if pore_result['n_pores']:
         logger.info(f"Pore audit passed: {pore_result['n_pores']} pores, min gap pore-pore = "
                     f"{pore_result['min_pore_pore_gap']}, pore-fiber = {pore_result['min_pore_fiber_gap']}")
+
+    timings["porosity_and_pore_audit"] = time.perf_counter() - t_phase
+    t_phase = time.perf_counter()
 
     # --- STEP 5: EXPORTS AND STATS ---
     logger.info("--- PHASE 5: Statistics computation and exports ---")
@@ -330,8 +348,9 @@ def finalize(config, fibers, t_start, args=None, voids=None):
         logger.info(f"  Mean NND = {nnd['nnd_mean']:.6f}, Voronoi CV = {voronoi['areas_cv']:.4f}")
 
     # 2. O1 save (parametric record)
+    timings["statistics"] = time.perf_counter() - t_phase
     save_parametric_record_O1(config, fibers, final_stats, f"{config.output_prefix}_parametric", validity,
-                              args=args, voids=voids)
+                              args=args, voids=voids, timings=timings)
 
     # 3. CSV saves (DOUBLE EXPORT)
 
