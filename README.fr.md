@@ -80,13 +80,13 @@ Tests : `pytest`.
 
 ```bash
 # VER minimal
-python main.py --dims 1 1 1 --vf 0.10 --radius 0.02 --seed 42
+python main.py --dims 1 1 1 --vf 0.05 --radius 0.02 --seed 42
 
 # VER orienté, poreux, avec tous les exports
-python main.py --dims 1 1 1 --vf 0.25 --radius 0.02 --seed 7 \
+python main.py --dims 1 1 1 --vf 0.30 --radius 0.02 --seed 7 \
     --bias_type uniaxial --bias_vec1 1 0 0 --strength 0.3 --curvature 60 \
     --porosity --void_vf 0.02 --void_mean 0.03 --void_std 0.006 \
-    --res_fft 256 --periodic_mesh --nastran --abaqus --output RVE_UD_25
+    --res_fft 256 --abaqus --res_abaqus 64 --periodic_mesh --nastran --output RVE_UD_30
 ```
 
 Avec la trajectoire par défaut (29 à 30 points de contrôle, pas de 0,053), les
@@ -118,7 +118,7 @@ d'aspect se règle avec `--min_pts`, `--max_pts`, `--step` et `--radius`.
   peuvent changer :
 
   ```bash
-  python regenerate.py RVE_UD_25_parametric.json --res_fft 512 --no_mesh --output RVE_UD_25_512
+  python regenerate.py RVE_UD_30_parametric.json --res_fft 512 --no_mesh --output RVE_UD_30_512
   ```
 
 ## Performance

@@ -151,7 +151,7 @@ caches them on disk, so later runs start immediately. Run the tests with `pytest
 ### Minimal example
 
 ```bash
-python main.py --dims 1 1 1 --vf 0.10 --radius 0.02 --seed 42
+python main.py --dims 1 1 1 --vf 0.05 --radius 0.02 --seed 42
 ```
 
 With the default trajectory (29–30 control points, step 0.053) the fibers are
@@ -162,11 +162,11 @@ about 1.53 long, i.e. *L/D* ≈ 38 for `--radius 0.02`; the aspect ratio is set 
 
 ```bash
 python main.py \
-    --dims 1 1 1 --vf 0.25 --radius 0.02 --seed 7 \
+    --dims 1 1 1 --vf 0.30 --radius 0.02 --seed 7 \
     --bias_type uniaxial --bias_vec1 1 0 0 --strength 0.3 --curvature 60 \
     --porosity --void_vf 0.02 --void_mean 0.03 --void_std 0.006 \
-    --res_fft 256 --periodic_mesh --nastran --abaqus \
-    --output RVE_UD_25
+    --res_fft 256 --abaqus --res_abaqus 64 --periodic_mesh --nastran \
+    --output RVE_UD_30
 ```
 
 The CAD/mesh stage of a dense RVE can take much longer than the generation
@@ -491,8 +491,8 @@ python gui.py      # or: fps-gui
   writes every export again. Only export options may change:
 
   ```bash
-  python regenerate.py RVE_UD_25_parametric.json                       # same exports, prefix RVE_UD_25_regenerated
-  python regenerate.py RVE_UD_25_parametric.json --res_fft 512 --no_mesh --output RVE_UD_25_512
+  python regenerate.py RVE_UD_30_parametric.json                       # same exports, prefix RVE_UD_30_regenerated
+  python regenerate.py RVE_UD_30_parametric.json --res_fft 512 --no_mesh --output RVE_UD_30_512
   ```
 
   Options that shape the geometry (`--vf`, `--radius`, `--seed`, ...) are refused.
@@ -522,6 +522,7 @@ article, and their raw results (`benchmarks/results/`, with the machine descript
 python benchmarks/run_generation.py --jobs 3             # time of each phase vs target V_f, 3 seeds
 python benchmarks/run_voxelizer.py benchmarks/results/rves/vf30_s1_parametric.json
 python benchmarks/plot_figures.py performance --out figures/
+python benchmarks/render_rve.py RVE_UD_30_parametric.json --out figures/   # 3D views before/after periodisation (needs pyvista)
 ```
 
 ## Documentation
