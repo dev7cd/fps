@@ -15,7 +15,10 @@ class CatmullRomSpline:
     """!
     @class CatmullRomSpline
     @brief Vectorized implementation of Catmull-Rom splines.
-    @details Supports centripetal, uniform, and chordal parameterization through alpha.
+    @details Uniform Catmull-Rom basis per span (with ghost end points). The `alpha`
+    argument is accepted for interface compatibility but not used: the parameterisation
+    is uniform, which is adequate here because FPS keeps the control points equally
+    spaced (generation step length).
     """
 
     @staticmethod
@@ -24,7 +27,7 @@ class CatmullRomSpline:
         @brief Generates a smooth curve passing through control points.
         @param control_points Array of shape (N, 3) containing the skeleton points.
         @param num_points Total number of interpolated points desired for the final curve.
-        @param alpha Parameterization factor: 0.0=Uniform, 0.5=Centripetal (recommended), 1.0=Chordal.
+        @param alpha Unused (uniform parameterisation, see the class description).
         @return A (num_points, 3) array representing the smooth curve.
         """
         if len(control_points) < 4:

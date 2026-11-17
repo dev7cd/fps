@@ -151,9 +151,77 @@ def rve(record_path, out):
     print(f"Written {out / 'fig_rve.pdf'}  ({len(lines)} fibers, {len(pores)} pores)")
 
 
+def architecture(out):
+    """Pipeline diagram (Fig. 1): five stages, shared engine, outputs and regeneration."""
+    from matplotlib.patches import FancyBboxPatch
+    fig, ax = plt.subplots(figsize=(7.0, 7.0))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(6, 106)
+    ax.axis('off')
+
+    def box(x, y, w, h, title, sub, face, edge):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.4,rounding_size=1.6',
+                                    facecolor=face, edgecolor=edge, linewidth=1.4))
+        ax.text(x + w / 2, y + h * 0.66, title, ha='center', va='center', fontsize=8.9, weight='bold', color=INK)
+        ax.text(x + w / 2, y + h * 0.27, sub, ha='center', va='center', fontsize=8, color=INK2,
+                family='monospace', linespacing=1.3)
+
+    def arrow(x0, y0, x1, y1, color=INK2, ls='-', conn=None):
+        props = dict(arrowstyle='-|>', color=color, lw=1.4, linestyle=ls, shrinkA=0, shrinkB=0)
+        if conn:
+            props['connectionstyle'] = conn
+        ax.annotate('', xy=(x1, y1), xytext=(x0, y0), arrowprops=props)
+
+    stage_face, stage_edge = '#e6f0fc', BLUE
+    x, w, h = 10, 57, 9.6
+    box(x, 94, w, h, 'Inputs: CLI, GUI or parametric record', 'box  Vf  radius  bias  curvature  seed',
+        '#e3f4ec', '#1baf7a')
+    stages = [('Stage 1 - Constructive placement (CSAW)', 'generation/generator.py', stage_face, stage_edge),
+              ('Stage 2 - Collective rearrangement', 'generation/optimizer_dynamic.py', stage_face, stage_edge),
+              ('Stage 3 - Blocking geometric audit', 'validation/geometric_audit.py',
+               stage_face, stage_edge),
+              ('Stage 4 - Pores + pore audit (optional)', 'generation/porosity_gen.py', '#fdeee6', ORANGE),
+              ('Stage 5 - Statistics and exports', 'main.py', stage_face, stage_edge)]
+    ys = [80, 67, 54, 41, 28]
+    for (title, sub, face, edge), y in zip(stages, ys):
+        box(x, y, w, h, title, sub, face, edge)
+    for y0, y1 in zip([94] + ys[:-1], ys):
+        arrow(x + w / 2, y0 - 0.6, x + w / 2, y1 + h + 0.6)
+    box(x, 9, w, 13.5, 'Outputs', 'parametric JSON  validity JSON  STEP\n'
+        'Gmsh .msh  voxel .npy/PGM  Nastran .bdf\nAbaqus .inp (periodic)', '#eeeeec', INK2)
+    arrow(x + w / 2, 27.4, x + w / 2, 23.1)
+
+    # Regeneration loop: record -> exports without placement
+    arrow(x - 0.6, 15.75, x - 0.6, 98.8, color=BLUE, conn='bar,fraction=-0.065')
+    ax.text(x - 7.6, 57, 'regenerate.py: parametric JSON -> all exports, no placement', rotation=90,
+            ha='center', va='center', fontsize=8, color=BLUE)
+
+    # Shared engine
+    ex, ew = 74, 24.5
+    ax.add_patch(FancyBboxPatch((ex, 28), ew, 61.6, boxstyle='round,pad=0.4,rounding_size=1.6',
+                                facecolor='#f1effc', edgecolor='#6250d6', linewidth=1.4))
+    ax.text(ex + ew / 2, 86.3, 'Shared engine', ha='center', fontsize=10, weight='bold', color=INK)
+    items = [('core/', 'Fiber, Void, config,\nspatial-hash grid'), ('geometry/', 'Catmull-Rom spline,\nBishop frame'),
+             ('collision/', 'segment-segment\ndistance, Numba JIT'), ('periodicity', 'ghost images,\nshifts -1/0/+1'),
+             ('validation/', 'independent audit\nkernel')]
+    for k, (name, desc) in enumerate(items):
+        yy = 80 - k * 11.0
+        ax.text(ex + 2, yy, name, fontsize=8.8, weight='bold', family='monospace', color='#4a3aa7')
+        ax.text(ex + 2, yy - 4.3, desc, fontsize=7.8, color=INK2, va='center')
+    for y in ys:
+        arrow(ex - 0.6, y + h / 2, x + w + 0.8, y + h / 2, color='#6250d6', ls='--')
+
+    out.mkdir(parents=True, exist_ok=True)
+    for ext in ('pdf', 'png'):
+        fig.savefig(out / f'fig_architecture.{ext}')
+    print(f"Written {out / 'fig_architecture.pdf'}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='figure', required=True)
+    g = sub.add_parser('architecture')
+    g.add_argument('--out', type=Path, default=Path('.'))
     p = sub.add_parser('performance')
     p.add_argument('--results', type=Path, default=ROOT / 'benchmarks' / 'results')
     p.add_argument('--out', type=Path, default=Path('.'))
@@ -161,7 +229,9 @@ def main():
     r.add_argument('record', type=Path)
     r.add_argument('--out', type=Path, default=Path('.'))
     a = ap.parse_args()
-    if a.figure == 'performance':
+    if a.figure == 'architecture':
+        architecture(a.out)
+    elif a.figure == 'performance':
         performance(a.results, a.out)
     else:
         rve(a.record, a.out)

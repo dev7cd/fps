@@ -6,7 +6,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Fiber Packing System"
-PROJECT_NUMBER         = "v6.1"
+PROJECT_NUMBER         = "v7.0.0"
 PROJECT_BRIEF          = "3D Microstructure Generator for Fiber Composites"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = docs
@@ -31,9 +31,9 @@ INPUT                  = . # Current directory (project root)
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.py
 RECURSIVE              = YES # Scan subdirectories
-EXCLUDE                =
+EXCLUDE                = sg_work softwarex docs fps.egg-info build
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       = */__init__.py # Exclude default __init__.py files
+EXCLUDE_PATTERNS       = */__init__.py */__pycache__/* */.git/* # Exclude package inits, caches and git data
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *.py
 EXAMPLE_RECURSIVE      = NO
