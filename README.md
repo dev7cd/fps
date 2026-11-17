@@ -27,23 +27,33 @@ This repository is the software companion of the article:
 
 ## Highlights
 
-- **Smooth curved fibers** — centripetal Catmull–Rom spline centrelines with a
-  no-twist **Bishop frame**; circular and super-elliptical cross-sections.
+- **Smooth curved fibers** — Catmull–Rom spline centrelines with a no-twist
+  **Bishop frame**; circular cross-sections (a super-elliptical profile exists in
+  `geometry/sections.py` but is not yet audited nor voxelised, so `main.py`
+  refuses it).
 - **Dense admissible packing** — a **Constructive Self-Avoiding Walk (CSAW)**
-  followed by a non-destructive **Compress & Fill** densification stage reaches
-  fiber volume fractions up to **V_f ≈ 48 %** at aspect ratio *L/D = 150*,
-  without altering fiber radii.
+  followed by a **collective rearrangement** densification stage takes the
+  volume fraction past the jamming limit of sequential placement, without
+  altering fiber radii (measured times and volume fractions: [Performance](#performance)).
+- **Certified output** — a **blocking geometric audit**, with its own distance
+  kernel, refuses any export when two fibers (or a fiber and its periodic
+  images) intersect, or when a pore overlaps a fiber or another pore.
 - **Multi-phase microstructures (fibers + spherical pores)** — an optional
-  porosity generator inserts **spherical voids** that do not overlap either the
-  fibers or one another, producing a three-phase RVE (matrix / fiber / pore).
-- **Strict periodicity** — explicit ghost images (up to 26 neighbours) with the
-  minimum-image convention, applied consistently to fibers and pores.
+  porosity generator inserts **spherical voids** that overlap neither the
+  fibers (periodic images included) nor one another, producing a three-phase
+  RVE (matrix / fiber / pore).
+- **Strict periodicity** — explicit ghost images (shifts of −1/0/+1 period per
+  axis, i.e. up to 26 neighbours), applied consistently to fibers and pores.
+- **Reproducible by construction** — a seed (drawn and recorded when not given)
+  reproduces an RVE bit for bit, and `regenerate.py` rebuilds every export from
+  the parametric record without re-running placement.
 - **Fast collision detection** — spatial-hash broad phase + analytic
   segment-to-segment narrow phase (Eberly), compiled with **Numba JIT**.
 - **Orientation control & descriptors** — directional/planar bias and **AD–PCA**
   orientation tensors valid for arbitrarily bent fibers.
 - **Multi-format export** — parametric JSON, CAD (STEP), conformal FE mesh
-  (Gmsh, optionally periodic), voxel field for FFT, and Nastran `.bdf`.
+  (Gmsh, optionally periodic), voxel field for FFT, Nastran `.bdf` and Abaqus
+  voxel `.inp` with periodic equations.
 
 ## Architecture
 
@@ -51,9 +61,9 @@ The pipeline runs in 5 sequential stages:
 
 ```
 Stage 1 : Constructive placement (CSAW)      -> generation/generator.py
-Stage 2 : Non-destructive densification       -> generation/optimizer_dynamic.py   (Compress & Fill)
+Stage 2 : Densification (collective rearr.)   -> generation/optimizer_dynamic.py
 Stage 3 : Blocking geometric audit (F03)       -> validation/geometric_audit.py
-Stage 4 : Porosity generation (optional)       -> generation/porosity_gen.py
+Stage 4 : Porosity (optional) + pore audit     -> generation/porosity_gen.py, validation/geometric_audit.py
 Stage 5 : Statistics and export                -> main.py
 ```
 
@@ -65,21 +75,22 @@ fps/
 │   ├── config.py              # Centralised configuration (dataclass, all parameters)
 │   ├── fiber.py               # Fiber object (control points, centerline, Bishop frames)
 │   ├── void.py                # Void object (spherical porosity)
-│   └── grid_structure.py      # Spatial-hash grid (broad-phase collision, reverse-mapping)
+│   ├── grid_structure.py      # Spatial-hash grid (broad-phase collision, reverse-mapping)
+│   └── version.py             # FPS version (written into every parametric record)
 ├── geometry/
-│   ├── curves.py              # Centripetal Catmull–Rom spline + resampling
+│   ├── curves.py              # Catmull–Rom spline + resampling
 │   ├── frames.py              # Bishop frame (parallel transport, Rodrigues)
 │   └── sections.py            # Cross-sections (circular, super-elliptical, factory)
 ├── generation/
 │   ├── generator.py           # CSAW algorithm (self-avoiding walk + backtracking) + RSDA
 │   ├── periodicity.py         # PeriodicManager (wrap, 26-neighbour ghosts)
 │   ├── optimizer_dynamic.py   # Collective rearrangement: overlapping insertion + force-biased relaxation
-│   └── porosity_gen.py        # Vectorised RSA for periodic spherical pores
+│   └── porosity_gen.py        # RSA of periodic spherical pores (tested against fiber images)
 ├── collision/
 │   ├── detector.py            # CollisionDetector (API: group_valid, segment_free, periodic)
 │   └── detector_math.py       # Numba kernels: segment-to-segment distance (Eberly), MIC
 ├── validation/
-│   ├── geometric_audit.py     # Blocking final audit (F03): status, scope, {prefix}_validity.json
+│   ├── geometric_audit.py     # Blocking final audits (fibers F03, pores): status, scope, {prefix}_validity.json
 │   ├── audit_distance.py      # Audit distance kernel, independent of the generation detector
 │   ├── topology.py            # Historical clearance statistic (topology_gap_min) + gap distribution
 │   └── statistics.py          # Spatial descriptors (NND, Ripley K, g(r), Voronoi)
@@ -89,19 +100,23 @@ fps/
 │   └── plotter.py             # 3D wireframe visualisation + analysis reports
 ├── export/
 │   ├── gmsh_exporter.py       # CAD (.step) + FEM (.msh), periodic + adaptive mesh
-│   ├── voxelizer.py           # Voxelised FFT grid (matrix=0, fiber=1, pore=2) + PGM
+│   ├── voxelizer.py           # Voxelised FFT grid (matrix=0, fiber=128, pore=255) + PGM slices
+│   ├── abaqus_exporter.py     # Abaqus voxel mesh (C3D8) with periodic equations
 │   ├── csv_exporter.py        # CSV export (control points + direction)
 │   └── nastran_exporter.py    # .msh -> .bdf conversion (Nastran via meshio)
 ├── utils/
 │   └── logger.py              # Centralised logging configuration
+├── benchmarks/                # Performance benchmarks and the scripts of the article figures
 ├── main.py                    # 5-stage orchestrator (CSAW -> Densify -> Audit -> Pores -> Export)
+├── regenerate.py              # Rebuilds every export from a parametric record (no placement)
 ├── cli.py                     # Command-line interface (argparse, 6 parameter groups)
 └── gui.py                     # PyQt6 desktop GUI (parameters, 3D view, console)
 ```
 
 ## Installation
 
-Requires **Python ≥ 3.9**.
+Requires **Python ≥ 3.9** (the test suite runs on Python 3.9, 3.11, 3.12 and 3.13
+under Linux, and 3.12 under macOS and Windows, with NumPy 1.x or 2.x).
 
 ```bash
 git clone https://github.com/dev7cd/fps.git
@@ -115,6 +130,11 @@ Or, as a package (from `pyproject.toml`):
 pip install -e .            # core dependencies
 pip install -e ".[gui,dev]" # + PyQt6 GUI and pytest
 ```
+
+The package installs three commands, equivalent to the scripts of the repository:
+`fps` (= `python main.py`), `fps-regenerate` (= `python regenerate.py`) and
+`fps-gui` (= `python gui.py`). Numba compiles its kernels on the first run and
+caches them on disk, so later runs start immediately. Run the tests with `pytest`.
 
 | Dependency | Role |
 |-----------|------|
@@ -134,24 +154,24 @@ pip install -e ".[gui,dev]" # + PyQt6 GUI and pytest
 python main.py --dims 1 1 1 --vf 0.10 --radius 0.02 --seed 42
 ```
 
+With the default trajectory (29–30 control points, step 0.053) the fibers are
+about 1.53 long, i.e. *L/D* ≈ 38 for `--radius 0.02`; the aspect ratio is set by
+`--min_pts`, `--max_pts`, `--step` and `--radius`.
+
 ### Advanced example (dense, oriented, porous RVE with full export)
 
 ```bash
 python main.py \
-    --dims 1 1 1 \
-    --vf 0.55 \
-    --radius 0.015 \
-    --seed 42 \
-    --bias_type planar --bias_vec1 1 0 0 --bias_vec2 0 1 0 --strength 0.8 \
-    --curvature 30 \
-    --rsda \
-    --optimize --opt_iters 20 --injection 100 \
-    --porosity --void_vf 0.01 \
-    --res_fft 256 \
-    --periodic_mesh \
-    --nastran \
-    --output RVE_UD_55
+    --dims 1 1 1 --vf 0.25 --radius 0.02 --seed 7 \
+    --bias_type uniaxial --bias_vec1 1 0 0 --strength 0.3 --curvature 60 \
+    --porosity --void_vf 0.02 --void_mean 0.03 --void_std 0.006 \
+    --res_fft 256 --periodic_mesh --nastran --abaqus \
+    --output RVE_UD_25
 ```
+
+The CAD/mesh stage of a dense RVE can take much longer than the generation
+itself; add `--no_mesh` to obtain the parametric record, CSV and voxel outputs
+only, and regenerate the mesh later (see [Reproducibility](#reproducibility)).
 
 ## CLI parameters
 
@@ -161,36 +181,36 @@ python main.py \
 |-----------|------|--------|-------------|
 | `--dims` | float x3 | 1.0 1.0 1.0 | RVE dimensions (Lx Ly Lz) |
 | `--vf` | float | 0.05 | Target fiber volume fraction |
-| `--seed` | int | None | Random seed for reproducibility |
+| `--seed` | int | drawn | Random seed; when omitted, one is drawn and stored in the record |
 
 ### 2. Fiber geometry
 
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
 | `--radius` | float | 0.02 | Collision radius (circular envelope) |
-| `--section` | str | circular | Cross-section type (circular, superelliptical). `main.py` refuses `superelliptical` (exit code 2) because the voxel export only supports circular sections |
-| `--sec_major` | float | 0.019 | Major semi-axis (real section) |
-| `--sec_minor` | float | 0.015 | Minor semi-axis (real section) |
-| `--sec_n` | float | 2.5 | Super-ellipse exponent (>2 = rounded corners) |
+| `--section` | str | circular | Cross-section type (circular, superelliptical). `main.py` refuses `superelliptical` (exit code 1) because neither the audit nor the voxel export supports it yet |
+| `--sec_major` | float | 0.019 | Reserved for super-elliptical sections (not used in v7) |
+| `--sec_minor` | float | 0.015 | Reserved for super-elliptical sections (not used in v7) |
+| `--sec_n` | float | 2.5 | Super-ellipse exponent (reserved, see `--section`) |
 | `--clearance` | float | 0.0 | Minimum inter-fiber clearance requested by the final audit; 0 allows contact |
 
 ### 3. Trajectory and orientation
 
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
-| `--min_pts` | int | 15 | Min control points per fiber |
-| `--max_pts` | int | 20 | Max control points per fiber |
-| `--step` | float | 0.07 | Segment length |
-| `--max_attempts` | int | 500 | Max attempts before giving up |
-| `--bias_type` | str | planar | Bias mode (free, uniaxial, planar) |
+| `--min_pts` | int | 29 | Min control points per fiber |
+| `--max_pts` | int | 30 | Max control points per fiber |
+| `--step` | float | 0.053 | Segment length |
+| `--max_attempts` | int | 500 | Consecutive placement failures before Stage 1 stops |
+| `--bias_type` | str | uniaxial | Bias mode (free, uniaxial, planar) |
 | `--bias_vec1` | float x3 | 1 0 0 | Primary direction vector |
 | `--bias_vec2` | float x3 | 0 1 0 | Secondary direction vector (planar mode) |
-| `--strength` | float | 0.0 | Bias strength (0 = random, 1 = strict) |
-| `--curvature` | float | 60.0 | Maximum turning angle (degrees) |
+| `--strength` | float | 0.22 | Bias strength (0 = random, 1 = strict) |
+| `--curvature` | float | 70.0 | Maximum turning angle between segments (degrees) |
 | `--rsda` | flag | off | Enable dynamic rearrangement (RSDA) |
 | `--rsda_perturb` | float | 0.05 | RSDA perturbation intensity (fraction of radius) |
 
-### 4. Densification (Stage 2 — Compress & Fill)
+### 4. Densification (Stage 2 — collective rearrangement)
 
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
@@ -230,12 +250,12 @@ python main.py \
 
 | File | Description |
 |------|-------------|
-| `{prefix}_validity.json` | status of the final geometric audit (`passed`, `failed`, `undetermined`), written for every attempt |
-| `{prefix}_parametric.json` | metadata, parameters, statistics, fiber geometry, and the same `validity` record |
+| `{prefix}_validity.json` | status of the final geometric audits (`passed`, `failed`, `undetermined`), written for every attempt |
+| `{prefix}_parametric.json` | complete CLI argument set, software versions, phase timings, statistics, fiber control points and radii, pores, and the same `validity` record — the source of truth from which `regenerate.py` rebuilds every export |
 | `{prefix}_roots.csv` | control points of the root fibers |
 | `{prefix}_full_periodic.csv` | root fibers + all periodic ghosts |
 | `{prefix}_voxelmap.npy` | 3D uint8 grid (matrix=0, fiber=128, pore=255) |
-| `slice****.pgm` | 2D slices of the voxel grid (PGM P2) |
+| `{prefix}_slice****.pgm` | 2D z-slices of the voxel grid (PGM P2, grey levels 0/128/255) |
 | `{prefix}.step` | CAD geometry (OpenCASCADE) |
 | `{prefix}.msh` | finite-element mesh (Gmsh v4) |
 | `{prefix}.bdf` | Nastran Bulk Data (with `--nastran`) |
@@ -272,7 +292,8 @@ Abaqus. At 128 voxels per axis:
 ### Final geometric audit (F03)
 
 After optimisation, `main.py` audits the fibers transmitted to the exports, before
-porosity, statistics and any export. Only `passed` allows the exports; `failed`
+porosity, statistics and any export; once the pores are generated, a second
+blocking audit checks them (see below). Only `passed` allows the exports; `failed`
 (envelope intersection or clearance below `--clearance`) and `undetermined`
 (unusable input, domain not covered, audit error) write `{prefix}_validity.json`
 and exit with code 1, leaving earlier exports of the same prefix untouched.
@@ -281,12 +302,19 @@ Scope of `passed`: a sufficient condition for the tubes of the sampled centerlin
 (the 100-point polyline rasterised by the voxelizer) to be disjoint, for the
 audit kernel `validation/audit_distance.py` qualified by the tests
 `tests/test_audit_*.py`. Not covered: the continuous spline, self-intersections
-of a fiber with itself, the separation of fibers in the voxel grid, periodic
-images needing shifts beyond -1/0/+1 (refused), non-circular sections and pores.
+of a fiber with itself (zero shift), the separation of fibers in the voxel grid,
+periodic images needing shifts beyond -1/0/+1 (refused) and non-circular sections.
 The record carries the method, the scope, the excluded checks, the measured and
 requested clearances, the responsible pair, the FPS commit and two hashes:
 `fibers_sha256` (canonical `microstructure_data`) and `audited_geometry_sha256`
 (geometry, box, section and interpolation convention, FPS commit).
+
+**Pore audit.** Every pore must be disjoint from every other pore (minimum-image
+centre distance) and from every fiber, periodic images of the fiber included
+(exact point-to-segment distance from the pore centre to the sampled
+centerline, over every shift whose fiber box can reach the pore). The result is
+stored under `pores` in the validity record; a failure stops the run before any
+export. The audit does not call the porosity generator's own test.
 
 The generation detector (`collision/detector_math.py`) is unchanged; its
 absolute threshold can overestimate the distance between short or nearly
@@ -314,7 +342,6 @@ free up space (`--rsda`):
 - Triggered when standard placement fails (>100 attempts).
 - Identifies colliding fibers and displaces them slightly.
 - Full rollback if the perturbation creates new collisions.
-- Helps exceed the jamming limit of pure RSA (~54.7 %).
 
 ### Collective rearrangement (densification, Stage 2)
 
@@ -365,8 +392,9 @@ Random Sequential Adsorption (`--porosity`):
 - Pore radii drawn from a truncated normal law (`--void_mean`, `--void_std`),
   with adaptive radius shrinking after repeated rejections.
 - **Mutual non-overlap** is enforced on both sides: pore–pore checks
-  (vectorised) *and* pore–fiber checks (bounding-box broad phase +
-  point-to-centerline distance against the fiber tube).
+  (vectorised) *and* pore–fiber checks (exact point-to-segment distance to the
+  fiber centerline, against every periodic image of the fiber that can reach
+  the pore), then verified by the blocking pore audit.
 - Pores are periodic (their own ghost images), consistently with the fibers.
 - The result is a three-phase RVE (matrix / fiber / pore) exported as voxel tags
   **0 / 128 / 255** (uint8), directly usable for FFT and FE homogenisation of
@@ -401,7 +429,7 @@ Anisotropic decomposition via principal component analysis:
 - Tags: matrix = 0, fiber = 128, pore = 255 (uint8, chosen for direct PGM greyscale export).
 - Exact point-segment distance per voxel (Numba JIT).
 - Accelerated by local BBox + early exit.
-- PGM (Portable Gray Map) export by Z-slices.
+- PGM (Portable Gray Map) export by z-slices, `{prefix}_slice****.pgm`.
 
 ### Gmsh meshing
 
@@ -420,7 +448,7 @@ A PyQt6 desktop GUI is available to drive the generator without the command line
 ### Launch
 
 ```bash
-python gui.py
+python gui.py      # or: fps-gui
 ```
 
 ### Features
@@ -439,7 +467,7 @@ python gui.py
 | Section | Content |
 |---------|---------|
 | Domain and Targets | RVE dimensions, volume fraction, random seed |
-| Fiber Geometry | Radius, section type, clearance, super-ellipse parameters |
+| Fiber Geometry | Radius, section type (circular in v7), clearance |
 | Orientation | Bias mode (free/uniaxial/planar), alignment strength, curvature, RSDA |
 | Densification | Enable Stage 2, rounds, stall kick, injection |
 | Porosity | Enable pores, volume fraction, mean radius and standard deviation |
@@ -447,19 +475,49 @@ python gui.py
 
 ## Reproducibility
 
-Every stochastic draw is controlled by an explicit `--seed`, and the full
-parameter set is stored in `{prefix}_parametric.json`. Re-running the same
-command reproduces an identical RVE; the parametric record regenerates all
-downstream exports without re-running the placement engine.
+- **Seeded.** Every stochastic draw (placement, densification, pores) comes from
+  generators seeded with `--seed`; without `--seed`, a seed is drawn from the
+  operating system, logged and stored. Re-running the same command with the same
+  seed and FPS version reproduces the RVE bit for bit (checked by
+  `tests/test_reproducibility.py`).
+- **Complete record.** `{prefix}_parametric.json` stores the complete CLI
+  argument set (`cli_arguments`), the FPS version and commit with the Python,
+  NumPy, SciPy and Numba versions (`software`), the duration of each phase
+  (`timings_s`), the control points and radius of every fiber, the pores, the
+  statistics and the validity record with the SHA-256 of the audited geometry.
+- **Regeneration without placement.** `regenerate.py` rebuilds the
+  configuration, the fibers and the pores from the record, checks that the
+  rebuilt geometry has the audited SHA-256, re-runs both blocking audits and
+  writes every export again. Only export options may change:
+
+  ```bash
+  python regenerate.py RVE_UD_25_parametric.json                       # same exports, prefix RVE_UD_25_regenerated
+  python regenerate.py RVE_UD_25_parametric.json --res_fft 512 --no_mesh --output RVE_UD_25_512
+  ```
+
+  Options that shape the geometry (`--vf`, `--radius`, `--seed`, ...) are refused.
+
+## Performance
+
+`benchmarks/` holds the scripts that produce the performance figure of the
+article, and their results (`benchmarks/results/`, with the machine description):
+
+```bash
+python benchmarks/run_generation.py --jobs 3             # time of each phase vs target V_f, 3 seeds
+python benchmarks/run_voxelizer.py benchmarks/results/rves/vf30_s1_parametric.json
+python benchmarks/plot_figures.py performance --out figures/
+```
 
 ## Documentation
 
-- API reference (Doxygen): `docs/html/index.html`
+- API reference (Doxygen): `docs/html/index.html` (regenerate with `doxygen Doxyfile`)
 - French README: [README.fr.md](README.fr.md)
 
 ## Citing
 
-If you use FPS in your research, please cite the associated article:
+If you use FPS in your research, please cite the software (version and
+repository, see [CITATION.cff](CITATION.cff); GitHub's *Cite this repository*
+button exports it) and the associated article:
 
 ```bibtex
 @article{Ngouloubi2026FPS,
@@ -481,14 +539,8 @@ study, modify and share it, but if you distribute a modified version **or run it
 as a network/SaaS service**, you must make your corresponding source code
 available under the same license.
 
-**Dual licensing.** The author retains full copyright. If the AGPL copyleft terms
-do not fit your use case (e.g. integration into a proprietary or closed-source
-product/service), a separate **commercial license** can be negotiated — contact
-`exauce-devine.ngouloubi@unicaen.fr`. See [NOTICE](NOTICE) for details.
-
-Publishing the code openly does **not** transfer ownership; third-party archival
-or forking (e.g. by SoftwareX) is a copy permitted by the license, not a transfer
-of rights.
+The full text is also provided as [Licence.txt](Licence.txt). Third-party
+dependencies keep their own licenses, see [NOTICE](NOTICE).
 
 ## Author
 

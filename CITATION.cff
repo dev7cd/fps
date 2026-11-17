@@ -4,8 +4,8 @@ message: >-
   associated article (see preferred-citation below).
 type: software
 title: "FPS: Fiber Packing System"
-version: 6.1.0
-date-released: 2026-07-13
+version: 7.0.0
+date-released: 2026-11-17
 license: AGPL-3.0-or-later
 authors:
   - family-names: Ngouloubi
