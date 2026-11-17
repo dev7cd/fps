@@ -1,9 +1,11 @@
 cff-version: 1.2.0
 message: >-
-  If you use this software, please cite both the software itself and the
-  associated article (see preferred-citation below).
+  If you use this software, please cite it with the version you used.
 type: software
 title: "FPS: Fiber Packing System"
+abstract: >-
+  Generator of periodic three-phase microstructures (matrix, curved fibers,
+  spherical pores) for computational homogenisation.
 version: 7.0.0
 date-released: 2026-11-17
 license: AGPL-3.0-or-later
@@ -17,24 +19,24 @@ authors:
 repository-code: "https://github.com/dev7cd/fps"
 url: "https://github.com/dev7cd/fps"
 keywords:
-  - representative volume element
-  - fiber-reinforced composites
   - microstructure generation
-  - RVE
-  - collision detection
+  - representative volume element
+  - curved fibers
+  - porosity
+  - periodic boundary conditions
   - homogenization
-preferred-citation:
-  type: article
-  title: "A geometric algorithm for dense 3D RVEs of long curved fiber composites"
-  authors:
-    - family-names: Ngouloubi
-      given-names: Devine
-    - family-names: Choï
-      given-names: Daniel
-    - family-names: Karamian-Surville
-      given-names: Philippe
-  journal: "Composite Structures"
-  volume: "391"
-  start: "120524"
-  year: 2026
-  doi: "10.1016/j.compstruct.2026.120524"
+references:
+  - type: article
+    title: "A geometric algorithm for dense 3D RVEs of long curved fiber composites"
+    authors:
+      - family-names: Ngouloubi
+        given-names: Devine
+      - family-names: Choï
+        given-names: Daniel
+      - family-names: Karamian-Surville
+        given-names: Philippe
+    journal: "Composite Structures"
+    volume: "391"
+    start: "120524"
+    year: 2026
+    doi: "10.1016/j.compstruct.2026.120524"

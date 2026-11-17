@@ -8,22 +8,15 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.compstruct.2026.120524-blue.svg)](https://doi.org/10.1016/j.compstruct.2026.120524)
 [![tests](https://github.com/dev7cd/fps/actions/workflows/tests.yml/badge.svg)](https://github.com/dev7cd/fps/actions/workflows/tests.yml)
 
-**FPS** is an open-source Python tool that generates **periodic 3D representative
-volume elements (RVEs)** of fiber-reinforced composites with **long, strongly
-curved, non-parallel fibers**, optionally combined with **spherical porosity**.
-It handles collisions with an analytic segment-to-segment distance test, enforces
-strict periodic non-overlap, and exports to multiple formats for simulation
-(FEM, FFT, surrogate models).
-
-This repository is the software companion of the article:
-
-> D. Ngouloubi, D. Choï, P. Karamian-Surville,
-> *A geometric algorithm for dense 3D RVEs of long curved fiber composites*,
-> **Composite Structures** 391 (2026) 120524.
-> [doi:10.1016/j.compstruct.2026.120524](https://doi.org/10.1016/j.compstruct.2026.120524)
+**FPS** is an open-source Python package that generates **periodic three-phase
+microstructures** — matrix, fibers and spherical pores — for computational
+homogenisation, with the particularity of handling **long, curved fibers**.
+Every RVE is audited (no export unless fibers and pores are disjoint, periodic
+images included), reproducible from a seed, and described by a compact
+parametric record from which the CAD, finite-element and voxel exports can be
+regenerated.
 
 ## Highlights
 
@@ -532,12 +525,12 @@ python benchmarks/render_rve.py RVE_UD_30_parametric.json --out figures/   # 3D 
 
 ## Citing
 
-If you use FPS in your research, please cite the software (version and
-repository, see [CITATION.cff](CITATION.cff); GitHub's *Cite this repository*
-button exports it) and the associated article:
+If you use FPS in your research, please cite the software with its version (see
+[CITATION.cff](CITATION.cff); GitHub's *Cite this repository* button exports it).
+The constructive placement algorithm (CSAW) used in Stage 1 was first described in:
 
 ```bibtex
-@article{Ngouloubi2026FPS,
+@article{Ngouloubi2026CSAW,
   title   = {A geometric algorithm for dense 3D RVEs of long curved fiber composites},
   author  = {Ngouloubi, Devine and Cho{\"\i}, Daniel and Karamian-Surville, Philippe},
   journal = {Composite Structures},
@@ -565,6 +558,5 @@ dependencies keep their own licenses, see [NOTICE](NOTICE).
 Nicolas Oresme Mathematics Laboratory (LMNO, UMR 6139), Normandy University,
 UNICAEN, CNRS, Caen, France.
 
-The underlying geometric and homogenisation theory was developed jointly with
-Daniel Choï and Philippe Karamian-Surville in the associated *Composite
-Structures* article (see [Citing](#citing)).
+The author thanks Daniel Choï and Philippe Karamian-Surville for discussions on
+the geometric framework.

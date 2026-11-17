@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fps"
 version = "7.0.0"
-description = "Fiber Packing System: generator of dense periodic 3D RVEs of long, curved fiber composites"
+description = "Fiber Packing System: generator of periodic three-phase microstructures (matrix, curved fibers, pores)"
 requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 authors = [

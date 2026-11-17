@@ -10,22 +10,17 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![tests](https://github.com/dev7cd/fps/actions/workflows/tests.yml/badge.svg)](https://github.com/dev7cd/fps/actions/workflows/tests.yml)
 
-**FPS** est un outil Python libre qui génère des **volumes élémentaires
-représentatifs (VER) 3D périodiques** de composites renforcés par des **fibres
-longues et fortement courbes**, éventuellement avec une **porosité sphérique**.
-Il garantit la non-interpénétration périodique stricte par un audit géométrique
-bloquant et exporte vers plusieurs formats de simulation (éléments finis, FFT).
+**FPS** est un paquet Python libre qui génère des **microstructures
+triphasées périodiques** (matrice, fibres, pores sphériques) pour
+l'homogénéisation numérique, avec la particularité de traiter des **fibres
+longues et courbes**. Chaque VER est audité (aucun export si fibres et pores ne
+sont pas disjoints, images périodiques comprises), reproductible à partir d'une
+graine et décrit par un enregistrement paramétrique compact à partir duquel les
+exports CAO, éléments finis et voxel peuvent être régénérés.
 
 Ce README est une présentation en français. La référence complète (tous les
 paramètres, l'export Abaqus, le contrôle des exports, les algorithmes) est le
 [README anglais](README.md).
-
-Ce dépôt est le compagnon logiciel de l'article :
-
-> D. Ngouloubi, D. Choï, P. Karamian-Surville,
-> *A geometric algorithm for dense 3D RVEs of long curved fiber composites*,
-> **Composite Structures** 391 (2026) 120524.
-> [doi:10.1016/j.compstruct.2026.120524](https://doi.org/10.1016/j.compstruct.2026.120524)
 
 ## Points clés
 
@@ -145,17 +140,17 @@ réel, barre de progression ; la génération tourne dans un sous-processus.
 Laboratoire de Mathématiques Nicolas Oresme (LMNO, UMR 6139), Université de
 Normandie, UNICAEN, CNRS, Caen, France.
 
-La théorie géométrique et d'homogénéisation sous-jacente a été développée avec
-Daniel Choï et Philippe Karamian-Surville dans l'article *Composite Structures*
-associé.
+L'auteur remercie Daniel Choï et Philippe Karamian-Surville pour les échanges
+sur le cadre géométrique.
 
 ## Citation
 
-Merci de citer le logiciel (version et dépôt, voir [CITATION.cff](CITATION.cff))
-et l'article associé :
+Merci de citer le logiciel avec sa version (voir [CITATION.cff](CITATION.cff)).
+L'algorithme de placement constructif (CSAW) de l'étape 1 a été décrit pour la
+première fois dans :
 
 ```bibtex
-@article{Ngouloubi2026FPS,
+@article{Ngouloubi2026CSAW,
   title   = {A geometric algorithm for dense 3D RVEs of long curved fiber composites},
   author  = {Ngouloubi, Devine and Cho{\"\i}, Daniel and Karamian-Surville, Philippe},
   journal = {Composite Structures},
