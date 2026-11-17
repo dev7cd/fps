@@ -14,5 +14,5 @@
     "python benchmarks/run_generation.py --vf 0.05 --seeds 1 2 3 --jobs 3  (merged)"
   ],
   "note": "3 RVEs generated concurrently, each single-threaded; laptop HP EliteBook 840 G10",
-  "fps_commit_note": "c2abc0a for Vf 0.10-0.30, 5e82682 for Vf 0.05 (no change to generation code in between)"
+  "fps_commit_note": "Commits recorded before a rewrite of the commit messages of the repository; the generation code is identical to tag v7.0.0."
 }

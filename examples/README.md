@@ -10,7 +10,8 @@ with FPS v7.0.0 on a laptop (Intel Core i5-1335U, Python 3.13).
 
 The dense record was written before `--res_abaqus 64` was added to the command of
 the article; this option only sets the resolution of the Abaqus export and has no
-effect on the geometry.
+effect on the geometry. The FPS commit stored in the records predates a rewrite of
+the commit messages of the repository; its code is identical to tag `v7.0.0`.
 
 Each record holds the complete argument set, the software versions, the phase
 timings, the control points and radius of every fiber, the pores and the result

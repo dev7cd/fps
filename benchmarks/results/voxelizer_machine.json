@@ -11,5 +11,6 @@
   "record": "benchmarks/results/rves/vf30_s1_parametric.json (written by run_generation.py)",
   "n_fibers": 155,
   "reached_vf": 0.3000253235090305,
-  "command": "python benchmarks/run_voxelizer.py benchmarks/results/rves/vf30_s1_parametric.json --res 32 64 128 256 512 --repeats 3"
+  "command": "python benchmarks/run_voxelizer.py benchmarks/results/rves/vf30_s1_parametric.json --res 32 64 128 256 512 --repeats 3",
+  "fps_commit_note": "Commit recorded before a rewrite of the commit messages of the repository; the voxeliser code is identical to tag v7.0.0."
 }
