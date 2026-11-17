@@ -52,8 +52,34 @@ logging.basicConfig(
 #  @brief Main logger for the RVE orchestrator.
 logger = logging.getLogger("RVE_Orchestrator")
 
+def software_record():
+    """!
+    @brief Versions of FPS and of the numerical stack, stored in the parametric record.
+    @return dict
+    """
+    import platform
+    import scipy
+    import numba
+    from core.version import __version__
+    return {"name": "FPS (Fiber Packing System)", "version": __version__,
+            "git": geometric_audit.fps_provenance(),
+            "python": platform.python_version(), "numpy": np.__version__,
+            "scipy": scipy.__version__, "numba": numba.__version__,
+            "platform": platform.platform()}
+
+
+def void_records(voids):
+    """!
+    @brief Entries of `voids` in the parametric record (periodic images included, as exported).
+    @param voids List of Void objects.
+    @return list of dict
+    """
+    return [{"id": int(v.id), "center": [float(c) for c in v.center], "radius": float(v.radius)}
+            for v in voids]
+
+
 def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_dict: dict, filename: str,
-                              validity: dict = None):
+                              validity: dict = None, args=None, voids=None):
     """!
     @brief Saves the RVE geometry and certified analysis results to a JSON file.
     @details This "O1" record contains metadata, simulation parameters,
@@ -63,6 +89,9 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
     @param stats_dict Dictionary containing AD-PCA and spatial statistics.
     @param filename Output filename without extension.
     @param validity Validity record of the final geometric audit (F03), stored under "validity".
+    @param args Parsed CLI namespace: the complete argument set, stored under "cli_arguments", from
+    which regenerate.py rebuilds the configuration.
+    @param voids Pores (with their periodic images), stored under "voids".
     @return None
     """
     import datetime
@@ -77,7 +106,10 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
         "metadata": {
             "timestamp": str(datetime.datetime.now()),
             "rve_type": "Periodic High-Density Composite",
+            "record_version": 2,
         },
+        "software": software_record(),
+        "cli_arguments": None if args is None else geometric_audit.json_safe(vars(args)),
         "simulation_parameters": {
             "random_seed": config.seed,
             "box_dims": config.box_dims,
@@ -85,7 +117,8 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
             "algo_params": config.generation_parameters
         },
         "computed_statistics": stats_dict,
-        "microstructure_data": geometric_audit.microstructure_records(fibers)
+        "microstructure_data": geometric_audit.microstructure_records(fibers),
+        "voids": void_records(voids or []),
     }
     if validity is not None:
         record["validity"] = geometric_audit.json_safe(validity)
@@ -93,17 +126,19 @@ def save_parametric_record_O1(config: FiberPackingConfig, fibers: list, stats_di
     with open(f"{filename}.json", "w") as f:
         json.dump(record, f, default=np_encoder, indent=4)
 
-def main():
+def main(argv=None):
     """!
     @brief Main execution loop of the RVE generator.
     @details Parses CLI arguments, runs the generation phases, performs
     statistical audits, and triggers all requested exporters.
+    @param argv Argument list (None: sys.argv[1:]).
     @return None
     """
     t_start = time.time()
 
     # --- STEP 0: configuration ---
-    config, args = parse_args()
+    config, args = parse_args(argv)
+    logger.info(f"Random seed: {config.seed}")
 
     # The voxel export below is unconditional and the audit only covers circular sections:
     # refuse other sections now, before the costly generation, with the validity diagnostic.
@@ -192,10 +227,10 @@ def main():
         optimizer = DynamicOptimizer(config, detector)
         fibers = optimizer.optimize_and_fill(fibers)
 
-    finalize(config, fibers, t_start)
+    finalize(config, fibers, t_start, args=args)
 
 
-def finalize(config, fibers, t_start):
+def finalize(config, fibers, t_start, args=None, voids=None):
     """!
     @brief Final audit, porosity, statistics and exports of the generated fibers.
     @details The blocking audit (F03) runs on the fibers transmitted to the exports, before any
@@ -204,6 +239,9 @@ def finalize(config, fibers, t_start):
     @param config The configuration object.
     @param fibers Final fibers (roots), not modified after the audit.
     @param t_start Start time of the run.
+    @param args Parsed CLI namespace, stored in the parametric record.
+    @param voids Pores to export as they are (regeneration from a record); None generates them
+    when porosity is enabled.
     @return None
     """
     # --- STEP 3: AUDIT (blocking, F03) ---
@@ -228,11 +266,27 @@ def finalize(config, fibers, t_start):
     min_clearance = validator.check_clearance(fibers)
 
     # --- STEP 4: POROSITY ---
-    voids = []
-    if config.generate_porosity:
-        logger.info("--- PHASE 4: Porosity generation ---")
-        p_gen = PorosityGenerator(config)
-        voids = p_gen.generate_voids(fibers)
+    if voids is not None:
+        # Regeneration from a record: the stored pores are exported as they are, never redrawn.
+        logger.info(f"--- PHASE 4: Porosity restored from the record ({len(voids)} objects) ---")
+    else:
+        voids = []
+        if config.generate_porosity:
+            logger.info("--- PHASE 4: Porosity generation ---")
+            p_gen = PorosityGenerator(config)
+            voids = p_gen.generate_voids(fibers)
+
+    # Blocking audit of the pores (pore-pore and pore-fiber, periodic), before any export
+    pore_result = geometric_audit.audit_pores(fibers, voids, config.box_dims)
+    validity = geometric_audit.attach_pore_audit(validity, pore_result)
+    path = geometric_audit.write_record(f"{config.output_prefix}_validity.json", validity)
+    if validity['status'] != 'passed':
+        logger.error(f"Pore audit {validity['status']}: {validity['cause']}. Diagnostic: {path}. "
+                     f"No export written.")
+        sys.exit(1)
+    if pore_result['n_pores']:
+        logger.info(f"Pore audit passed: {pore_result['n_pores']} pores, min gap pore-pore = "
+                    f"{pore_result['min_pore_pore_gap']}, pore-fiber = {pore_result['min_pore_fiber_gap']}")
 
     # --- STEP 5: EXPORTS AND STATS ---
     logger.info("--- PHASE 5: Statistics computation and exports ---")
@@ -276,7 +330,8 @@ def finalize(config, fibers, t_start):
         logger.info(f"  Mean NND = {nnd['nnd_mean']:.6f}, Voronoi CV = {voronoi['areas_cv']:.4f}")
 
     # 2. O1 save (parametric record)
-    save_parametric_record_O1(config, fibers, final_stats, f"{config.output_prefix}_parametric", validity)
+    save_parametric_record_O1(config, fibers, final_stats, f"{config.output_prefix}_parametric", validity,
+                              args=args, voids=voids)
 
     # 3. CSV saves (DOUBLE EXPORT)
 

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import argparse
+import secrets
 import numpy as np
 from core.config import FiberPackingConfig
 
@@ -10,14 +11,35 @@ from core.config import FiberPackingConfig
 #  @details Parses user arguments and maps them to the FiberPackingConfig object
 #  to control RVE generation, optimization, and export.
 
-def parse_args():
+## @var EXPORT_ARGUMENTS
+#  @brief CLI arguments that only control the exports. They may be overridden when the
+#  exports are regenerated from a parametric record (regenerate.py); every other argument
+#  is fixed by the record because it shapes the geometry.
+EXPORT_ARGUMENTS = ('output', 'no_mesh', 'res_mesh', 'res_fft', 'periodic_mesh', 'no_adaptive_mesh',
+                    'nastran', 'abaqus', 'res_abaqus', 'abaqus_no_pbc', 'no_spatial_stats')
+
+
+def parse_args(argv=None):
     """!
     @brief Parses command line arguments and initializes the configuration.
     @details Organizes arguments into logical groups (Domain, Geometry, Trajectory,
     Optimization, Porosity, and System) and performs necessary unit conversions
-    (e.g., degrees to radians for curvature).
+    (e.g., degrees to radians for curvature). When no seed is given, one is drawn from the
+    operating system and stored in `args.seed`, so that every run is reproducible from its record.
+    @param argv Argument list (None: sys.argv[1:]).
     @return A tuple containing (config, args) where config is a FiberPackingConfig
     instance and args is the raw argparse Namespace.
+    """
+    args = build_parser().parse_args(argv)
+    if args.seed is None:
+        args.seed = secrets.randbits(32)
+    return config_from_args(args), args
+
+
+def build_parser():
+    """!
+    @brief Builds the argument parser of the generator.
+    @return argparse.ArgumentParser
     """
     parser = argparse.ArgumentParser(
         description="High-performance fiber RVE generator (CSAW + collective rearrangement)",
@@ -88,8 +110,15 @@ def parse_args():
     g_sys.add_argument("--abaqus_no_pbc", action='store_true', help="Do not write the periodic equations in the Abaqus export")
     g_sys.add_argument("--no_spatial_stats", action='store_true', help="Disable the spatial descriptors (NND, Ripley K, g(r), Voronoi)")
 
-    args = parser.parse_args()
+    return parser
 
+
+def config_from_args(args):
+    """!
+    @brief Maps a parsed argument namespace to a FiberPackingConfig.
+    @param args argparse.Namespace produced by build_parser() (or rebuilt from a parametric record).
+    @return FiberPackingConfig
+    """
     # --- PROCESSING LOGIC ---
 
     # 1. Bias processing (CLI -> internal format conversion)
@@ -162,4 +191,4 @@ def parse_args():
         compute_spatial_stats=(not args.no_spatial_stats),
     )
 
-    return config, args
+    return config

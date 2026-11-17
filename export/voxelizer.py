@@ -179,22 +179,22 @@ class Voxelizer:
         """!
         @brief Saves the 3D grid as a series of 2D slices in PGM (Portable Gray Map) format.
 
-        The format used is P2 (ASCII). Files are named slice0000.pgm, slice0001.pgm, etc.
+        The format used is P2 (ASCII), one file per z index, named `<prefix>_slice0000.pgm`, ...
+        next to the other exports, so that runs (and regenerations) never overwrite each other's
+        slices. Grey levels are the voxel tags (matrix 0, fiber 128, pore 255) on a 0-255 scale.
         @param grid np.ndarray The 3D grid (numpy array) to export.
         @param output_prefix str Prefix for the file names.
         @return None
         """
         nx, ny, nz = grid.shape
-        max_val = int(np.max(grid))
+        header = f"P2\n{nx} {ny}\n255\n"     # width = nx columns, height = ny rows
 
-        logger.info(f"Exporting PGM slices to slice****.pgm (max_val={max_val})")
-
-        header = f"P2\n{ny} {nx}\n{max_val}\n"
+        logger.info(f"Exporting PGM slices to {output_prefix}_slice****.pgm")
 
         for z in range(nz):
-            slice_data = grid[:, :, z].T
+            slice_data = grid[:, :, z].T      # (ny, nx): one row per y index
 
-            fname = f"slice{z:04d}.pgm"
+            fname = f"{output_prefix}_slice{z:04d}.pgm"
             try:
                 with open(fname, 'w') as f:
                     f.write(header)

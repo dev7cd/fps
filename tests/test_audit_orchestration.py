@@ -65,9 +65,9 @@ def test_v4_refusal_before_exports(tmp_path, monkeypatch, kind):
     if kind == 'failed':                                       # two crossing fibers
         fibers = [fiber(1, (0.2, 0.5, 0.5), (0.8, 0.5, 0.5)), fiber(2, (0.5, 0.2, 0.5), (0.5, 0.8, 0.5))]
         cfg = config(tmp_path)
-    else:                                                      # porosity requested: outside the domain
+    else:                                                      # requested clearance not finite
         fibers = [fiber(1, (0.2, 0.2, 0.5), (0.2, 0.8, 0.5))]
-        cfg = config(tmp_path, generate_porosity=True)
+        cfg = config(tmp_path, min_clearance=float('nan'))
     with pytest.raises(SystemExit) as exc:
         main.finalize(cfg, fibers, 0.0)
     assert exc.value.code == 1

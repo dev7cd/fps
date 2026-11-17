@@ -6,6 +6,7 @@ generation/porosity_gen.py
 Optimised porosity generator.
 """
 
+import itertools
 import numpy as np
 import logging
 from typing import List, Tuple, Optional
@@ -16,6 +17,21 @@ from core.fiber import Fiber
 ## @var logger
 #  @brief Logger for the porosity generation module.
 logger = logging.getLogger(__name__)
+
+
+def _point_polyline_distance(p: np.ndarray, line: np.ndarray) -> float:
+    """!
+    @brief Exact distance from a point to a polyline (closest point on each segment).
+    @param p Point (3,).
+    @param line Polyline (n, 3).
+    @return float
+    """
+    a = line[:-1]
+    ab = line[1:] - a
+    ab2 = np.einsum('ij,ij->i', ab, ab)
+    t = np.clip(np.einsum('ij,ij->i', p - a, ab) / np.where(ab2 > 0, ab2, 1.0), 0.0, 1.0)
+    q = a + t[:, None] * ab
+    return float(np.sqrt(np.min(np.einsum('ij,ij->i', q - p, q - p))))
 
 class PorosityGenerator:
     """!
@@ -218,42 +234,30 @@ class PorosityGenerator:
 
     def _check_void_fiber_collision_fast(self, candidates: List[Void], fiber_data: List[dict]) -> bool:
         """!
-        @brief Optimized check for collisions between voids and fibers.
+        @brief Checks that void candidates overlap no fiber, periodic images of the fibers included.
+        @details Root fibers extend beyond the cell; a pore near one face can meet the image of a fiber
+        that crosses the opposite face. Every shift k (in whole periods) for which the fiber box
+        translated by k can reach the pore is tested with the exact point-to-segment distance from the
+        pore centre to the sampled centerline; contact (distance equal to the sum of radii) is allowed.
         @param candidates List of void images to check.
         @param fiber_data Pre-processed fiber geometric data (centerlines and BBoxes).
         @return True if no collision is detected, False otherwise.
         """
+        L = np.asarray(self.box_dims, dtype=float)
         for void in candidates:
-            void_r = void.radius
-            void_c = void.center
-            void_r_sq = void_r * void_r
-
-            # Void BBox for optimisation
-            void_min = void_c - void_r
-            void_max = void_c + void_r
-
+            c = np.asarray(void.center, dtype=float)
             for fib_data in fiber_data:
-                # Fast BBox test
-                fib_min = fib_data['bbox_min']
-                fib_max = fib_data['bbox_max']
-
-                if (void_max[0] < fib_min[0] or void_min[0] > fib_max[0] or
-                    void_max[1] < fib_min[1] or void_min[1] > fib_max[1] or
-                    void_max[2] < fib_min[2] or void_min[2] > fib_max[2]):
-                    continue  # No BBox intersection
-
-                # Precise check
-                fib_pts = fib_data['centerline']
-                fib_r = fib_data['radius']
-                min_dist_sq = (void_r + fib_r) ** 2
-
-                # Vectorised squared-distance computation
-                diff = fib_pts - void_c
-                dists_sq = np.sum(diff * diff, axis=1)
-
-                if np.any(dists_sq < min_dist_sq):
-                    return False  # Collision detected
-
+                line = fib_data['centerline']
+                reach = void.radius + fib_data['radius']
+                line_min = fib_data['bbox_min'] + fib_data['radius']
+                line_max = fib_data['bbox_max'] - fib_data['radius']
+                k_min = np.ceil((c - reach - line_max) / L).astype(int)
+                k_max = np.floor((c + reach - line_min) / L).astype(int)
+                if np.any(k_max < k_min):
+                    continue  # no image of the fiber box reaches the pore
+                for k in itertools.product(*(range(a, b + 1) for a, b in zip(k_min, k_max))):
+                    if _point_polyline_distance(c - np.array(k) * L, line) < reach:
+                        return False  # Collision detected
         return True
 
     # --- Compatibility methods (kept for the interface) ---

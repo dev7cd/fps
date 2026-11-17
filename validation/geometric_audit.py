@@ -15,9 +15,13 @@
 #  vertex sectors, as rasterised by export/voxelizer.py) to be disjoint, for the
 #  audit kernel validation/audit_distance.py qualified by the V1 tests. The
 #  continuous spline, self-intersections of a fiber with itself (zero shift),
-#  the separation of fibers in the voxel grid, non-circular sections and pores
-#  are not covered. Margins are fiber-axis distances minus the sum of radii,
-#  in the length unit of the box.
+#  the separation of fibers in the voxel grid and non-circular sections are not
+#  covered. Margins are fiber-axis distances minus the sum of radii, in the
+#  length unit of the box.
+#
+#  Spherical pores are generated after this audit; audit_pores() then checks,
+#  as a second blocking step, that they overlap neither one another nor any
+#  fiber (periodic images included) before anything is exported.
 
 import datetime
 import hashlib
@@ -123,9 +127,8 @@ def audited_geometry_sha256(fib_sha, box_dims, linear_fallback_ids, commit):
 
 
 def _validate(fibers, box_dims, requested, section_type, generate_porosity):
-    """Raises AuditInputError for any input the audit cannot conclude on; returns (L, centerlines)."""
-    if generate_porosity:
-        raise AuditInputError('porosity requested: pores are outside the audited domain')
+    """Raises AuditInputError for any input the audit cannot conclude on; returns (L, centerlines).
+    Pores do not exist yet at this stage: they are audited afterwards by audit_pores()."""
     if section_type != 'circular':
         raise AuditInputError(f'section {section_type!r}: only circular sections are in the audited domain')
     try:
@@ -232,6 +235,125 @@ def audit(fibers, box_dims, requested, section_type='circular', generate_porosit
     except Exception as e:                                    # audit error: never a success
         res.update(status='undetermined', cause=f'audit error: {type(e).__name__}: {e}')
     return res
+
+
+PORE_METHOD = ('spherical pores grouped by identifier (periodic images must share centre modulo the cell and '
+               'radius); pore-pore: centre distance under the minimum-image convention (exact for points, '
+               'pore diameters below the smallest cell side required) minus the sum of radii; pore-fiber: exact '
+               'point-to-segment distance from the pore centre to the 100-point sampled centerline, over every '
+               'periodic shift whose fiber box can reach the pore, minus pore radius and fiber radius (capsule '
+               'test: a sufficient condition for the flat-ended tube rasterised by the voxelizer)')
+PORE_TOLERANCE = 1e-12          # relative to the largest cell side: round-off allowed on contact
+
+
+def _point_polyline_distance(p, line):
+    """Exact Euclidean distance from point p to the polyline `line` (n, 3)."""
+    a = line[:-1]
+    ab = line[1:] - a
+    ab2 = np.einsum('ij,ij->i', ab, ab)
+    t = np.clip(np.einsum('ij,ij->i', p - a, ab) / np.where(ab2 > 0, ab2, 1.0), 0.0, 1.0)
+    q = a + t[:, None] * ab
+    return float(np.sqrt(np.min(np.einsum('ij,ij->i', q - p, q - p))))
+
+
+def audit_pores(fibers, voids, box_dims):
+    """!
+    @brief Blocking audit of the spherical pores, run after porosity generation.
+    @details Every pore must be disjoint from every other pore and from every fiber, periodic images
+    included (contact within a round-off tolerance is allowed).
+    @param fibers Final fibers (roots), already audited by audit().
+    @param voids Pores as exported (periodic images included, sharing the identifier of their pore).
+    @param box_dims Cell dimensions.
+    @return dict with status, cause, number of pores, minimum gaps and the responsible pair.
+    """
+    res = {'status': 'undetermined', 'cause': None, 'method': PORE_METHOD, 'n_pores': None,
+           'min_pore_pore_gap': None, 'min_pore_fiber_gap': None, 'responsible': None, 'tolerance': None}
+    try:
+        L = np.array([float(x) for x in box_dims])
+        tol = PORE_TOLERANCE * float(L.max())
+        res['tolerance'] = tol
+        pores = {}
+        for v in voids:
+            c = np.asarray(v.center, dtype=float)
+            r = float(v.radius)
+            if c.shape != (3,) or not np.all(np.isfinite(c)) or not math.isfinite(r) or r <= 0:
+                raise AuditInputError(f'pore {v.id}: centre {c.tolist()} / radius {r!r} not finite and positive')
+            wrapped = np.mod(c, L)
+            if v.id in pores:
+                c0, r0 = pores[v.id]
+                delta = (wrapped - c0 + L / 2) % L - L / 2
+                if r != r0 or np.max(np.abs(delta)) > tol:
+                    raise AuditInputError(f'pore {v.id}: images are not translates of one sphere by whole periods')
+            else:
+                pores[v.id] = (wrapped, r)
+        ids = list(pores)
+        res['n_pores'] = len(ids)
+        if not ids:
+            res.update(status='passed')
+            return res
+        C = np.array([pores[i][0] for i in ids])
+        R = np.array([pores[i][1] for i in ids])
+        if np.any(2 * R >= L.min()):
+            raise AuditInputError('a pore diameter reaches the smallest cell side (minimum image not valid)')
+
+        best_pp, pair_pp = math.inf, None
+        if len(ids) > 1:
+            D = C[:, None, :] - C[None, :, :]
+            D -= L * np.round(D / L)
+            gap = np.sqrt(np.einsum('ijk,ijk->ij', D, D)) - (R[:, None] + R[None, :])
+            np.fill_diagonal(gap, np.inf)
+            i, j = np.unravel_index(np.argmin(gap), gap.shape)
+            best_pp, pair_pp = float(gap[i, j]), [ids[i], ids[j]]
+
+        best_pf, pair_pf = math.inf, None
+        for f in fibers:
+            line = np.asarray(f.centerline, dtype=float)
+            rf = float(f.radius)
+            lo, hi = line.min(axis=0), line.max(axis=0)
+            reach = R[:, None] + rf
+            k_min = np.ceil((C - reach - hi) / L).astype(int)
+            k_max = np.floor((C + reach - lo) / L).astype(int)
+            for n in np.nonzero(np.all(k_max >= k_min, axis=1))[0]:
+                for kx in range(k_min[n, 0], k_max[n, 0] + 1):
+                    for ky in range(k_min[n, 1], k_max[n, 1] + 1):
+                        for kz in range(k_min[n, 2], k_max[n, 2] + 1):
+                            shift = np.array([kx, ky, kz]) * L
+                            g = _point_polyline_distance(C[n] - shift, line) - R[n] - rf
+                            if g < best_pf:
+                                best_pf = g
+                                pair_pf = {'pore': ids[n], 'fiber': f.id, 'fiber_shift_periods': [kx, ky, kz]}
+
+        res.update(min_pore_pore_gap=None if pair_pp is None else best_pp,
+                   min_pore_fiber_gap=None if pair_pf is None else best_pf)
+        if pair_pf is None:
+            res['min_pore_fiber_gap_cause'] = 'no fiber box (periodic images included) within reach of any pore'
+        if best_pp < -tol:
+            res.update(status='failed', cause=f'pores {pair_pp} overlap (gap {best_pp:.6e})',
+                       responsible={'pores': pair_pp})
+        elif best_pf < -tol:
+            res.update(status='failed', cause=f"pore {pair_pf['pore']} overlaps fiber {pair_pf['fiber']} "
+                                              f"(gap {best_pf:.6e})", responsible=pair_pf)
+        else:
+            res.update(status='passed', responsible={'pores': pair_pp, 'pore_fiber': pair_pf})
+    except AuditInputError as e:
+        res.update(status='undetermined', cause=str(e))
+    except Exception as e:                                    # audit error: never a success
+        res.update(status='undetermined', cause=f'pore audit error: {type(e).__name__}: {e}')
+    return res
+
+
+def attach_pore_audit(validity, pore_result):
+    """!
+    @brief Adds the pore audit to a validity record; a refused pore audit turns the record into a refusal.
+    @param validity Record built by build_record() for the fibers (status `passed`).
+    @param pore_result Result of audit_pores().
+    @return The updated record.
+    """
+    validity['pores'] = pore_result
+    validity['excluded_checks'] = [c for c in validity.get('excluded_checks', []) if c != 'pores']
+    if pore_result['status'] != 'passed':
+        validity.update(status=pore_result['status'], stage='pores', cause=pore_result['cause'], exit_code=1)
+    return validity
 
 
 def refusal(stage, cause):

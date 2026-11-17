@@ -8,7 +8,7 @@ Every input the audit cannot conclude on is classified `undetermined`, with a ca
 invalid box, radius or requested margin, non-finite or malformed control points,
 duplicate identifiers, a segment with squared length <= 1e-12 (skipped by the
 voxelizer), a centerline that is not the interpolation of the control points,
-porosity or a non-circular section, a fiber whose periodic image meeting the cell
+a non-circular section, a fiber whose periodic image meeting the cell
 needs a shift beyond -1/0/+1 (F05), and an error inside the audit.
 """
 import json
@@ -92,9 +92,13 @@ def test_v3_stale_centerline():
     assert 'stale geometry' in undetermined(fs)
 
 
-def test_v3_porosity_and_section():
-    assert 'porosity' in undetermined(two_good(), generate_porosity=True)
+def test_v3_section():
     assert 'section' in undetermined(two_good(), section_type='superelliptical')
+
+
+def test_v3_porosity_no_longer_refused_by_the_fiber_audit():
+    """Pores are generated after the fiber audit and checked by audit_pores (tests/test_pore_audit.py)."""
+    assert ga.audit(two_good(), BOX, 0.0, generate_porosity=True)['status'] == 'passed'
 
 
 def test_v3_periodic_scope_f05():
