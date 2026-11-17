@@ -11,7 +11,7 @@
 [![tests](https://github.com/dev7cd/fps/actions/workflows/tests.yml/badge.svg)](https://github.com/dev7cd/fps/actions/workflows/tests.yml)
 
 **FPS** is an open-source Python package that generates **periodic three-phase
-microstructures** — matrix, fibers and spherical pores — for computational
+microstructures** made of a matrix, fibers and spherical pores, for computational
 homogenisation, with the particularity of handling **long, curved fibers**.
 Every RVE is audited (no export unless fibers and pores are disjoint, periodic
 images included), reproducible from a seed, and described by a compact
@@ -20,31 +20,31 @@ regenerated.
 
 ## Highlights
 
-- **Smooth curved fibers** — Catmull–Rom spline centrelines with a no-twist
+- **Smooth curved fibers.** Catmull–Rom spline centrelines with a no-twist
   **Bishop frame**; circular cross-sections (a super-elliptical profile exists in
   `geometry/sections.py` but is not yet audited nor voxelised, so `main.py`
   refuses it).
-- **Dense admissible packing** — a **Constructive Self-Avoiding Walk (CSAW)**
+- **Dense admissible packing.** A **Constructive Self-Avoiding Walk (CSAW)**
   followed by a **collective rearrangement** densification stage takes the
   volume fraction past the jamming limit of sequential placement, without
   altering fiber radii (measured times and volume fractions: [Performance](#performance)).
-- **Certified output** — a **blocking geometric audit**, with its own distance
+- **Certified output.** A **blocking geometric audit**, with its own distance
   kernel, refuses any export when two fibers (or a fiber and its periodic
   images) intersect, or when a pore overlaps a fiber or another pore.
-- **Multi-phase microstructures (fibers + spherical pores)** — an optional
+- **Multi-phase microstructures (fibers + spherical pores).** An optional
   porosity generator inserts **spherical voids** that overlap neither the
   fibers (periodic images included) nor one another, producing a three-phase
   RVE (matrix / fiber / pore).
-- **Strict periodicity** — explicit ghost images (shifts of −1/0/+1 period per
+- **Strict periodicity.** Explicit ghost images (shifts of −1/0/+1 period per
   axis, i.e. up to 26 neighbours), applied consistently to fibers and pores.
-- **Reproducible by construction** — a seed (drawn and recorded when not given)
+- **Reproducible by construction.** A seed (drawn and recorded when not given)
   reproduces an RVE bit for bit, and `regenerate.py` rebuilds every export from
   the parametric record without re-running placement.
-- **Fast collision detection** — spatial-hash broad phase + analytic
+- **Fast collision detection.** Spatial-hash broad phase + analytic
   segment-to-segment narrow phase (Eberly), compiled with **Numba JIT**.
-- **Orientation control & descriptors** — directional/planar bias and **AD–PCA**
+- **Orientation control & descriptors.** Directional/planar bias and **AD–PCA**
   orientation tensors valid for arbitrarily bent fibers.
-- **Multi-format export** — parametric JSON, CAD (STEP), conformal FE mesh
+- **Multi-format export.** Parametric JSON, CAD (STEP), conformal FE mesh
   (Gmsh, optionally periodic), voxel field for FFT, Nastran `.bdf` and Abaqus
   voxel `.inp` with periodic equations.
 
@@ -203,7 +203,7 @@ only, and regenerate the mesh later (see [Reproducibility](#reproducibility)).
 | `--rsda` | flag | off | Enable dynamic rearrangement (RSDA) |
 | `--rsda_perturb` | float | 0.05 | RSDA perturbation intensity (fraction of radius) |
 
-### 4. Densification (Stage 2 — collective rearrangement)
+### 4. Densification (Stage 2, collective rearrangement)
 
 | Parameter | Type | Default | Description |
 |-----------|------|--------|-------------|
@@ -244,7 +244,7 @@ only, and regenerate the mesh later (see [Reproducibility](#reproducibility)).
 | File | Description |
 |------|-------------|
 | `{prefix}_validity.json` | status of the final geometric audits (`passed`, `failed`, `undetermined`), written for every attempt |
-| `{prefix}_parametric.json` | complete CLI argument set, software versions, phase timings, statistics, fiber control points and radii, pores, and the same `validity` record — the source of truth from which `regenerate.py` rebuilds every export |
+| `{prefix}_parametric.json` | complete CLI argument set, software versions, phase timings, statistics, fiber control points and radii, pores, and the same `validity` record; `regenerate.py` rebuilds every export from it |
 | `{prefix}_roots.csv` | control points of the root fibers |
 | `{prefix}_full_periodic.csv` | root fibers + all periodic ghosts |
 | `{prefix}_voxelmap.npy` | 3D uint8 grid (matrix=0, fiber=128, pore=255) |
@@ -342,7 +342,7 @@ Sequential adsorption saturates well below the volume fractions a composite RVE
 needs, because it can only ever reject a fiber that does not fit. Stage 2 goes
 past that limit the standard way (Altendorf & Jeulin, 2011): it inserts the
 missing fibers **with overlaps allowed**, then pushes every overlapping pair
-apart until the configuration is admissible again — **without changing any
+apart until the configuration is admissible again, **without changing any
 fiber radius**.
 
 - Each contact displaces both fibers by half the penetration, spread over the
@@ -544,7 +544,7 @@ The constructive placement algorithm (CSAW) used in Stage 1 was first described 
 ## License
 
 FPS is distributed under the **GNU Affero General Public License v3.0 or later
-(AGPL-3.0-or-later)** — see [LICENSE](LICENSE). In short: you are free to use,
+(AGPL-3.0-or-later)**, see [LICENSE](LICENSE). In short: you are free to use,
 study, modify and share it, but if you distribute a modified version **or run it
 as a network/SaaS service**, you must make your corresponding source code
 available under the same license.
@@ -554,9 +554,6 @@ dependencies keep their own licenses, see [NOTICE](NOTICE).
 
 ## Author
 
-**Devine Ngouloubi** — sole developer (concept, design and implementation).
+**Devine Ngouloubi**, developer (concept, design and implementation).
 Nicolas Oresme Mathematics Laboratory (LMNO, UMR 6139), Normandy University,
 UNICAEN, CNRS, Caen, France.
-
-The author thanks Daniel Choï and Philippe Karamian-Surville for discussions on
-the geometric framework.

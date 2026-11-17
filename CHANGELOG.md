@@ -1,6 +1,6 @@
 # Changelog
 
-## v7.0.0 — 2026-11
+## v7.0.0 (2026-11)
 
 Version described in the SoftwareX article. It replaces v6.1.0, whose placement
 could produce interpenetrating fibers; RVEs generated with v6.x are not comparable
@@ -59,6 +59,6 @@ microstructure).
 - `benchmarks/`: scripts, results and machine description of the article figures.
 - License: AGPL-3.0-or-later only (no dual licensing); `Licence.txt`.
 
-## v6.1.0 — 2026-07
+## v6.1.0 (2026-07)
 
 Initial public version (MIT, then AGPL-3.0-or-later).

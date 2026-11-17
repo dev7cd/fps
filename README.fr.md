@@ -136,12 +136,9 @@ réel, barre de progression ; la génération tourne dans un sous-processus.
 
 ## Auteur
 
-**Devine Ngouloubi** — seul développeur (concept, conception et implémentation).
+**Devine Ngouloubi**, développeur (concept, conception et implémentation).
 Laboratoire de Mathématiques Nicolas Oresme (LMNO, UMR 6139), Université de
 Normandie, UNICAEN, CNRS, Caen, France.
-
-L'auteur remercie Daniel Choï et Philippe Karamian-Surville pour les échanges
-sur le cadre géométrique.
 
 ## Citation
 
@@ -164,7 +161,7 @@ première fois dans :
 ## Licence
 
 FPS est distribué sous **GNU Affero General Public License v3.0 ou ultérieure
-(AGPL-3.0-or-later)** — voir [LICENSE](LICENSE) (texte identique dans
+(AGPL-3.0-or-later)**, voir [LICENSE](LICENSE) (texte identique dans
 [Licence.txt](Licence.txt)). Vous êtes libre d'utiliser, d'étudier, de modifier
 et de partager le logiciel ; si vous distribuez une version modifiée **ou
 l'exploitez comme service réseau**, vous devez en publier le code source sous la

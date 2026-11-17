@@ -1,4 +1,4 @@
-FPS — Fiber Packing System
+FPS (Fiber Packing System)
 Copyright (C) 2026 Devine Ngouloubi <exauce-devine.ngouloubi@unicaen.fr>
 
 This program is free software: you can redistribute it and/or modify it under
@@ -27,7 +27,7 @@ they are installed separately and not redistributed with FPS.
     meshio       MIT
     gmsh         GNU GPL (see https://gmsh.info for the exact version/terms)
     PyQt6        GPL-3.0-or-later (optional, `gui` extra) or Riverbank
-                 commercial license — see https://www.riverbankcomputing.com
+                 commercial license, see https://www.riverbankcomputing.com
 
 gmsh and PyQt6 are copyleft (GPL); their combination with FPS under
 AGPL-3.0-or-later is compatible.
