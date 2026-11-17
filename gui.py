@@ -10,6 +10,7 @@
 
 import sys
 import os
+from core.version import __version__
 from PyQt6.QtWidgets import ( # type: ignore
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGroupBox, QLabel, QDoubleSpinBox, QSpinBox, QComboBox,
@@ -205,7 +206,7 @@ class MainWindow(QMainWindow):
         @brief Initializes the main window, UI components, and styles.
         """
         super().__init__()
-        self.setWindowTitle("Fiber Packing System v6.1")
+        self.setWindowTitle(f"Fiber Packing System v{__version__}")
         self.setMinimumSize(1100, 750)
         ## @var process
         #  @brief External process for running main.py.
@@ -741,7 +742,8 @@ class MainWindow(QMainWindow):
         @brief Maps GUI widget values to CLI arguments for the backend orchestrator.
         @return List of strings representing the command to execute.
         """
-        args = [sys.executable, "main.py"]
+        # Absolute path: the GUI may be started from any directory (fps-gui entry point)
+        args = [sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "main.py")]
 
         # Domain
         args += ["--dims", str(self.spin_lx.value()),
@@ -1029,7 +1031,7 @@ def main():
     @return None
     """
     app = QApplication(sys.argv)
-    app.setApplicationName("Fiber Packing System v6")
+    app.setApplicationName(f"Fiber Packing System v{__version__}")
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

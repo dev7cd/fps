@@ -5,14 +5,22 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   pytest:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.11"]
+        os: [ubuntu-latest]
+        python-version: ["3.9", "3.11", "3.12", "3.13"]
+        include:
+          # The platforms announced in the documentation, on a current Python
+          - os: macos-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +31,8 @@ jobs:
 
       # gmsh's Python API links against a few system X11/GL libraries even
       # when used headless.
-      - name: Install gmsh runtime dependencies
+      - name: Install gmsh runtime dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libglu1-mesa libxrender1 libxcursor1 libxft2 libxinerama1
@@ -33,3 +42,8 @@ jobs:
 
       - name: Run test suite
         run: pytest
+
+      - name: Command-line entry points
+        run: |
+          fps --help
+          fps-regenerate --help
