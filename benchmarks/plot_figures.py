@@ -64,7 +64,9 @@ def performance(results, out):
     nfib, lod = col('n_fibers'), col('aspect_ratio')
     x = 100 * np.array(vfs)
 
-    fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 2.9), constrained_layout=True)
+    # One chart per file (journal artwork rule): generation time, then voxeliser scaling
+    fig_a, a = plt.subplots(figsize=(4.6, 3.2), constrained_layout=True)
+    fig_b, b = plt.subplots(figsize=(4.6, 3.2), constrained_layout=True)
     _axes(a)
     a.errorbar(x, [t.mean() for t in total], yerr=[t.std() for t in total], color=ORANGE, lw=2, marker='o',
                ms=5, capsize=3, label='total generation')
@@ -76,7 +78,7 @@ def performance(results, out):
     a.set_xticklabels([f'{v:.0f}\n({n.mean():.0f})' for v, n in zip(x, nfib)])
     a.set_xlabel(r'target $V_f$ [%]  (mean number of fibers)')
     a.set_ylabel('wall-clock time [s]')
-    a.set_title(f'(a) Generation, $L/D \\approx {np.mean([l.mean() for l in lod]):.0f}$, '
+    a.set_title(f'Generation, $L/D \\approx {np.mean([l.mean() for l in lod]):.0f}$, '
                 f'{max(len(t) for t in total)} seeds per point')
     # Volume fraction at which sequential placement stalls (runs whose target it could not reach)
     stalls = [float(r['placement_vf']) for r in gen
@@ -100,13 +102,14 @@ def performance(results, out):
     b.set_xticklabels([str(v) for v in n])
     b.set_xlabel(r'voxel grid resolution $N$ (grid $N^3$)')
     b.set_ylabel('wall-clock time [s]')
-    b.set_title('(b) Voxeliser scaling')
+    b.set_title('Voxeliser scaling')
     b.legend(loc='upper left', fontsize=8)
 
     out.mkdir(parents=True, exist_ok=True)
-    for ext in ('pdf', 'png'):
-        fig.savefig(out / f'fig_performance.{ext}')
-    print(f"Written {out / 'fig_performance.pdf'}")
+    for fig, name in ((fig_a, 'fig_generation'), (fig_b, 'fig_voxelizer')):
+        for ext in ('pdf', 'png'):
+            fig.savefig(out / f'{name}.{ext}')
+        print(f"Written {out / name}.pdf")
 
 
 def _sphere(ax, c, r, color):

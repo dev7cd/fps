@@ -162,7 +162,7 @@ def panel(rows, labels, out, name):
             what = 'as generated' if state == 'before' else 'periodised'
             ax.set_title(f'({next(letters)}) {label}, {what}', fontsize=8.5)
     for ext in ('pdf', 'png'):
-        fig.savefig(Path(out) / f'{name}.{ext}', dpi=300, bbox_inches='tight')
+        fig.savefig(Path(out) / f'{name}.{ext}', dpi=340, bbox_inches='tight')   # > 2244 px wide
     print(f"Written {Path(out) / name}.pdf")
 
 
