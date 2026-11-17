@@ -121,6 +121,14 @@ d'aspect se règle avec `--min_pts`, `--max_pts`, `--step` et `--radius`.
   python regenerate.py RVE_UD_25_parametric.json --res_fft 512 --no_mesh --output RVE_UD_25_512
   ```
 
+## Performance
+
+Mesuré avec FPS v7.0.0 sur un portable (Intel Core i5-1335U), un fil d'exécution par
+VER, cellule unité, `--radius 0.02`, trajectoire par défaut (*L/D* ≈ 38) : 26 fibres
+à V_f = 5 % en ≈ 5 s, 104 fibres à 20 % en ≈ 3 min, 155 fibres à 30 % en ≈ 19 min.
+Le placement séquentiel seul cale vers V_f ≈ 23 %. Scripts et résultats bruts :
+`benchmarks/` (détail dans le [README anglais](README.md#performance)).
+
 ## Interface graphique
 
 `python gui.py` (ou `fps-gui`) : panneau de paramètres, vue 3D, console en temps
