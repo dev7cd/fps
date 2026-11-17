@@ -15,6 +15,7 @@ regenerated or inspected with regenerate.py.
 import argparse
 import csv
 import json
+import re
 import subprocess
 import sys
 import time
@@ -42,9 +43,11 @@ def run_one(out, vf, seed, timeout):
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         code, status = proc.returncode, 'ok' if proc.returncode == 0 else 'refused'
-        Path(f'{prefix}.log').write_text(proc.stdout + proc.stderr)
+        log = proc.stdout + proc.stderr
+        Path(f'{prefix}.log').write_text(log)
+        stall = re.search(r'Densification start\. Current Vf: ([0-9.]+)', log)
     except subprocess.TimeoutExpired:
-        code, status = None, 'timeout'
+        code, status, stall = None, 'timeout', None
     wall = time.perf_counter() - t0
     row = {'target_vf': vf, 'seed': seed, 'status': status, 'exit_code': code, 'wall_s': wall}
     rec_path = Path(f'{prefix}_parametric.json')
@@ -56,6 +59,7 @@ def run_one(out, vf, seed, timeout):
                    for f in fibers]
         diam = 2 * float(np.median([f['radius'] for f in fibers]))
         row.update(reached_vf=rec['computed_statistics']['volume_fraction_real'], n_fibers=len(fibers),
+                   placement_vf=float(stall.group(1)) if stall else None,
                    aspect_ratio=float(np.mean(lengths)) / diam,
                    placement_s=t.get('placement'), densification_s=t.get('densification'),
                    fiber_audit_s=t.get('fiber_audit'),
@@ -80,10 +84,10 @@ def main():
     with ThreadPoolExecutor(max_workers=a.jobs) as pool:
         rows = list(pool.map(lambda t: run_one(a.out, t[0], t[1], a.timeout), tasks))
     rows.sort(key=lambda r: (r['target_vf'], r['seed']))
-    keys = ['target_vf', 'seed', 'status', 'exit_code', 'reached_vf', 'n_fibers', 'aspect_ratio',
+    keys = ['target_vf', 'seed', 'status', 'exit_code', 'placement_vf', 'reached_vf', 'n_fibers', 'aspect_ratio',
             'placement_s', 'densification_s', 'fiber_audit_s', 'generation_s', 'wall_s']
     with open(a.out / 'generation.csv', 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=keys)
+        w = csv.DictWriter(f, fieldnames=keys, lineterminator='\n')
         w.writeheader()
         for r in rows:
             w.writerow({k: r.get(k) for k in keys})

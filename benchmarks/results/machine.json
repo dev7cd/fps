@@ -1,0 +1,18 @@
+{
+  "cpu": "13th Gen Intel(R) Core(TM) i5-1335U",
+  "logical_cpus": 12,
+  "memory_gb": 31.0,
+  "os": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+  "python": "3.13.5",
+  "numpy": "1.26.4",
+  "scipy": "1.17.1",
+  "numba": "0.65.0",
+  "fps_commit": "c2abc0a59b7481ebb367cdca2cf904e6e3f68c91",
+  "jobs": 3,
+  "command": [
+    "python benchmarks/run_generation.py --jobs 3 --timeout 5400",
+    "python benchmarks/run_generation.py --vf 0.05 --seeds 1 2 3 --jobs 3  (merged)"
+  ],
+  "note": "3 RVEs generated concurrently, each single-threaded; laptop HP EliteBook 840 G10",
+  "fps_commit_note": "c2abc0a for Vf 0.10-0.30, 5e82682 for Vf 0.05 (no change to generation code in between)"
+}

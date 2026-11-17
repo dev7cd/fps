@@ -58,7 +58,7 @@ def main():
 
     a.out.mkdir(parents=True, exist_ok=True)
     with open(a.out / 'voxelizer.csv', 'w', newline='') as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator='\n')
         w.writeheader()
         w.writerows(rows)
     (a.out / 'voxelizer_machine.json').write_text(json.dumps(machine_record(

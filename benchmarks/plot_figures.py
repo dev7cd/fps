@@ -67,9 +67,9 @@ def performance(results, out):
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 2.9), constrained_layout=True)
     _axes(a)
     a.errorbar(x, [t.mean() for t in total], yerr=[t.std() for t in total], color=ORANGE, lw=2, marker='o',
-               ms=5, capsize=3, label='total (placement + densification + audit)')
+               ms=5, capsize=3, label='total generation')
     a.errorbar(x, [t.mean() for t in place], yerr=[t.std() for t in place], color=BLUE, lw=2, marker='s',
-               ms=5, capsize=3, label='placement (CSAW) only')
+               ms=5, capsize=3, label='sequential placement (CSAW)')
     a.set_yscale('log')
     _plain_log_y(a)
     a.set_xticks(x)
@@ -77,7 +77,15 @@ def performance(results, out):
     a.set_xlabel(r'target $V_f$ [%]  (mean number of fibers)')
     a.set_ylabel('wall-clock time [s]')
     a.set_title(f'(a) Generation, $L/D \\approx {np.mean([l.mean() for l in lod]):.0f}$, '
-                f'{max(len(t) for t in total)} seed(s)')
+                f'{max(len(t) for t in total)} seeds per point')
+    # Volume fraction at which sequential placement stalls (runs whose target it could not reach)
+    stalls = [float(r['placement_vf']) for r in gen
+              if r.get('placement_vf') and float(r['placement_vf']) < float(r['target_vf']) - 1e-3]
+    if stalls:
+        xs = 100 * float(np.mean(stalls))
+        a.axvline(xs, color=INK2, lw=1, ls=':')
+        a.text(xs + 0.6, a.get_ylim()[0] * 1.6, f'CSAW alone\nstalls at\n$V_f \\approx {xs:.0f}\\%$', ha='left',
+               va='bottom', fontsize=7.5, color=INK2)
     a.legend(loc='upper left', fontsize=8)
 
     _axes(b)

@@ -45,3 +45,6 @@ venv/
 .env
 .idea/
 .vscode/
+
+# RVEs written by the benchmarks (results/*.csv and *.json are versioned)
+benchmarks/results/rves/
