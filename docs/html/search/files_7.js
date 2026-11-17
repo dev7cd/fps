@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['topology_2epy_313',['topology.py',['../d1/d82/topology_8py.html',1,'']]]
+  ['statistics_2epy_291',['statistics.py',['../dd/de0/statistics_8py.html',1,'']]]
 ];

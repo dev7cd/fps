@@ -3,7 +3,7 @@
 
 """! @brief Quick Doxygen documentation for test module."""
 """
-Tests unitaires pour generation/optimizer_dynamic.py — réarrangement collectif.
+Unit tests for generation/optimizer_dynamic.py (collective rearrangement).
 """
 import pytest
 import numpy as np

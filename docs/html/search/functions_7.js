@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['jobs_5fpart_5fa_331',['jobs_part_a',['../d9/d52/namespacerun__campaign__short.html#aca8ba0032cc89d05de826d1c7a416db8',1,'run_campaign_short']]],
-  ['jobs_5fpart_5fb_332',['jobs_part_b',['../d9/d52/namespacerun__campaign__short.html#a206fdfd9c66d107de81810a180d0060b',1,'run_campaign_short']]]
+  ['json_5fsafe_315',['json_safe',['../d5/df2/geometric__audit_8py.html#a9efc25ad3ab430c1956c545c2c72228e',1,'validation::geometric_audit']]]
 ];

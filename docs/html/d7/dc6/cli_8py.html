@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Fiber Packing System
-   &#160;<span id="projectnumber">v6.1</span>
+   &#160;<span id="projectnumber">v7.0.0</span>
    </div>
    <div id="projectbrief">3D Microstructure Generator for Fiber Composites</div>
   </td>
@@ -84,7 +84,8 @@ $(document).ready(function(){initNavTree('d7/dc6/cli_8py.html','../../'); initRe
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">cli.py File Reference</div>  </div>
 </div><!--header-->
@@ -95,22 +96,34 @@ $(document).ready(function(){initNavTree('d7/dc6/cli_8py.html','../../'); initRe
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a6d404315a3b47d02da0a150dd90bb4e9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/cli_8py.html#a6d404315a3b47d02da0a150dd90bb4e9">cli.parse_args</a> ()</td></tr>
-<tr class="memdesc:a6d404315a3b47d02da0a150dd90bb4e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses command line arguments and initializes the configuration.  <a href="../../d7/dc6/cli_8py.html#a6d404315a3b47d02da0a150dd90bb4e9">More...</a><br /></td></tr>
-<tr class="separator:a6d404315a3b47d02da0a150dd90bb4e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accf7f0d49cc2a6ed017cf0d5c0689502"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/cli_8py.html#accf7f0d49cc2a6ed017cf0d5c0689502">cli.parse_args</a> (argv=None)</td></tr>
+<tr class="memdesc:accf7f0d49cc2a6ed017cf0d5c0689502"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses command line arguments and initializes the configuration.  <a href="../../d7/dc6/cli_8py.html#accf7f0d49cc2a6ed017cf0d5c0689502">More...</a><br /></td></tr>
+<tr class="separator:accf7f0d49cc2a6ed017cf0d5c0689502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa04677cbe3be4e22236aa7dd86c4d382"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/cli_8py.html#aa04677cbe3be4e22236aa7dd86c4d382">cli.build_parser</a> ()</td></tr>
+<tr class="memdesc:aa04677cbe3be4e22236aa7dd86c4d382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the argument parser of the generator.  <a href="../../d7/dc6/cli_8py.html#aa04677cbe3be4e22236aa7dd86c4d382">More...</a><br /></td></tr>
+<tr class="separator:aa04677cbe3be4e22236aa7dd86c4d382"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acab1510f15899d8ddc6c0e0e339a0335"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/cli_8py.html#acab1510f15899d8ddc6c0e0e339a0335">cli.config_from_args</a> (args)</td></tr>
+<tr class="memdesc:acab1510f15899d8ddc6c0e0e339a0335"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps a parsed argument namespace to a <a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a>.  <a href="../../d7/dc6/cli_8py.html#acab1510f15899d8ddc6c0e0e339a0335">More...</a><br /></td></tr>
+<tr class="separator:acab1510f15899d8ddc6c0e0e339a0335"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ab90373364b3694439f5e4cba22d357a2"><td class="memItemLeft" align="right" valign="top">tuple&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dc6/cli_8py.html#ab90373364b3694439f5e4cba22d357a2">cli.EXPORT_ARGUMENTS</a></td></tr>
+<tr class="memdesc:ab90373364b3694439f5e4cba22d357a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">CLI arguments that only control the exports.  <a href="../../d7/dc6/cli_8py.html#ab90373364b3694439f5e4cba22d357a2">More...</a><br /></td></tr>
+<tr class="separator:ab90373364b3694439f5e4cba22d357a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Command Line Interface (CLI) for the Fiber Packing System. </p>
 <p>Parses user arguments and maps them to the <a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a> object to control RVE generation, optimization, and export. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a6d404315a3b47d02da0a150dd90bb4e9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6d404315a3b47d02da0a150dd90bb4e9">&#9670;&nbsp;</a></span>parse_args()</h2>
+<a id="aa04677cbe3be4e22236aa7dd86c4d382"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa04677cbe3be4e22236aa7dd86c4d382">&#9670;&nbsp;</a></span>build_parser()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def cli.parse_args </td>
+          <td class="memname">def cli.build_parser </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -118,8 +131,82 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Builds the argument parser of the generator. </p>
+<dl class="section return"><dt>Returns</dt><dd>argparse.ArgumentParser </dd></dl>
+
+</div>
+</div>
+<a id="acab1510f15899d8ddc6c0e0e339a0335"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acab1510f15899d8ddc6c0e0e339a0335">&#9670;&nbsp;</a></span>config_from_args()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def cli.config_from_args </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maps a parsed argument namespace to a <a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>argparse.Namespace produced by <a class="el" href="../../d7/dc6/cli_8py.html#aa04677cbe3be4e22236aa7dd86c4d382" title="Builds the argument parser of the generator.">build_parser()</a> (or rebuilt from a parametric record). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a> </dd></dl>
+
+</div>
+</div>
+<a id="accf7f0d49cc2a6ed017cf0d5c0689502"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accf7f0d49cc2a6ed017cf0d5c0689502">&#9670;&nbsp;</a></span>parse_args()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def cli.parse_args </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>argv</em> = <code>None</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Parses command line arguments and initializes the configuration. </p>
-<p>Organizes arguments into logical groups (Domain, Geometry, Trajectory, Optimization, Porosity, and System) and performs necessary unit conversions (e.g., degrees to radians for curvature). </p><dl class="section return"><dt>Returns</dt><dd>A tuple containing (config, args) where config is a <a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a> instance and args is the raw argparse Namespace. </dd></dl>
+<p>Organizes arguments into logical groups (Domain, Geometry, Trajectory, Optimization, Porosity, and System) and performs necessary unit conversions (e.g., degrees to radians for curvature). When no seed is given, one is drawn from the operating system and stored in <code>args.seed</code>, so that every run is reproducible from its record. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">argv</td><td>Argument list (None: sys.argv[1:]). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A tuple containing (config, args) where config is a <a class="el" href="../../db/df9/classFiberPackingConfig.html" title="Data structure centralising all simulation parameters.">FiberPackingConfig</a> instance and args is the raw argparse Namespace. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ab90373364b3694439f5e4cba22d357a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab90373364b3694439f5e4cba22d357a2">&#9670;&nbsp;</a></span>EXPORT_ARGUMENTS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cli.EXPORT_ARGUMENTS</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;=  (<span class="stringliteral">&#39;output&#39;</span>, <span class="stringliteral">&#39;no_mesh&#39;</span>, <span class="stringliteral">&#39;res_mesh&#39;</span>, <span class="stringliteral">&#39;res_fft&#39;</span>, <span class="stringliteral">&#39;periodic_mesh&#39;</span>, <span class="stringliteral">&#39;no_adaptive_mesh&#39;</span>,</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;                    <span class="stringliteral">&#39;nastran&#39;</span>, <span class="stringliteral">&#39;abaqus&#39;</span>, <span class="stringliteral">&#39;res_abaqus&#39;</span>, <span class="stringliteral">&#39;abaqus_no_pbc&#39;</span>, <span class="stringliteral">&#39;no_spatial_stats&#39;</span>)</div>
+</div><!-- fragment -->
+<p>CLI arguments that only control the exports. </p>
+<p>They may be overridden when the exports are regenerated from a parametric record (<a class="el" href="../../d4/dcd/regenerate_8py.html" title="Regenerates every export of an RVE from its parametric record, without re-running placement.">regenerate.py</a>); every other argument is fixed by the record because it shapes the geometry. </p>
 
 </div>
 </div>
@@ -129,7 +216,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/dc6/cli_8py.html">cli.py</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

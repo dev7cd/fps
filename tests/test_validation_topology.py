@@ -38,20 +38,20 @@ class TestCheckClearance:
         assert gap < 0
 
     def test_single_fiber(self):
-        """Une seule fibre : mesurée contre ses propres images périodiques."""
+        """A single fiber: measured against its own periodic images."""
         f1 = _make_fiber(1, [[0, 0, 0], [1, 0, 0]], 0.05)
         validator = TopologyValidator((2.0, 2.0, 2.0))
         gap = validator.check_clearance([f1])
-        # Image la plus proche à 1.0 (segment x in [0,1], copie x in [2,3])
+        # Closest image at 1.0 (segment x in [0,1], copy x in [2,3])
         assert gap == pytest.approx(1.0 - 0.1)
 
     def test_self_image_intersection_detected(self):
-        """Une fibre qui traverse la boîte touche son image : gap < 0."""
+        """A fiber crossing the box touches its own image: gap < 0."""
         f1 = _make_fiber(1, [[0.1, 0.5, 0.5], [0.99, 0.5, 0.5]], 0.05)
         validator = TopologyValidator((1.0, 1.0, 1.0))
         gap = validator.check_clearance([f1])
-        # Extrémités distantes de 0.11 par la face x : 0.11 < 2 * 0.05 est faux,
-        # mais la fibre est à 0.11 de son image -> gap = 0.11 - 0.1
+        # Ends 0.11 apart through the x face: 0.11 < 2 * 0.05 is false,
+        # but the fiber is 0.11 away from its image -> gap = 0.11 - 0.1
         assert gap == pytest.approx(0.11 - 0.1, abs=1e-9)
 
 

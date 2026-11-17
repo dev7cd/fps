@@ -1,5 +1,7 @@
 var classtests_1_1test__detector__math_1_1TestCheckCollisionNumba =
 [
+    [ "test_clearance_defaults_to_zero", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a56b9aa2de3da72a19de78cbdfc909803", null ],
+    [ "test_clearance_is_enforced", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a99774d63cfec80dc5f0b8c8689295a03", null ],
     [ "test_collision_crossing_fibers", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#af69365ecea1f2b9e8f1583bc6157de49", null ],
     [ "test_collision_depends_on_radius", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a6df3f9a194ca0aa70f8422ec65d08550", null ],
     [ "test_multipoint_polyline", "d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a50a4c61158ac2a4b9d1467492ebef190", null ],

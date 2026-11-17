@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Fiber Packing System
-   &#160;<span id="projectnumber">v6.1</span>
+   &#160;<span id="projectnumber">v7.0.0</span>
    </div>
    <div id="projectbrief">3D Microstructure Generator for Fiber Composites</div>
   </td>
@@ -108,11 +108,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b1e136d75edb0092d581f8dc54fd6ca"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a4b1e136d75edb0092d581f8dc54fd6ca">__init__</a> (self, int fiber_id, np.ndarray <a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab8cef89dcb4d152d1c74d3b909b25f9d">control_points</a>, float <a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ae7333ba6d3d3774a0d67ed301632159b">radius</a>, Dict config_params, **kwargs)</td></tr>
 <tr class="memdesc:a4b1e136d75edb0092d581f8dc54fd6ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of the <a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html" title="Represents a fiber with its trajectory, cross-section and geometric properties.">Fiber</a> class.  <a href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a4b1e136d75edb0092d581f8dc54fd6ca">More...</a><br /></td></tr>
 <tr class="separator:a4b1e136d75edb0092d581f8dc54fd6ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a3f5f3e12541156c1bd22174d9a1810"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a1a3f5f3e12541156c1bd22174d9a1810">refresh_geometry</a> (self)</td></tr>
-<tr class="memdesc:a1a3f5f3e12541156c1bd22174d9a1810"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the derived geometric data.  <a href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a1a3f5f3e12541156c1bd22174d9a1810">More...</a><br /></td></tr>
-<tr class="separator:a1a3f5f3e12541156c1bd22174d9a1810"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a532a9a1d6545fc598c2d2b069cd420c0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a532a9a1d6545fc598c2d2b069cd420c0">refresh_geometry</a> (self, bool with_frames=True)</td></tr>
+<tr class="memdesc:a532a9a1d6545fc598c2d2b069cd420c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the derived geometric data.  <a href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a532a9a1d6545fc598c2d2b069cd420c0">More...</a><br /></td></tr>
+<tr class="separator:a532a9a1d6545fc598c2d2b069cd420c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab690d0481e4a25ea315a0e283ec158d5"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab690d0481e4a25ea315a0e283ec158d5">get_real_volume</a> (self)</td></tr>
-<tr class="memdesc:ab690d0481e4a25ea315a0e283ec158d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the real volume of the fiber.  <a href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab690d0481e4a25ea315a0e283ec158d5">More...</a><br /></td></tr>
+<tr class="memdesc:ab690d0481e4a25ea315a0e283ec158d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the real volume of the fiber without end caps.  <a href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab690d0481e4a25ea315a0e283ec158d5">More...</a><br /></td></tr>
 <tr class="separator:ab690d0481e4a25ea315a0e283ec158d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -242,13 +242,13 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Computes the real volume of the fiber. </p>
-<dl class="section return"><dt>Returns</dt><dd>float Volume based on the real section area and the curvilinear length. </dd></dl>
+<p>Computes the real volume of the fiber without end caps. </p>
+<p>The fiber is a finite cylinder/tube with flat end sections: volume = section area * curvilinear centerline length. </p><dl class="section return"><dt>Returns</dt><dd>float Volume based on the real section area and the curvilinear length. </dd></dl>
 
 </div>
 </div>
-<a id="a1a3f5f3e12541156c1bd22174d9a1810"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a3f5f3e12541156c1bd22174d9a1810">&#9670;&nbsp;</a></span>refresh_geometry()</h2>
+<a id="a532a9a1d6545fc598c2d2b069cd420c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a532a9a1d6545fc598c2d2b069cd420c0">&#9670;&nbsp;</a></span>refresh_geometry()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -257,14 +257,30 @@ Public Attributes</h2></td></tr>
           <td class="memname">def core.fiber.Fiber.refresh_geometry </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em></td><td>)</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">bool &#160;</td>
+          <td class="paramname"><em>with_frames</em> = <code>True</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Updates the derived geometric data. </p>
-<p>Computes the centerline by interpolation, generates the Bishop frames (T, N, B) and updates the bounding box. </p><dl class="section return"><dt>Returns</dt><dd>None </dd></dl>
+<p>Computes the centerline by interpolation, generates the Bishop frames (T, N, B) and updates the bounding box. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">with_frames</td><td>bool Recompute the Bishop frames. They cost an order of magnitude more than the centerline and are only needed for meshing and voxelisation, so the densification loop skips them and asks for a full refresh once the geometry has settled. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>None </dd></dl>
 
 </div>
 </div>
@@ -295,7 +311,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><b>core</b></li><li class="navelem"><b>fiber</b></li><li class="navelem"><a class="el" href="../../d9/d6e/classcore_1_1fiber_1_1Fiber.html">Fiber</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

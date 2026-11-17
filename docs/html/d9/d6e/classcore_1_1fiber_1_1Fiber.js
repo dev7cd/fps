@@ -2,7 +2,7 @@ var classcore_1_1fiber_1_1Fiber =
 [
     [ "__init__", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#a4b1e136d75edb0092d581f8dc54fd6ca", null ],
     [ "get_real_volume", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab690d0481e4a25ea315a0e283ec158d5", null ],
-    [ "refresh_geometry", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#a1a3f5f3e12541156c1bd22174d9a1810", null ],
+    [ "refresh_geometry", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#a532a9a1d6545fc598c2d2b069cd420c0", null ],
     [ "B", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#a927ae3ab51b2c547506f8dd077247a23", null ],
     [ "bbox", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#ad1573d7d8d098b83f5943e8b9384cb78", null ],
     [ "centerline", "d9/d6e/classcore_1_1fiber_1_1Fiber.html#af1445df93c61b48f42d77c5f9044d45d", null ],

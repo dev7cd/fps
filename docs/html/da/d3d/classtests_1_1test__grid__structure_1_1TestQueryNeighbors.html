@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Fiber Packing System
-   &#160;<span id="projectnumber">v6.1</span>
+   &#160;<span id="projectnumber">v7.0.0</span>
    </div>
    <div id="projectbrief">3D Microstructure Generator for Fiber Composites</div>
   </td>
@@ -95,7 +95,7 @@ Collaboration diagram for tests.test_grid_structure.TestQueryNeighbors:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/d14/classtests_1_1test__grid__structure_1_1TestQueryNeighbors__coll__graph.png" border="0" usemap="#atests_8test__grid__structure_8TestQueryNeighbors_coll__map" alt="Collaboration graph"/></div>
 <map name="atests_8test__grid__structure_8TestQueryNeighbors_coll__map" id="atests_8test__grid__structure_8TestQueryNeighbors_coll__map">
-<area shape="rect" title=" " alt="" coords="5,5,201,185"/>
+<area shape="rect" title=" " alt="" coords="5,5,217,273"/>
 </map>
 </div>
 <table class="memberdecls">
@@ -115,9 +115,78 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>test_no_neighbors_for_
 <tr class="memitem:a8a0fff2d880799b1c80ba73c728fe43d"><td class="memItemLeft" align="right" valign="top"><a id="a8a0fff2d880799b1c80ba73c728fe43d"></a>
 def&#160;</td><td class="memItemRight" valign="bottom"><b>test_empty_grid_returns_empty</b> (self)</td></tr>
 <tr class="separator:a8a0fff2d880799b1c80ba73c728fe43d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b4e840303cc6a3237041ebcda5e8881"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html#a5b4e840303cc6a3237041ebcda5e8881">test_root_and_ghost_are_both_returned</a> (self, simple_fiber_a, simple_fiber_b)</td></tr>
+<tr class="separator:a5b4e840303cc6a3237041ebcda5e8881"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac49f8c5df6946c913505dd5e376f858f"><td class="memItemLeft" align="right" valign="top"><a id="ac49f8c5df6946c913505dd5e376f858f"></a>
+def&#160;</td><td class="memItemRight" valign="bottom"><b>test_exclude_id_also_drops_ghosts</b> (self, simple_fiber_b)</td></tr>
+<tr class="separator:ac49f8c5df6946c913505dd5e376f858f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66565109bdf1630a914d9702ba80dce7"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html#a66565109bdf1630a914d9702ba80dce7">test_query_margin_widens_the_search</a> (self, simple_fiber_a)</td></tr>
+<tr class="separator:a66565109bdf1630a914d9702ba80dce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Checks the neighbourhood queries.</pre> </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a66565109bdf1630a914d9702ba80dce7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66565109bdf1630a914d9702ba80dce7">&#9670;&nbsp;</a></span>test_query_margin_widens_the_search()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def tests.test_grid_structure.TestQueryNeighbors.test_query_margin_widens_the_search </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>simple_fiber_a</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">A fiber sitting in the next cell is only reached once a margin is set.</pre> 
+</div>
+</div>
+<a id="a5b4e840303cc6a3237041ebcda5e8881"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b4e840303cc6a3237041ebcda5e8881">&#9670;&nbsp;</a></span>test_root_and_ghost_are_both_returned()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def tests.test_grid_structure.TestQueryNeighbors.test_root_and_ghost_are_both_returned </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>simple_fiber_a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>simple_fiber_b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">A ghost must not hide the root fiber it comes from (same parent_id).</pre> 
+</div>
+</div>
 <a id="a912ab8d1de9b9400fd243c6d332a6a14"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a912ab8d1de9b9400fd243c6d332a6a14">&#9670;&nbsp;</a></span>test_unique_results()</h2>
 
@@ -160,8 +229,8 @@ def&#160;</td><td class="memItemRight" valign="bottom"><b>test_empty_grid_return
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>tests</b></li><li class="navelem"><a class="el" href="../../d4/dff/namespacetests_1_1test__grid__structure.html">test_grid_structure</a></li><li class="navelem"><a class="el" href="../../da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html">TestQueryNeighbors</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="navelem"><b>tests</b></li><li class="navelem"><b>test_grid_structure</b></li><li class="navelem"><a class="el" href="../../da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html">TestQueryNeighbors</a></li>
+    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

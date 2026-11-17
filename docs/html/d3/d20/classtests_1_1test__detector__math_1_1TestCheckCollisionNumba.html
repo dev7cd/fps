@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Fiber Packing System
-   &#160;<span id="projectnumber">v6.1</span>
+   &#160;<span id="projectnumber">v7.0.0</span>
    </div>
    <div id="projectbrief">3D Microstructure Generator for Fiber Composites</div>
   </td>
@@ -95,7 +95,7 @@ Collaboration diagram for tests.test_detector_math.TestCheckCollisionNumba:</div
 <div class="dyncontent">
 <div class="center"><img src="../../d4/d52/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba__coll__graph.png" border="0" usemap="#atests_8test__detector__math_8TestCheckCollisionNumba_coll__map" alt="Collaboration graph"/></div>
 <map name="atests_8test__detector__math_8TestCheckCollisionNumba_coll__map" id="atests_8test__detector__math_8TestCheckCollisionNumba_coll__map">
-<area shape="rect" title=" " alt="" coords="5,5,241,200"/>
+<area shape="rect" title=" " alt="" coords="5,5,241,244"/>
 </map>
 </div>
 <table class="memberdecls">
@@ -111,9 +111,49 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a50a4c61158ac2a4b9d1467492ebef190"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1fdc189ae5e80fd1b1b897cf04b2a90d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a1fdc189ae5e80fd1b1b897cf04b2a90d">test_single_point_polyline</a> (self)</td></tr>
 <tr class="separator:a1fdc189ae5e80fd1b1b897cf04b2a90d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99774d63cfec80dc5f0b8c8689295a03"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a99774d63cfec80dc5f0b8c8689295a03">test_clearance_is_enforced</a> (self)</td></tr>
+<tr class="separator:a99774d63cfec80dc5f0b8c8689295a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56b9aa2de3da72a19de78cbdfc909803"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html#a56b9aa2de3da72a19de78cbdfc909803">test_clearance_defaults_to_zero</a> (self)</td></tr>
+<tr class="separator:a56b9aa2de3da72a19de78cbdfc909803"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Tests of the collision detection between polylines.</pre> </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a56b9aa2de3da72a19de78cbdfc909803"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56b9aa2de3da72a19de78cbdfc909803">&#9670;&nbsp;</a></span>test_clearance_defaults_to_zero()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def tests.test_detector_math.TestCheckCollisionNumba.test_clearance_defaults_to_zero </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Omitting the clearance keeps the plain non-intersection criterion.</pre> 
+</div>
+</div>
+<a id="a99774d63cfec80dc5f0b8c8689295a03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99774d63cfec80dc5f0b8c8689295a03">&#9670;&nbsp;</a></span>test_clearance_is_enforced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def tests.test_detector_math.TestCheckCollisionNumba.test_clearance_is_enforced </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Two parallel fibers with a 0.1 surface gap: rejected as soon as clearance &gt; 0.1.</pre> 
+</div>
+</div>
 <a id="af69365ecea1f2b9e8f1583bc6157de49"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af69365ecea1f2b9e8f1583bc6157de49">&#9670;&nbsp;</a></span>test_collision_crossing_fibers()</h2>
 
@@ -212,8 +252,8 @@ Public Member Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>tests</b></li><li class="navelem"><a class="el" href="../../d9/d94/namespacetests_1_1test__detector__math.html">test_detector_math</a></li><li class="navelem"><a class="el" href="../../d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html">TestCheckCollisionNumba</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="navelem"><b>tests</b></li><li class="navelem"><b>test_detector_math</b></li><li class="navelem"><a class="el" href="../../d3/d20/classtests_1_1test__detector__math_1_1TestCheckCollisionNumba.html">TestCheckCollisionNumba</a></li>
+    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

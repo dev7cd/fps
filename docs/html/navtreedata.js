@@ -25,14 +25,6 @@
 var NAVTREE =
 [
   [ "Fiber Packing System", "index.html", [
-    [ "Packages", "namespaces.html", [
-      [ "Packages", "namespaces.html", "namespaces_dup" ],
-      [ "Package Functions", "namespacemembers.html", [
-        [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ],
-        [ "Variables", "namespacemembers_vars.html", null ]
-      ] ]
-    ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -51,8 +43,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
-"da/d3d/classtests_1_1test__grid__structure_1_1TestQueryNeighbors.html"
+"annotated.html",
+"db/d73/classtests_1_1test__geometry__sections_1_1TestSuperEllipticalSection.html#af8c15b97fbc0e4d7a5bd15054fea1ca2"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

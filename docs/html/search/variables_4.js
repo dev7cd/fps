@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['is_5fghost_413',['is_ghost',['../d9/d6e/classcore_1_1fiber_1_1Fiber.html#ab936a82845ababb165793386087c4ac5',1,'core::fiber::Fiber']]]
+  ['fiber_5fmetrics_407',['fiber_metrics',['../df/dd1/classvisualization_1_1descriptors_1_1AD__PCA__Analyzer.html#a5c1d31e864e95cb2ad80512cdbf0c1de',1,'visualization::descriptors::AD_PCA_Analyzer']]],
+  ['format_408',['format',['../dc/dba/main_8py.html#af28ad53e07d4045ebedc461fd2e506a4',1,'main']]]
 ];

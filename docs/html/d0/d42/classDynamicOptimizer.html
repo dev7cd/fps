@@ -26,7 +26,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Fiber Packing System
-   &#160;<span id="projectnumber">v6.1</span>
+   &#160;<span id="projectnumber">v7.0.0</span>
    </div>
    <div id="projectbrief">3D Microstructure Generator for Fiber Composites</div>
   </td>
@@ -88,19 +88,23 @@ $(document).ready(function(){initNavTree('d0/d42/classDynamicOptimizer.html','..
 </div><!--header-->
 <div class="contents">
 
-<p>Handles the post-generation densification of the fibers.  
+<p>Densifies an RVE past the sequential-adsorption limit.  
  <a href="../../d0/d42/classDynamicOptimizer.html#details">More...</a></p>
 <div class="dynheader">
 Collaboration diagram for DynamicOptimizer:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d1/dde/classDynamicOptimizer__coll__graph.png" border="0" usemap="#aDynamicOptimizer_coll__map" alt="Collaboration graph"/></div>
 <map name="aDynamicOptimizer_coll__map" id="aDynamicOptimizer_coll__map">
-<area shape="rect" title="Handles the post&#45;generation densification of the fibers." alt="" coords="5,5,149,83"/>
+<area shape="rect" title="Densifies an RVE past the sequential&#45;adsorption limit." alt="" coords="5,5,149,83"/>
 </map>
 </div>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Handles the post-generation densification of the fibers. </p>
-<p>This class increases the volume fraction (Vf) by iteratively moving the existing fibers to create space for new injections. </p>
+<div class="textblock"><p>Densifies an RVE past the sequential-adsorption limit. </p>
+<p>Alternates two steps until the target volume fraction is reached:</p><ol type="1">
+<li>insertion of a batch of fibers, overlaps allowed;</li>
+<li>force-biased relaxation that removes every overlap, honouring the configured minimum clearance and the periodic boundaries.</li>
+</ol>
+<p>A round that cannot be relaxed is rolled back, so the returned configuration is always free of intersections. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>generation/optimizer_dynamic.py</li>
 </ul>
@@ -110,7 +114,7 @@ Collaboration diagram for DynamicOptimizer:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d42/classDynamicOptimizer.html">DynamicOptimizer</a></li>
-    <li class="footer">Generated on Sat Jul 11 2026 18:25:10 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

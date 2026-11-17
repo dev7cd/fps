@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['basesection_6',['BaseSection',['../de/d74/classBaseSection.html',1,'']]],
-  ['build_5fcommand_7',['build_command',['../d9/d8c/namespacerun__campaign.html#ae1f247ee933da6b2f5310bf98b7157c3',1,'run_campaign.build_command()'],['../d9/d52/namespacerun__campaign__short.html#a3392a8f549680cc1588feaf42c602cfe',1,'run_campaign_short.build_command()']]]
+  ['basesection_12',['BaseSection',['../de/d74/classBaseSection.html',1,'']]],
+  ['build_5fparser_13',['build_parser',['../d7/dc6/cli_8py.html#aa04677cbe3be4e22236aa7dd86c4d382',1,'cli']]],
+  ['build_5frecord_14',['build_record',['../d5/df2/geometric__audit_8py.html#a640cd4aae96d5cf0b94abe6211be3ba2',1,'validation::geometric_audit']]]
 ];

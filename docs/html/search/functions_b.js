@@ -1,6 +1,11 @@
 var searchData=
 [
-  ['refresh_5fgeometry_343',['refresh_geometry',['../d9/d6e/classcore_1_1fiber_1_1Fiber.html#a1a3f5f3e12541156c1bd22174d9a1810',1,'core::fiber::Fiber']]],
-  ['ripley_5fk_5ffunction_344',['ripley_k_function',['../dd/de0/statistics_8py.html#a8a2098141d34c5e9b63486895cccde0f',1,'validation::statistics']]],
-  ['run_5fsingle_345',['run_single',['../d9/d8c/namespacerun__campaign.html#a87bf44d727ef70ed7b2fe6e3d48117ec',1,'run_campaign.run_single()'],['../d9/d52/namespacerun__campaign__short.html#ab34a7e76168c01b8eb80cf713de8ac85',1,'run_campaign_short.run_single()']]]
+  ['pair_5fcorrelation_5ffunction_321',['pair_correlation_function',['../dd/de0/statistics_8py.html#afbf98e2077bde0ced04e22cd022e19d4',1,'validation::statistics']]],
+  ['parse_5fargs_322',['parse_args',['../d7/dc6/cli_8py.html#accf7f0d49cc2a6ed017cf0d5c0689502',1,'cli']]],
+  ['parse_5foverrides_323',['parse_overrides',['../d4/dcd/regenerate_8py.html#a46861c4c7c165b995b458edae689ece2',1,'regenerate']]],
+  ['perform_5fviability_5faudit_324',['perform_viability_audit',['../dc/d1a/classvisualization_1_1analyzer_1_1RVE__Analyzer.html#ac8bf491debce9867346f791a34079815',1,'visualization::analyzer::RVE_Analyzer']]],
+  ['periodic_5fpolyline_5fdistance_325',['periodic_polyline_distance',['../d4/d8d/audit__distance_8py.html#a15d7fec8aad02a7c20edeae1601e44f3',1,'validation::audit_distance']]],
+  ['plot_5fanalysis_5freport_326',['plot_analysis_report',['../df/d74/classvisualization_1_1plotter_1_1Visualizer.html#a7ec7fb62bb25374e29f6a1613b1351b4',1,'visualization::plotter::Visualizer']]],
+  ['plot_5frve_327',['plot_rve',['../df/d74/classvisualization_1_1plotter_1_1Visualizer.html#a2957fe92c42251afd3d370e4a4b322ea',1,'visualization::plotter::Visualizer']]],
+  ['point_5fsegment_5fdistance_328',['point_segment_distance',['../d4/d8d/audit__distance_8py.html#a57f901174e5dfaebdaae4ba1f70b6134',1,'validation::audit_distance']]]
 ];

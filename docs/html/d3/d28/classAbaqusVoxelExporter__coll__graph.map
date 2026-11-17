@@ -1,0 +1,3 @@
+<map id="AbaqusVoxelExporter" name="AbaqusVoxelExporter">
+<area shape="rect" id="node1" title="Writes a voxel grid as an Abaqus part (C3D8 elements, phase and face sets)." alt="" coords="5,5,165,83"/>
+</map>
