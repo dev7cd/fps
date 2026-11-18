@@ -24,6 +24,8 @@ doxygen_warnings.log
 # Generated RVE outputs
 RVE_*/
 *_parametric.json
+# ... except the records of the article examples, which are part of the repository
+!examples/*_parametric.json
 *_roots.csv
 *_full_periodic.csv
 *_voxelmap.npy
