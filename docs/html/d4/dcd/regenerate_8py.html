@@ -129,10 +129,13 @@ Variables</h2></td></tr>
 <tr class="memitem:a3edefde1676f8ad5cbe7752e9381e83d"><td class="memItemLeft" align="right" valign="top"><a id="a3edefde1676f8ad5cbe7752e9381e83d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>regenerate.logger</b> = logging.getLogger(&quot;RVE_Regenerate&quot;)</td></tr>
 <tr class="separator:a3edefde1676f8ad5cbe7752e9381e83d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9328114028287411297c2b699c457182"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/dcd/regenerate_8py.html#a9328114028287411297c2b699c457182">regenerate.REAL_VOLUME_RTOL</a> = 1e-9</td></tr>
+<tr class="memdesc:a9328114028287411297c2b699c457182"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative tolerance on the fiber volume recomputed from the spline.  <a href="../../d4/dcd/regenerate_8py.html#a9328114028287411297c2b699c457182">More...</a><br /></td></tr>
+<tr class="separator:a9328114028287411297c2b699c457182"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Regenerates every export of an RVE from its parametric record, without re-running placement. </p>
-<p>The record <code>&lt;prefix&gt;_parametric.json</code> written by <a class="el" href="../../dc/dba/main_8py.html" title="Main orchestrator for the Fiber Packing System (FPS).">main.py</a> stores the complete CLI argument set, the control points and radius of every fiber, and the pores. This tool rebuilds the configuration and the geometry from it, checks that the rebuilt fibers are bit-identical to the audited ones (SHA-256 of <code>microstructure_data</code>), re-runs the blocking geometric audit, and writes the statistics, CSV, voxel field, PGM slices, CAD/mesh and optional Nastran/Abaqus files.</p>
+<p>The record <code>&lt;prefix&gt;_parametric.json</code> written by <a class="el" href="../../dc/dba/main_8py.html" title="Main orchestrator for the Fiber Packing System (FPS).">main.py</a> stores the complete CLI argument set, the control points and radius of every fiber, and the pores. This tool rebuilds the configuration and the geometry from it, checks that the record is the audited one (SHA-256 of <code>microstructure_data</code>) and that the rebuilt fibers have exactly its control points and radii, re-runs the blocking geometric audit, and writes the statistics, CSV, voxel field, PGM slices, CAD/mesh and optional Nastran/Abaqus files.</p>
 <p>Only export options may differ from the original run, for example a finer voxel grid: </p><pre class="fragment">python regenerate.py RVE_parametric.json --res_fft 512 --no_mesh --output RVE_512
 </pre><p> Arguments that shape the geometry (&ndash;vf, &ndash;radius, &ndash;seed, ...) are fixed by the record. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -163,14 +166,14 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Checks that the rebuilt fibers are those audited in the original run. </p>
-<p>Compares the canonical SHA-256 of <code>microstructure_data</code> with the one stored in the validity block of the record. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>The canonical SHA-256 of the stored <code>microstructure_data</code> must equal the one of the validity block, which detects any change to the record. The rebuilt fibers must then carry exactly the stored ids, control points and radii. Their volume is recomputed from the spline and is compared with the stored value up to REAL_VOLUME_RTOL, since its last bits depend on the platform. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">record</td><td>Parametric record. </td></tr>
     <tr><td class="paramname">fibers</td><td>Rebuilt fibers. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>str The hash of the rebuilt geometry. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>str The hash of the audited geometry. </dd></dl>
 
 </div>
 </div>
@@ -358,13 +361,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a9328114028287411297c2b699c457182"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9328114028287411297c2b699c457182">&#9670;&nbsp;</a></span>REAL_VOLUME_RTOL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int regenerate.REAL_VOLUME_RTOL = 1e-9</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Relative tolerance on the fiber volume recomputed from the spline. </p>
+<p>The volume is a derived quantity: NumPy reductions round differently from one CPU to another (for instance with the NEON instructions of arm64), so it can differ from the stored value in its last bits. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d4/dcd/regenerate_8py.html">regenerate.py</a></li>
-    <li class="footer">Generated on Tue Nov 17 2026 19:32:33 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Nov 18 2026 19:07:34 for Fiber Packing System by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

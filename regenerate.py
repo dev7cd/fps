@@ -5,8 +5,9 @@
 #  @brief Regenerates every export of an RVE from its parametric record, without re-running placement.
 #  @details The record `<prefix>_parametric.json` written by main.py stores the complete CLI argument
 #  set, the control points and radius of every fiber, and the pores. This tool rebuilds the
-#  configuration and the geometry from it, checks that the rebuilt fibers are bit-identical to the
-#  audited ones (SHA-256 of `microstructure_data`), re-runs the blocking geometric audit, and writes
+#  configuration and the geometry from it, checks that the record is the audited one (SHA-256 of
+#  `microstructure_data`) and that the rebuilt fibers have exactly its control points and radii,
+#  re-runs the blocking geometric audit, and writes
 #  the statistics, CSV, voxel field, PGM slices, CAD/mesh and optional Nastran/Abaqus files.
 #
 #  Only export options may differ from the original run, for example a finer voxel grid:
@@ -18,6 +19,7 @@
 import argparse
 import json
 import logging
+import math
 import sys
 import time
 from pathlib import Path
@@ -30,6 +32,11 @@ from core.void import Void
 from validation import geometric_audit
 
 logger = logging.getLogger("RVE_Regenerate")
+
+## Relative tolerance on the fiber volume recomputed from the spline. The volume is a derived
+#  quantity: NumPy reductions round differently from one CPU to another (for instance with the
+#  NEON instructions of arm64), so it can differ from the stored value in its last bits.
+REAL_VOLUME_RTOL = 1e-9
 
 
 class RecordError(ValueError):
@@ -92,17 +99,36 @@ def voids_from_record(record):
 def check_same_geometry(record, fibers):
     """!
     @brief Checks that the rebuilt fibers are those audited in the original run.
-    @details Compares the canonical SHA-256 of `microstructure_data` with the one stored in the
-    validity block of the record.
+    @details The canonical SHA-256 of the stored `microstructure_data` must equal the one of the
+    validity block, which detects any change to the record. The rebuilt fibers must then carry
+    exactly the stored ids, control points and radii. Their volume is recomputed from the spline
+    and is compared with the stored value up to REAL_VOLUME_RTOL, since its last bits depend on
+    the platform.
     @param record Parametric record.
     @param fibers Rebuilt fibers.
-    @return str The hash of the rebuilt geometry.
+    @return str The hash of the audited geometry.
     """
-    rebuilt = geometric_audit.fibers_sha256(geometric_audit.microstructure_records(fibers))
+    stored_data = record["microstructure_data"]
+    sha = geometric_audit.fibers_sha256(stored_data)
     stored = (record.get("validity") or {}).get("fibers_sha256")
-    if stored is not None and stored != rebuilt:
-        raise RecordError(f"rebuilt geometry differs from the audited one (sha256 {rebuilt} != {stored}).")
-    return rebuilt
+    if stored is not None and stored != sha:
+        raise RecordError(f"microstructure_data differs from the audited geometry (sha256 {sha} != {stored}).")
+
+    rebuilt = geometric_audit.microstructure_records(fibers)
+    if len(rebuilt) != len(stored_data):
+        raise RecordError(f"{len(rebuilt)} fibers rebuilt for {len(stored_data)} in the record.")
+    for new, old in zip(rebuilt, stored_data):
+        same = (int(new["id"]) == int(old["id"]) and float(new["radius"]) == float(old["radius"])
+                and np.array_equal(np.asarray(new["control_points"], dtype=float),
+                                   np.asarray(old["control_points"], dtype=float)))
+        if not same:
+            raise RecordError(f"fiber {old['id']}: the rebuilt fiber differs from the record.")
+        volume = (old.get("geometry") or {}).get("real_volume")
+        if volume is not None and not math.isclose(new["geometry"]["real_volume"], volume,
+                                                   rel_tol=REAL_VOLUME_RTOL, abs_tol=0.0):
+            raise RecordError(f"fiber {old['id']}: rebuilt volume {new['geometry']['real_volume']!r} "
+                              f"differs from the stored {volume!r}.")
+    return sha
 
 
 def parse_overrides(argv):

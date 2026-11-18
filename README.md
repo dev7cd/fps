@@ -471,8 +471,10 @@ python gui.py      # or: fps-gui
 - **Seeded.** Every stochastic draw (placement, densification, pores) comes from
   generators seeded with `--seed`; without `--seed`, a seed is drawn from the
   operating system, logged and stored. Re-running the same command with the same
-  seed and FPS version reproduces the RVE bit for bit (checked by
-  `tests/test_reproducibility.py`).
+  seed and FPS version reproduces the RVE bit for bit on the same platform
+  (checked by `tests/test_reproducibility.py`). Floating-point rounding differs
+  slightly from one CPU to another, so an RVE is shared across machines through
+  its record.
 - **Complete record.** `{prefix}_parametric.json` stores the complete CLI
   argument set (`cli_arguments`), the FPS version and commit with the Python,
   NumPy, SciPy and Numba versions (`software`), the duration of each phase
@@ -480,8 +482,12 @@ python gui.py      # or: fps-gui
   statistics and the validity record with the SHA-256 of the audited geometry.
 - **Regeneration without placement.** `regenerate.py` rebuilds the
   configuration, the fibers and the pores from the record, checks that the
-  rebuilt geometry has the audited SHA-256, re-runs both blocking audits and
-  writes every export again. Only export options may change:
+  record has the audited SHA-256 and that the rebuilt fibers have exactly its
+  control points and radii, re-runs both blocking audits and writes every
+  export again. The fiber volumes recomputed from the splines may differ in
+  their last bits on another CPU and are compared with a relative tolerance of
+  1e-9, so a record written on Linux is regenerated on macOS or Windows (checked
+  by `tests/test_examples.py`). Only export options may change:
 
   ```bash
   python regenerate.py RVE_UD_30_parametric.json                       # same exports, prefix RVE_UD_30_regenerated

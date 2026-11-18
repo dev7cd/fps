@@ -106,11 +106,18 @@ d'aspect se règle avec `--min_pts`, `--max_pts`, `--step` et `--radius`.
 - Tous les tirages aléatoires (placement, densification, pores) viennent de
   générateurs initialisés par `--seed` ; sans `--seed`, une graine est tirée,
   affichée et enregistrée. Même commande, même graine et même version de FPS :
-  même VER, bit à bit (`tests/test_reproducibility.py`).
+  même VER, bit à bit, sur une même plateforme (`tests/test_reproducibility.py`).
+  Les arrondis flottants varient légèrement d'un processeur à l'autre ; pour
+  partager un VER entre machines, on partage donc son enregistrement.
 - `regenerate.py` reconstruit la configuration, les fibres et les pores depuis
-  le JSON paramétrique, vérifie le SHA-256 de la géométrie auditée, relance les
-  deux audits bloquants et réécrit tous les exports. Seules les options d'export
-  peuvent changer :
+  le JSON paramétrique, vérifie que l'enregistrement a le SHA-256 de la
+  géométrie auditée et que les fibres reconstruites ont exactement ses points de
+  contrôle et ses rayons, relance les deux audits bloquants et réécrit tous les
+  exports. Les volumes des fibres, recalculés à partir des splines, peuvent
+  différer dans leurs derniers bits sur un autre processeur : ils sont comparés
+  avec une tolérance relative de 1e-9, si bien qu'un enregistrement écrit sous
+  Linux se régénère sous macOS ou Windows (`tests/test_examples.py`). Seules les
+  options d'export peuvent changer :
 
   ```bash
   python regenerate.py RVE_UD_30_parametric.json --res_fft 512 --no_mesh --output RVE_UD_30_512

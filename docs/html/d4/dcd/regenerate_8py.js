@@ -8,5 +8,6 @@ var regenerate_8py =
     [ "namespace_from_record", "d4/dcd/regenerate_8py.html#a4477e27ead63584acd1a3b2d89edb68e", null ],
     [ "parse_overrides", "d4/dcd/regenerate_8py.html#a46861c4c7c165b995b458edae689ece2", null ],
     [ "voids_from_record", "d4/dcd/regenerate_8py.html#a34a7774e4a3bfab89a03be582a8d7c9f", null ],
-    [ "logger", "d4/dcd/regenerate_8py.html#a3edefde1676f8ad5cbe7752e9381e83d", null ]
+    [ "logger", "d4/dcd/regenerate_8py.html#a3edefde1676f8ad5cbe7752e9381e83d", null ],
+    [ "REAL_VOLUME_RTOL", "d4/dcd/regenerate_8py.html#a9328114028287411297c2b699c457182", null ]
 ];
